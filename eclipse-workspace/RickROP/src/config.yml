@@ -1,0 +1,22 @@
+#Seperate all blocked messages  with a '-' before it
+#Note: it is NOT case sensitive
+#The Rick Roll will trigger if a Player message contains a blocked message. 
+#(If "OP" is blocked, a player will be Rick Rolled if they say "Are you b-hopping?"
+blocked-messages:
+- Can I Has OP
+- Give Me OP
+- Give Me Staff
+- I want Staff
+- Can I Have OP
+- I Want OP
+- Op please
+- Please Op
+# Replacements
+#If Operator:Op is added and Give me Op is blocked, if somebody types Give Me Operator. The message will be blocked.
+synonyms:
+- Operator:Op
+- 4:A
+- 5:S
+- 0:O
+- 1:L
+- 3:E
