@@ -1,0 +1,29 @@
+name: ChatItemDisplay
+main: me.BingoRufus.ChatDisplay.Main
+description: Display items in chat with [i]
+api-version: 1.13
+author: BingoRufus
+version: 1.2.4
+commands:
+  viewitem:
+    description: See what item a player is displaying
+    usage: /<command> <player>
+  chatitemreload:
+    description: Reload the ChatItemDisplay config
+permissions:
+  ChatItemDisplay.*:
+    description: Parent node to all ChatItemDisplay permissions
+    default: false
+    children:
+      ChatItemDisplay.reload:
+        description: Reload the ChatItemDisplay config
+        default: false
+      ChatItemDisplay.display:
+        description: Display Items using one of the Triggers in the config.yml
+        default: true
+      ChatItemDisplay.cooldownbypass:
+        description: Bypass the display cooldown
+        default: false
+      ChatItemDisplay.blacklistbypass:
+        description: Display blacklisted items
+        default: false

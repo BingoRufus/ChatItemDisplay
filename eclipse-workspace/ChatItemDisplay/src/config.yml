@@ -1,0 +1,19 @@
+debug-mode: false #Can possibly determine why players arent able to display-items. Will send console messages.
+triggers: #These will determine when the item is displayed, they are not case sensitive
+- "[i]"
+- "[item]"
+- "[itemdisplay]"
+- "[displayitem]"
+messages:
+  display-format: "&6%player%&6 is displaying their &f%item%"
+  gui-format: "&a%player%&a's &cDisplayed Item"
+  missing-permission: "&cYou do not have permission to do that"
+  missing-permission-to-display: "&cYou do not have permission to display items"
+  black-listed-item: "&cYou cannot display this at item as it is blacklisted"
+  player-not-displaying-anything: "&cThat player isn't displaying anything" #when someone does /viewitem <player> and the <player> isn't displaying anything
+  cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
+use-nicks-in-display-message: true #Will also use any custom colors
+use-nicks-in-gui: true #Will also use any custom colors
+display-item-cooldown: 0 #Measured in seconds. Use 0 for no cooldown.
+blacklisted-items: #for help visit https://minecraftitemids.com/
+#- "minecraft:bedrock"
