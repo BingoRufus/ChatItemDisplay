@@ -1,4 +1,5 @@
 debug-mode: false #Can possibly determine why players arent able to display-items. Will send console messages.
+disable-update-checking: false
 triggers: #These will determine when the item is displayed, they are not case sensitive
 - "[i]"
 - "[item]"

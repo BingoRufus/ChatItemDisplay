@@ -36,11 +36,14 @@ public class ItemDisplayer implements Listener {
 	Main main;
 	boolean debug;
 	Inventory ShulkerBoxInventory;
+	String Version;
 
 	public ItemDisplayer(Main m) {
 		m.reloadConfig();
 		main = m;
 		debug = main.getConfig().getBoolean("debug-mode");
+		Version = Bukkit.getServer().getVersion().substring(Bukkit.getServer().getVersion().indexOf("(MC: ") + 5,
+				Bukkit.getServer().getVersion().indexOf(")"));
 	}
 
 	@EventHandler()
@@ -284,31 +287,27 @@ public class ItemDisplayer implements Listener {
 			if (e.getCurrentItem() == null)
 				return;
 			Player p = (Player) e.getWhoClicked();
-			Bukkit.getScheduler().runTask(main, new Runnable() {
-				public void run() {
 
-				}
-			});
 			if (!e.getClickedInventory().equals(p.getInventory())) {
 				if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
 					if (((BlockStateMeta) e.getCurrentItem().getItemMeta()).getBlockState() instanceof ShulkerBox) {
 						p.openInventory(DisplayedShulkerBox.get((Player) e.getInventory().getHolder()));
 					}
-					if (!main.getServer().getVersion().contains("1.13")) {
+				}
 
-						if (e.getCurrentItem().getType().equals(Material.WRITTEN_BOOK)) {
-							p.openBook(e.getCurrentItem());
-						}
-						if (e.getCurrentItem().getType().equals(Material.WRITABLE_BOOK)) {
-							ItemStack item = e.getCurrentItem();
-							BookMeta BookAndQuill = (BookMeta) item.getItemMeta();
-							BookAndQuill.setTitle("Your Mom");
-							BookAndQuill.setAuthor("Your Mom");
-							ItemStack WrittenBook = new ItemStack(Material.WRITTEN_BOOK);
-							WrittenBook.setItemMeta(BookAndQuill);
-							p.openBook(WrittenBook);
+				if (main.UpToDate(Version.split("[.]"), "1.14.2".split("[.]"))) {
+					if (e.getCurrentItem().getType().equals(Material.WRITTEN_BOOK)) {
+						p.openBook(e.getCurrentItem());
+					}
+					if (e.getCurrentItem().getType().equals(Material.WRITABLE_BOOK)) {
+						ItemStack item = e.getCurrentItem();
+						BookMeta BookAndQuill = (BookMeta) item.getItemMeta();
+						BookAndQuill.setTitle("Your Mom");
+						BookAndQuill.setAuthor("Your Mom");
+						ItemStack WrittenBook = new ItemStack(Material.WRITTEN_BOOK);
+						WrittenBook.setItemMeta(BookAndQuill);
+						p.openBook(WrittenBook);
 
-						}
 					}
 				}
 

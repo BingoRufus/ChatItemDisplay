@@ -29,7 +29,7 @@ public class UpdateChecker {
 				}
 
 			} catch (IOException e) {
-				this.plugin.getLogger().info("Can't find an update " + e.getMessage());
+				this.plugin.getLogger().warning("Unable to connect to Spigot to check for updates " + e.getMessage());
 			}
 
 		});
