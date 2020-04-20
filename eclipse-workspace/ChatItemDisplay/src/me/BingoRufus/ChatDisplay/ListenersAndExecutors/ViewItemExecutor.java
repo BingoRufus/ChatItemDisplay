@@ -18,6 +18,12 @@ public class ViewItemExecutor implements CommandExecutor {
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("viewitem")) {
+			if (main.getConfig().getBoolean("disable-gui")) {
+				sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+						main.getConfig().getString("messages.gui-disabled")));
+				return true;
+
+			}
 			if (!(sender instanceof Player)) {
 				sender.sendMessage(ChatColor.RED + "Only players can run this command");
 			}

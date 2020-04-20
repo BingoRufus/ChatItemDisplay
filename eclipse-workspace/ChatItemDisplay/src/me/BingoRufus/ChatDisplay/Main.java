@@ -17,9 +17,14 @@ public class Main extends JavaPlugin {
 	NewVersionDisplayer NewVer;
 	Main plugin;
 
+	/*
+	 * TODO: a /version command that shows java version server cversion etc auto
+	 * update config
+	 */
 	@Override
 	public void onEnable() {
 		plugin = this;
+
 		this.saveDefaultConfig();
 		reloadConfigVars();
 		this.getCommand("viewitem").setExecutor(new ViewItemExecutor(this));
@@ -74,7 +79,6 @@ public class Main extends JavaPlugin {
 
 		DisplayListener = new ItemDisplayer(this);
 		Bukkit.getPluginManager().registerEvents(DisplayListener, this);
-
 	}
 
 	public Boolean UpToDate(String cur[], String upd[]) {

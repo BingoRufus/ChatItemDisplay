@@ -5,6 +5,7 @@ triggers: #These will determine when the item is displayed, they are not case se
 - "[item]"
 - "[itemdisplay]"
 - "[displayitem]"
+disable-gui: false #Disable all the GUI's
 messages:
   display-format: "&6%player%&6 is displaying their &f%item%"
   gui-format: "&a%player%&a's &cDisplayed Item"
@@ -13,6 +14,7 @@ messages:
   black-listed-item: "&cYou cannot display this at item as it is blacklisted"
   player-not-displaying-anything: "&cThat player isn't displaying anything" #when someone does /viewitem <player> and the <player> isn't displaying anything
   cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
+  gui-disabled: "&cThis feature has been disabled"
 use-nicks-in-display-message: true #Will also use any custom colors
 use-nicks-in-gui: true #Will also use any custom colors
 display-item-cooldown: 0 #Measured in seconds. Use 0 for no cooldown.

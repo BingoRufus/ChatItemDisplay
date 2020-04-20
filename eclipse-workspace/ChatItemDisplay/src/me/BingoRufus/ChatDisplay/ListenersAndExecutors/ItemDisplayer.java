@@ -62,7 +62,7 @@ public class ItemDisplayer implements Listener {
 				if (debug)
 					Bukkit.getLogger().info(e.getPlayer().getName() + "'s message contains an item display trigger");
 
-				ItemStack HeldItem = e.getPlayer().getInventory().getItemInMainHand();
+				ItemStack HeldItem = e.getPlayer().getInventory().getItemInMainHand().clone();
 				String ItemInfo = null;
 				String ItemName = null;
 				if (HeldItem.getItemMeta() == null) {
@@ -162,7 +162,6 @@ public class ItemDisplayer implements Listener {
 				}
 
 				// ENCHANTS
-
 				if (HeldItem.getItemMeta().hasEnchants()) {
 					Map<Enchantment, Integer> enchants = HeldItem.getItemMeta().getEnchants();
 					for (Enchantment ench : HeldItem.getItemMeta().getEnchants().keySet()) {
@@ -227,10 +226,16 @@ public class ItemDisplayer implements Listener {
 				Inventory DisplayGUI = Bukkit.createInventory(e.getPlayer(), 9,
 						ChatColor.translateAlternateColorCodes('&', main.getConfig().getString("messages.gui-format"))
 								.replace("%player%", GUIName));
+				if (debug)
+					Bukkit.getLogger().info("GUI has been created");
+
 				DisplayGUI.setItem(4, HeldItem);
+
+				if (debug)
+					Bukkit.getLogger().info("Added item to GUI");
 				resetViews(e.getPlayer(), DisplayGUI);
 				if (debug)
-					Bukkit.getLogger().info("GUIs have been created");
+					Bukkit.getLogger().info("Closed all open inventories of player's GUI");
 				if (ShulkerBoxInventory != null) {
 					DisplayedShulkerBox.put(e.getPlayer(), ShulkerBoxInventory);
 
@@ -295,17 +300,33 @@ public class ItemDisplayer implements Listener {
 					}
 				}
 
-				if (main.UpToDate(Version.split("[.]"), "1.14.2".split("[.]"))) {
+				if (main.UpToDate(Version.split("[.]"), "1.14.2".split("[.]"))) { // The player.openBook() was added in
+																					// Spigot for version 1.14.2 this
+																					// checks to make sure the version
+																					// is past 1.14.2
+
 					if (e.getCurrentItem().getType().equals(Material.WRITTEN_BOOK)) {
-						p.openBook(e.getCurrentItem());
+						BookMeta bm = (BookMeta) e.getCurrentItem().getItemMeta().clone();
+
+						if (bm.getPages().isEmpty()) {
+							bm.setPages("");
+						}
+						ItemStack book = e.getCurrentItem().clone();
+						book.setItemMeta(bm);
+						p.closeInventory();
+						p.openBook(book);
 					}
 					if (e.getCurrentItem().getType().equals(Material.WRITABLE_BOOK)) {
-						ItemStack item = e.getCurrentItem();
+						ItemStack item = e.getCurrentItem().clone();
 						BookMeta BookAndQuill = (BookMeta) item.getItemMeta();
 						BookAndQuill.setTitle("Your Mom");
 						BookAndQuill.setAuthor("Your Mom");
 						ItemStack WrittenBook = new ItemStack(Material.WRITTEN_BOOK);
+						if (BookAndQuill.getPages().isEmpty()) {
+							BookAndQuill.setPages("");
+						}
 						WrittenBook.setItemMeta(BookAndQuill);
+						p.closeInventory();
 						p.openBook(WrittenBook);
 
 					}
@@ -320,6 +341,8 @@ public class ItemDisplayer implements Listener {
 			if (DisplayedItem.values().contains(p.getOpenInventory().getTopInventory())) {
 				if (player.equals((Player) p.getOpenInventory().getTopInventory().getHolder())) {
 					p.openInventory(DisplayGUI);
+					if (debug)
+						Bukkit.getLogger().info("Opened update inventory for " + player.getName());
 				}
 
 			}
