@@ -258,9 +258,8 @@ public class ItemDisplayer implements Listener {
 					DisplayItemCooldowns.put(e.getPlayer().getUniqueId(), System.currentTimeMillis());
 				}
 				e.setCancelled(true);
-
+				break;
 			}
-			break;
 		}
 
 	}

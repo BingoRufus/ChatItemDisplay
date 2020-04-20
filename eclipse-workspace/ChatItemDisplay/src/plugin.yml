@@ -1,9 +1,9 @@
 name: ChatItemDisplay
 main: me.BingoRufus.ChatDisplay.Main
-description: Display items in chat with [i]
+description: Display items in Chat
 api-version: 1.13
 author: BingoRufus
-version: 1.2.7
+version: 1.2.8
 commands:
   viewitem:
     description: See what item a player is displaying
