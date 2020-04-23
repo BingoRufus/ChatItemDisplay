@@ -3,13 +3,16 @@ main: me.BingoRufus.ChatDisplay.Main
 description: Display items in Chat
 api-version: 1.13
 author: BingoRufus
-version: 1.2.8
+version: 1.2.9
 commands:
   viewitem:
     description: See what item a player is displaying
     usage: /<command> <player>
   chatitemreload:
     description: Reload the ChatItemDisplay config
+  displayitem:
+    description: Display your items in chat
+    aliases: [display]
 permissions:
   ChatItemDisplay.*:
     description: Parent node to all ChatItemDisplay permissions

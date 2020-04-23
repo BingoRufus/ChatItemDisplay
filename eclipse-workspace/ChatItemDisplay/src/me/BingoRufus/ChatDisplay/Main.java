@@ -6,6 +6,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatItemReloadExecutor;
+import me.BingoRufus.ChatDisplay.ListenersAndExecutors.DisplayCommandExecutor;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ItemDisplayer;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.NewVersionDisplayer;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ViewItemExecutor;
@@ -30,6 +31,7 @@ public class Main extends JavaPlugin {
 		this.getCommand("viewitem").setExecutor(new ViewItemExecutor(this));
 		this.getCommand("chatitemreload").setExecutor(new ChatItemReloadExecutor(this));
 		new Metrics(this, 7229);
+		this.getCommand("displayitem").setExecutor(new DisplayCommandExecutor(this));
 
 	}
 
@@ -116,4 +118,5 @@ public class Main extends JavaPlugin {
 
 		return false;
 	}
+
 }
