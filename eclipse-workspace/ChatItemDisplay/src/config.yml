@@ -15,6 +15,7 @@ messages:
   player-not-displaying-anything: "&cThat player isn't displaying anything" #when someone does /viewitem <player> and the <player> isn't displaying anything
   cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
   gui-disabled: "&cThis feature has been disabled"
+  not-holding-anything: "&cYou are not holding anything"
 use-nicks-in-display-message: true #Will also use any custom colors
 use-nicks-in-gui: true #Will also use any custom colors
 display-item-cooldown: 0 #Measured in seconds. Use 0 for no cooldown.

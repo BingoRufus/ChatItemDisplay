@@ -10,6 +10,7 @@ import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
@@ -89,21 +90,21 @@ public class Display {
 		} else {
 			EndMsg.setText("");
 		}
+		if (!HeldItem.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_ENCHANTS)) {
+			// ENCHANTS
+			if (HeldItem.getItemMeta().hasEnchants()) {
+				Map<Enchantment, Integer> enchants = HeldItem.getItemMeta().getEnchants();
+				for (Enchantment ench : HeldItem.getItemMeta().getEnchants().keySet()) {
 
-		// ENCHANTS
-		if (HeldItem.getItemMeta().hasEnchants()) {
-			Map<Enchantment, Integer> enchants = HeldItem.getItemMeta().getEnchants();
-			for (Enchantment ench : HeldItem.getItemMeta().getEnchants().keySet()) {
-				if (ench.getKey().getKey().toString().equals("lure") && enchants.get(ench) == 1
-						&& !ench.canEnchantItem(HeldItem))
-					continue;
-				ItemInfo = ItemInfo + "\n" + ChatColor.GRAY
-						+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString()) + " "
-						+ enchants.get(ench).toString();
+					ItemInfo = ItemInfo + "\n" + ChatColor.GRAY
+							+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString()) + " "
+							+ enchants.get(ench).toString();
+
+				}
 			}
+			if (debug)
+				Bukkit.getLogger().info("Enchants have been created");
 		}
-		if (debug)
-			Bukkit.getLogger().info("Enchants have been created");
 		if (HeldItem.getItemMeta() instanceof BlockStateMeta) {
 			BlockStateMeta im = (BlockStateMeta) HeldItem.getItemMeta();
 			if (im.getBlockState() instanceof ShulkerBox) {
@@ -120,6 +121,7 @@ public class Display {
 					if (!(i == null))
 						Contents.add(i);
 				}
+
 				if (debug)
 					Bukkit.getLogger()
 							.info("Shulker box contents have been saved, there are " + Contents.size() + " items");
@@ -140,16 +142,17 @@ public class Display {
 
 			}
 		}
-		// LORE
-		if (HeldItem.getItemMeta().hasLore()) {
-			List<String> lore = HeldItem.getItemMeta().getLore();
-			for (int i = 0; i < lore.size(); i++) {
-				ItemInfo = ItemInfo + "\n" + ChatColor.DARK_PURPLE + "" + ChatColor.ITALIC + lore.get(i);
+		if (!HeldItem.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_ATTRIBUTES)) {
+			// LORE
+			if (HeldItem.getItemMeta().hasLore()) {
+				List<String> lore = HeldItem.getItemMeta().getLore();
+				for (int i = 0; i < lore.size(); i++) {
+					ItemInfo = ItemInfo + "\n" + ChatColor.DARK_PURPLE + "" + ChatColor.ITALIC + lore.get(i);
+				}
 			}
+			if (debug)
+				Bukkit.getLogger().info("Lore has been created");
 		}
-		if (debug)
-			Bukkit.getLogger().info("Lore has been created");
-
 		// Create Item Display GUI
 
 		Inventory DisplayGUI = Bukkit.createInventory(p, 9,
@@ -198,4 +201,5 @@ public class Display {
 		}
 
 	}
+
 }

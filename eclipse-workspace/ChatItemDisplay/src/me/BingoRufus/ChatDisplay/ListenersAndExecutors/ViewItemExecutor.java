@@ -42,6 +42,7 @@ public class ViewItemExecutor implements CommandExecutor {
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
 					main.getConfig().getString("messages.player-not-displaying-anything")));
 			return true;
+
 		}
 		return false;
 	}
