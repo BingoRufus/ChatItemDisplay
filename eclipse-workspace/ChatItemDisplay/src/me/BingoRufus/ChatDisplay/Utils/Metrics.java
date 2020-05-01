@@ -27,7 +27,6 @@ import java.util.zip.GZIPOutputStream;
  * <p>
  * Check out https://bStats.org/ to learn more about bStats!
  */
-@SuppressWarnings("unused")
 public class Metrics {
 
 	static {

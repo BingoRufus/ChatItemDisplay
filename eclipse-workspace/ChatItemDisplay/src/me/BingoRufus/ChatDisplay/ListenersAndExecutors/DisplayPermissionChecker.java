@@ -54,6 +54,7 @@ public class DisplayPermissionChecker {
 				Double SecondsRemaining = (double) (Math.round(CooldownRemaining.doubleValue() / 100)) / 10;
 				p.sendMessage(ChatColor.translateAlternateColorCodes('&', main.getConfig()
 						.getString("messages.cooldown").replaceAll("%seconds%", "" + SecondsRemaining)));
+				return;
 
 			}
 		}

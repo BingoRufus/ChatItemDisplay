@@ -187,10 +187,10 @@ public class Display {
 						player.spigot().sendMessage(PreMsg, Hover, EndMsg);
 					}
 					if (message.indexOf(playermessage[0]) > 0) {
-						p.chat(playermessage[0]);
+						p.chat(playermessage[0].trim());
 					}
 					if (playermessage.length > 1) {
-						p.chat(playermessage[1]);
+						p.chat(playermessage[1].trim());
 					}
 				});
 				return;
