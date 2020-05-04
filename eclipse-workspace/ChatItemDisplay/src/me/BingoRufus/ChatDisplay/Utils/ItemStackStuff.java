@@ -4,6 +4,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
+import net.md_5.bungee.api.ChatColor;
+
 public class ItemStackStuff {
 	public static String makeStringPretty(String s) {
 		String out = null;
@@ -22,6 +24,20 @@ public class ItemStackStuff {
 	}
 
 	public static String NameFromItem(ItemStack item) {
+
+		String out = "";
+
+		if (item.getItemMeta().hasEnchants())
+			out = ChatColor.AQUA + "";
+
+		if (item.getItemMeta().hasDisplayName())
+			out = out + ChatColor.ITALIC;
+		if (item.getItemMeta().hasDisplayName()) {
+
+			out = out + item.getItemMeta().getDisplayName();
+			return out;
+
+		}
 		if (item.getType().equals(Material.WRITTEN_BOOK)) {
 
 			BookMeta book = (BookMeta) item.getItemMeta();
@@ -30,11 +46,8 @@ public class ItemStackStuff {
 			}
 
 		}
-		if (item.getItemMeta().hasDisplayName()) {
-			return item.getItemMeta().getDisplayName();
-		} else {
-			return makeStringPretty(item.getType().name());
-		}
+		return out + makeStringPretty(item.getType().name());
 
 	}
+
 }

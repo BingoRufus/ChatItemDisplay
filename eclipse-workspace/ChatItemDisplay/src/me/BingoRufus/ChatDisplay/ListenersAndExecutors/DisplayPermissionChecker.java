@@ -9,7 +9,7 @@ import me.BingoRufus.ChatDisplay.Main;
 import net.md_5.bungee.api.ChatColor;
 
 public class DisplayPermissionChecker {
-	Boolean CancelMessage = false;
+	Boolean CancelMessage = true;
 
 	public DisplayPermissionChecker(Main main, Player p, Boolean debug, String message) {
 		ItemStack HeldItem = p.getInventory().getItemInMainHand().clone();
@@ -17,6 +17,7 @@ public class DisplayPermissionChecker {
 		if (HeldItem.getItemMeta() == null) {
 			if (debug)
 				Bukkit.getLogger().info(p.getName() + "'s item has no meta data");
+			CancelMessage = false;
 			return;
 		}
 		if (!p.hasPermission("chatitemdisplay.display")) {
@@ -34,7 +35,6 @@ public class DisplayPermissionChecker {
 
 				p.sendMessage(ChatColor.translateAlternateColorCodes('&',
 						main.getConfig().getString("messages.black-listed-item")));
-
 				return;
 			}
 
@@ -58,7 +58,6 @@ public class DisplayPermissionChecker {
 
 			}
 		}
-		CancelMessage = true;
 		new Display(main, debug).doStuff(HeldItem, p, message);
 
 		if (!p.hasPermission("chatitemdisplay.cooldownbypass")) {

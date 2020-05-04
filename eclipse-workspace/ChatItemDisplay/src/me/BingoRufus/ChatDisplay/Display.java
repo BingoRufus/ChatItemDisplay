@@ -35,10 +35,12 @@ public class Display {
 	Inventory ShulkerBoxInventory;
 	String Message;
 	String[] playermessage;
+	Boolean roman;
 
 	public Display(Main m, Boolean debuginfo) {
 		main = m;
 		debug = debuginfo;
+		roman = m.getConfig().getBoolean("enchantments.use-roman-numerals");
 	}
 
 	public void doStuff(ItemStack HeldItem, Player p, String message) {
@@ -91,14 +93,24 @@ public class Display {
 			EndMsg.setText("");
 		}
 		if (!HeldItem.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_ENCHANTS)) {
-			// ENCHANTS
+
 			if (HeldItem.getItemMeta().hasEnchants()) {
 				Map<Enchantment, Integer> enchants = HeldItem.getItemMeta().getEnchants();
 				for (Enchantment ench : HeldItem.getItemMeta().getEnchants().keySet()) {
-
-					ItemInfo = ItemInfo + "\n" + ChatColor.GRAY
-							+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString()) + " "
-							+ enchants.get(ench).toString();
+					if (ench.getMaxLevel() == 1 && enchants.get(ench) == ench.getMaxLevel()) {
+						ItemInfo = ItemInfo + "\n" + ChatColor.GRAY
+								+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString());
+						continue;
+					}
+					if (!roman) {
+						ItemInfo = ItemInfo + "\n" + ChatColor.GRAY
+								+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString()) + " "
+								+ enchants.get(ench).shortValue();
+					} else {
+						ItemInfo = ItemInfo + "\n" + ChatColor.GRAY
+								+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString()) + " "
+								+ romanNumeralify(enchants.get(ench).shortValue());
+					}
 
 				}
 			}
@@ -199,6 +211,97 @@ public class Display {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			player.spigot().sendMessage(PreMsg, Hover, EndMsg);
 		}
+
+	}
+
+//Need to convert up to 32767 (XXXMMDCCLXVII)
+	public String romanNumeralify(Short s) {
+		Integer level = s.intValue();
+		if (s <= 0)
+			return s.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append(ChatColor.GRAY);
+		if (main.getConfig().getBoolean("enchantments.use-minecraft-style-numerals") && level > 10)
+			return s.toString();
+		if (level >= 10000) {
+			for (int i = 0; i < level / 10000; i++) {
+				sb.append(ChatColor.UNDERLINE + "X" + ChatColor.GRAY);
+			}
+			level = level - 10000 * (level / 10000);
+		}
+		if (level >= 9000) {
+			sb.append(ChatColor.UNDERLINE + "IX" + ChatColor.GRAY);
+			level = level - 9000;
+		}
+		if (level >= 5000) {
+			sb.append(ChatColor.UNDERLINE + "V" + ChatColor.GRAY);
+			level = level - 5000;
+		}
+		if (level <= 4999 && level >= 4000) {
+			sb.append(ChatColor.UNDERLINE + "IV" + ChatColor.GRAY);
+			level = level - 4000;
+		}
+		if (level >= 1000) {
+			for (int i = 0; i < level / 1000; i++) {
+				sb.append("M");
+			}
+			level = level - 1000 * (level / 1000);
+		}
+		if (level >= 900) {
+			sb.append("CM");
+			level = level - 900;
+		}
+		if (level >= 500) {
+			sb.append("D");
+			level = level - 500;
+		}
+		if (level <= 499 && level >= 400) {
+			sb.append("CD");
+			level = level - 400;
+		}
+		if (level >= 100) {
+			for (int i = 0; i < level / 100; i++) {
+				sb.append("C");
+			}
+			level = level - 100 * (level / 100);
+		}
+		if (level >= 90) {
+			sb.append("XC");
+			level = level - 90;
+		}
+		if (level >= 50) {
+			sb.append("L");
+			level = level - 50;
+		}
+		if (level <= 49 && level >= 40) {
+			sb.append("XL");
+			level = level - 40;
+		}
+		if (level >= 10) {
+			for (int i = 0; i < level / 10; i++) {
+				sb.append("X");
+			}
+			level = level - 10 * (level / 10);
+		}
+		if (level >= 9) {
+			sb.append("IX");
+			level = level - 9;
+		}
+		if (level >= 5) {
+			sb.append("V");
+			level = level - 5;
+		}
+		if (level == 4) {
+			sb.append("IV");
+			level = level - 4;
+		}
+		if (level >= 1) {
+			for (int i = 0; i < level; i++) {
+				sb.append("I");
+			}
+		}
+
+		return sb.toString();
 
 	}
 
