@@ -1,14 +1,24 @@
 debug-mode: false #Can possibly determine why players arent able to display-items. Will send console messages.
+
 disable-update-checking: false
+
+auto-update: true # Automatically download updates
+
 triggers: #These will determine when the item is displayed, they are not case sensitive
 - "[i]"
 - "[item]"
 - "[itemdisplay]"
 - "[displayitem]"
-disable-gui: false #Disable all the GUI's
+
+
+disable-gui: false #Disable all the GUIs
+
+
 enchantments:
   use-roman-numerals: true
   use-minecraft-style-numerals: false #If enabled, only enchant levels up to 10 will be converted to roman numerals
+  
+  
 messages:
   display-format: "&6%player%&6 is displaying their &f%item%"
   gui-format: "&a%player%&a's &cDisplayed Item"
@@ -19,8 +29,20 @@ messages:
   cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
   gui-disabled: "&cThis feature has been disabled"
   not-holding-anything: "&cYou are not holding anything"
+  remove-item-colors: false #Remove Item colors from the display message
+  
+  
+  
 use-nicks-in-display-message: true #Will also use any custom colors
+
+
 use-nicks-in-gui: true #Will also use any custom colors
+
+
+
+show-item-amount: true #Will add x2 if a player is displaying 2 items
 display-item-cooldown: 0 #Measured in seconds. Use 0 for no cooldown.
+
+
 blacklisted-items: #for help visit https://minecraftitemids.com/
 #- "minecraft:bedrock"

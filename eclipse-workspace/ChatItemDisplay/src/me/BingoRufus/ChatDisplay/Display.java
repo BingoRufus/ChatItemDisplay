@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
@@ -18,7 +19,6 @@ import org.bukkit.inventory.meta.BookMeta;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ItemDisplayer;
 import me.BingoRufus.ChatDisplay.Utils.ItemStackStuff;
 import me.BingoRufus.ChatDisplay.Utils.ViewReset;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -47,8 +47,14 @@ public class Display {
 
 		ItemInfo = ItemStackStuff.NameFromItem(HeldItem);
 		TextComponent Hover = new TextComponent();
-		Hover.setText(ItemInfo);
-		ItemName = ItemInfo;
+		String ItemName = ItemInfo;
+		if (main.getConfig().getBoolean("messages.remove-item-colors"))
+			ItemName = ChatColor.stripColor(ItemName);
+		Hover.setText(ItemName);
+
+		if (main.getConfig().getBoolean("show-item-amount") && HeldItem.getAmount() > 1)
+			Hover.setText(Hover.getText() + " x" + HeldItem.getAmount());
+
 		if (!(message == null))
 			playermessage = message.split("%item%");
 		if (HeldItem.getType().equals(Material.WRITTEN_BOOK)) {
@@ -188,7 +194,8 @@ public class Display {
 		ItemInfo = ItemInfo + "\n" + ChatColor.DARK_GRAY + HeldItem.getType().getKey().toString();
 
 		Hover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ItemInfo).create()));
-		Hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + p.getName()));
+		if (!main.getConfig().getBoolean("disable-gui"))
+			Hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + p.getName()));
 		if (message != null) {
 			if (playermessage.length > 0) {
 				Bukkit.getScheduler().runTask(main, () -> {

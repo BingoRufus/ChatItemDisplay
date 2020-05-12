@@ -12,6 +12,7 @@ import me.BingoRufus.ChatDisplay.ListenersAndExecutors.NewVersionDisplayer;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ViewItemExecutor;
 import me.BingoRufus.ChatDisplay.Utils.Metrics;
 import me.BingoRufus.ChatDisplay.Utils.UpdateChecker;
+import me.BingoRufus.ChatDisplay.Utils.UpdateDownloader;
 
 public class Main extends JavaPlugin {
 	ItemDisplayer DisplayListener;
@@ -71,8 +72,16 @@ public class Main extends JavaPlugin {
 
 					this.getLogger().warning("ChatItemDisplay is currently running version "
 							+ plugin.getDescription().getVersion() + " and can be updated to " + version);
+					if (getConfig().getBoolean("auto-update")) {
+						new UpdateDownloader(this, version).download();
+						this.getLogger().info("The download process has begun automatically");
+						return;
+
+					}
 					this.getLogger().warning(
 							"Download the newest version at: //https://www.spigotmc.org/resources/chat-item-display.77177/");
+					this.getLogger().warning("or enable auto-update in your config.yml");
+
 					NewVer = new NewVersionDisplayer(this, this.getDescription().getVersion(), version);
 					Bukkit.getPluginManager().registerEvents(NewVer, this);
 				}
