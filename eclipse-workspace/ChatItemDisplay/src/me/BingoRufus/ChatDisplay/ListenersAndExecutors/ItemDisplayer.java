@@ -3,6 +3,7 @@ package me.BingoRufus.ChatDisplay.ListenersAndExecutors;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -46,11 +47,12 @@ public class ItemDisplayer implements Listener {
 
 		for (String Trigger : main.getConfig().getStringList("triggers")) {
 			if (e.getMessage().toUpperCase().contains(Trigger.toUpperCase())) {
+
 				if (debug)
 					Bukkit.getLogger().info(e.getPlayer().getName() + "'s message contains an item display trigger");
 
-				if (new DisplayPermissionChecker(main, e.getPlayer(), debug, e.getMessage().replace(Trigger, "%item%"))
-						.sendMessage()) {
+				if (new DisplayPermissionChecker(main, e.getPlayer(), debug,
+						e.getMessage().replaceAll("(?i)" + Pattern.quote(Trigger), "%item%")).sendMessage()) {
 					e.setCancelled(true);
 
 				}

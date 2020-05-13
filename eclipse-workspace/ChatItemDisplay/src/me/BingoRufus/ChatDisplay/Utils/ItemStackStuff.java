@@ -30,10 +30,8 @@ public class ItemStackStuff {
 		if (item.getItemMeta().hasEnchants())
 			out = ChatColor.AQUA + "";
 
-		if (item.getItemMeta().hasDisplayName())
-			out = out + ChatColor.ITALIC;
 		if (item.getItemMeta().hasDisplayName()) {
-
+			out = out + ChatColor.ITALIC;
 			out = out + item.getItemMeta().getDisplayName();
 			return out;
 
