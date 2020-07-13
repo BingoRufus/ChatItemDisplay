@@ -16,9 +16,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
-import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ItemDisplayer;
+import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatDisplayListener;
 import me.BingoRufus.ChatDisplay.Utils.ItemStackStuff;
-import me.BingoRufus.ChatDisplay.Utils.ViewReset;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -36,84 +35,60 @@ public class Display {
 	String Message;
 	String[] playermessage;
 	Boolean roman;
+	public TextComponent Hover;
+	TextComponent PreMsg = new TextComponent();
+	TextComponent EndMsg = new TextComponent();
+	public ItemStack item;
+	Player p;
 
-	public Display(Main m, Boolean debuginfo) {
+	public Display(Main m, Player p) {
 		main = m;
-		debug = debuginfo;
+		debug = m.getConfig().getBoolean("debug-mode");
 		roman = m.getConfig().getBoolean("enchantments.use-roman-numerals");
+		this.item = p.getInventory().getItemInMainHand();
+		this.p = p;
+		String guiname = m.getConfig().getString("messages.gui-format");
+		guiname = ChatColor.translateAlternateColorCodes('&', guiname);
+		;
+
+		Inventory inv = Bukkit.createInventory(p, 9, guiname.replaceAll("%player%",
+				m.getConfig().getBoolean("use-nicks-in-gui") ? p.getDisplayName() : p.getName()));
+		inv.setItem(4, item);
+
+		ChatDisplayListener.DisplayedItem.put(p.getName(), inv);
 	}
 
-	public void doStuff(ItemStack HeldItem, Player p, String message) {
+	public String getLore() {
+		String ItemInfo = ItemStackStuff.NameFromItem(item);
+		String name = ItemInfo;
 
-		ItemInfo = ItemStackStuff.NameFromItem(HeldItem);
-		TextComponent Hover = new TextComponent();
-		String ItemName = ItemInfo;
-		if (main.getConfig().getBoolean("messages.remove-item-colors"))
-			ItemName = ChatColor.stripColor(ItemName);
-		Hover.setText(ItemName);
-
-		if (main.getConfig().getBoolean("show-item-amount") && HeldItem.getAmount() > 1)
-			Hover.setText(Hover.getText() + " x" + HeldItem.getAmount());
-
-		if (!(message == null))
-			playermessage = message.split("%item%");
-		if (HeldItem.getType().equals(Material.WRITTEN_BOOK)) {
-			BookMeta book = (BookMeta) HeldItem.getItemMeta();
+		if (item.getType().equals(Material.WRITTEN_BOOK)) {
+			BookMeta book = (BookMeta) item.getItemMeta();
 			if (book.hasAuthor())
-				ItemInfo = ItemInfo + ChatColor.GRAY + "\nby " + book.getAuthor();
+				ItemInfo += ChatColor.GRAY + "\nby " + book.getAuthor();
 			if (book.hasGeneration()) {
-				ItemInfo = ItemInfo + ChatColor.GRAY + "\n"
-						+ ItemStackStuff.makeStringPretty(book.getGeneration().toString());
+				ItemInfo += ChatColor.GRAY + "\n" + ItemStackStuff.makeStringPretty(book.getGeneration().toString());
 			} else {
-				ItemInfo = ItemInfo + ChatColor.GRAY + "\nOriginal";
+				ItemInfo += ChatColor.GRAY + "\nOriginal";
 
 			}
 		}
+		if (!item.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_ENCHANTS)) {
 
-		if (main.getConfig().getBoolean("use-nicks-in-display-message")) {
-			MsgName = p.getDisplayName();
-		} else {
-			MsgName = p.getName();
-		}
-		if (main.getConfig().getBoolean("use-nicks-in-gui")) {
-			GUIName = p.getDisplayName();
-		} else {
-			GUIName = p.getName();
-		}
-		if (debug)
-			Bukkit.getLogger().info("Name Formats have been established");
-		TextComponent PreMsg = new TextComponent();
-		TextComponent EndMsg = new TextComponent();
-
-		Message = ChatColor.translateAlternateColorCodes('&',
-				main.getConfig().getString("messages.display-format").replace("%player%", MsgName));
-
-		if (Message.split("%item%")[0] != null) {
-			PreMsg.setText(Message.split("%item%")[0]);
-		} else {
-			PreMsg.setText("");
-		}
-		if (Message.split("%item%").length == 2) {
-			EndMsg.setText(Message.split("%item%")[1]);
-		} else {
-			EndMsg.setText("");
-		}
-		if (!HeldItem.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_ENCHANTS)) {
-
-			if (HeldItem.getItemMeta().hasEnchants()) {
-				Map<Enchantment, Integer> enchants = HeldItem.getItemMeta().getEnchants();
-				for (Enchantment ench : HeldItem.getItemMeta().getEnchants().keySet()) {
+			if (item.getItemMeta().hasEnchants()) {
+				Map<Enchantment, Integer> enchants = item.getItemMeta().getEnchants();
+				for (Enchantment ench : item.getItemMeta().getEnchants().keySet()) {
 					if (ench.getMaxLevel() == 1 && enchants.get(ench) == ench.getMaxLevel()) {
-						ItemInfo = ItemInfo + "\n" + ChatColor.GRAY
+						ItemInfo += "\n" + ChatColor.GRAY
 								+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString());
 						continue;
 					}
 					if (!roman) {
-						ItemInfo = ItemInfo + "\n" + ChatColor.GRAY
+						ItemInfo += "\n" + ChatColor.GRAY
 								+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString()) + " "
 								+ enchants.get(ench).shortValue();
 					} else {
-						ItemInfo = ItemInfo + "\n" + ChatColor.GRAY
+						ItemInfo += "\n" + ChatColor.GRAY
 								+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString()) + " "
 								+ romanNumeralify(enchants.get(ench).shortValue());
 					}
@@ -123,23 +98,33 @@ public class Display {
 			if (debug)
 				Bukkit.getLogger().info("Enchants have been created");
 		}
-		if (HeldItem.getItemMeta() instanceof BlockStateMeta) {
-			BlockStateMeta im = (BlockStateMeta) HeldItem.getItemMeta();
+		if (item.getItemMeta() instanceof BlockStateMeta) {
+			BlockStateMeta im = (BlockStateMeta) item.getItemMeta();
 			if (im.getBlockState() instanceof ShulkerBox) {
 				if (debug)
 					Bukkit.getLogger().info("Item is a Shulker Box");
 				ShulkerBox shulker = (ShulkerBox) im.getBlockState();
-				ShulkerBoxInventory = Bukkit.createInventory(p, 27, ItemName);
-				ShulkerBoxInventory.setContents(shulker.getInventory().getContents());
+				try {
+					ShulkerBoxInventory = Bukkit.createInventory(p, 36, name);
+					ShulkerBoxInventory.setContents(shulker.getInventory().getContents());
+				} catch (NullPointerException e) {
+					if (debug)
+						Bukkit.getLogger().info("Shulker Box is empty");
+				}
 				List<ItemStack> Contents = new ArrayList<ItemStack>();
 
 				if (debug)
 					Bukkit.getLogger().info("Shulker Box inventory has been created");
-				for (ItemStack i : ShulkerBoxInventory.getContents()) {
-					if (!(i == null))
-						Contents.add(i);
+				try {
+					for (ItemStack i : ShulkerBoxInventory.getContents()) {
+						if (!(i == null))
+							Contents.add(i);
+					}
+				} catch (NullPointerException e) {
+					if (debug)
+						Bukkit.getLogger().info("Shulker Box is empty");
 				}
-
+				ChatDisplayListener.DisplayedShulkerBox.put(p, ShulkerBoxInventory);
 				if (debug)
 					Bukkit.getLogger()
 							.info("Shulker box contents have been saved, there are " + Contents.size() + " items");
@@ -147,12 +132,12 @@ public class Display {
 					if (debug)
 						Bukkit.getLogger().info("In For loop");
 					if (i < 5) {
-						ItemInfo = ItemInfo + "\n" + ChatColor.WHITE + ItemStackStuff.NameFromItem(Contents.get(i))
-								+ " x" + Contents.get(i).getAmount();
+						ItemInfo += "\n" + ChatColor.WHITE + ItemStackStuff.NameFromItem(Contents.get(i)) + " x"
+								+ Contents.get(i).getAmount();
 
 					} else {
-						ItemInfo = ItemInfo + "\n" + ChatColor.WHITE + "" + ChatColor.ITALIC + "and "
-								+ (Contents.size() - 4) + " more...";
+						ItemInfo += "\n" + ChatColor.WHITE + "" + ChatColor.ITALIC + "and " + (Contents.size() - 4)
+								+ " more...";
 						break;
 
 					}
@@ -160,68 +145,55 @@ public class Display {
 
 			}
 		}
-		if (!HeldItem.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_ATTRIBUTES)) {
+		if (!item.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_ATTRIBUTES)) {
 			// LORE
-			if (HeldItem.getItemMeta().hasLore()) {
-				List<String> lore = HeldItem.getItemMeta().getLore();
+			if (item.getItemMeta().hasLore()) {
+				List<String> lore = item.getItemMeta().getLore();
 				for (int i = 0; i < lore.size(); i++) {
-					ItemInfo = ItemInfo + "\n" + ChatColor.DARK_PURPLE + "" + ChatColor.ITALIC + lore.get(i);
+					ItemInfo += "\n" + ChatColor.DARK_PURPLE + "" + ChatColor.ITALIC + lore.get(i);
+
 				}
 			}
 			if (debug)
 				Bukkit.getLogger().info("Lore has been created");
 		}
-		// Create Item Display GUI
+		ItemInfo += "\n" + ChatColor.DARK_GRAY + item.getType().getKey().toString();
 
-		Inventory DisplayGUI = Bukkit.createInventory(p, 9,
-				ChatColor.translateAlternateColorCodes('&', main.getConfig().getString("messages.gui-format"))
-						.replace("%player%", GUIName));
-		if (debug)
-			Bukkit.getLogger().info("GUI has been created");
-
-		DisplayGUI.setItem(4, HeldItem);
-
-		if (debug)
-			Bukkit.getLogger().info("Added item to GUI");
-		ViewReset.reset(p, DisplayGUI);
-		if (debug)
-			Bukkit.getLogger().info("Closed all open inventories of player's GUI");
-		if (ShulkerBoxInventory != null) {
-			ItemDisplayer.DisplayedShulkerBox.put(p, ShulkerBoxInventory);
-
-		}
-		ItemDisplayer.DisplayedItem.put(p.getName(), DisplayGUI);
-		ItemInfo = ItemInfo + "\n" + ChatColor.DARK_GRAY + HeldItem.getType().getKey().toString();
-
-		Hover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ItemInfo).create()));
-		if (!main.getConfig().getBoolean("disable-gui"))
-			Hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + p.getName()));
-		if (message != null) {
-			if (playermessage.length > 0) {
-				Bukkit.getScheduler().runTask(main, () -> {
-					if (message.indexOf(playermessage[0]) == 0) {
-						p.chat(playermessage[0]);
-					}
-					for (Player player : Bukkit.getOnlinePlayers()) {
-						player.spigot().sendMessage(PreMsg, Hover, EndMsg);
-					}
-					if (message.indexOf(playermessage[0]) > 0) {
-						p.chat(playermessage[0].trim());
-					}
-					if (playermessage.length > 1) {
-						p.chat(playermessage[1].trim());
-					}
-				});
-				return;
-			}
-		}
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			player.spigot().sendMessage(PreMsg, Hover, EndMsg);
-		}
+		return ItemInfo;
 
 	}
 
-//Need to convert up to 32767 (XXXMMDCCLXVII)
+	public String getName() {
+		String ItemName = ItemStackStuff.NameFromItem(item);
+		if (main.getConfig().getBoolean("messages.remove-item-colors"))
+			ItemName = ChatColor.stripColor(ItemName);
+		if (main.getConfig().getBoolean("show-item-amount") && item.getAmount() > 1)
+			ItemName += " x" + item.getAmount();
+		return ItemName + ChatColor.RESET;
+	}
+
+	public TextComponent getHover() {
+		TextComponent Hover = new TextComponent(getName());
+		Hover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(getLore()).create()));
+		Hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + p.getName()));
+
+		return Hover;
+	}
+
+	public void cmdMsg() {
+
+		String format = main.getConfig().getString("messages.display-format");
+		format = format.replaceAll("%player%",
+				main.getConfig().getBoolean("use-nicks-in-display-message") ? p.getDisplayName() : p.getName());
+		format = ChatColor.translateAlternateColorCodes('&', format);
+		String[] sects = format.split("%item%");
+		PreMsg = format.indexOf("%item%") > 0 ? new TextComponent(sects[0]) : new TextComponent("");
+		EndMsg = sects.length == 2 ? new TextComponent(sects[1])
+				: PreMsg.getText() == null ? new TextComponent(sects[0]) : new TextComponent("");
+		Bukkit.spigot().broadcast(PreMsg, getHover(), EndMsg);
+
+	}
+
 	public String romanNumeralify(Short s) {
 		Integer level = s.intValue();
 		if (s <= 0)

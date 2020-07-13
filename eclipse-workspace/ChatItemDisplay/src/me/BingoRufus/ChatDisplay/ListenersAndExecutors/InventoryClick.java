@@ -25,8 +25,8 @@ public class InventoryClick implements Listener {
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
 
-		if (ItemDisplayer.DisplayedShulkerBox.values().contains(e.getInventory())
-				|| ItemDisplayer.DisplayedItem.values().contains(e.getInventory())) {
+		if (ChatDisplayListener.DisplayedShulkerBox.values().contains(e.getInventory())
+				|| ChatDisplayListener.DisplayedItem.values().contains(e.getInventory())) {
 			e.setCancelled(true);
 			if (e.getClickedInventory() == null)
 				return;
@@ -37,7 +37,7 @@ public class InventoryClick implements Listener {
 			if (!e.getClickedInventory().equals(p.getInventory())) {
 				if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
 					if (((BlockStateMeta) e.getCurrentItem().getItemMeta()).getBlockState() instanceof ShulkerBox) {
-						p.openInventory(ItemDisplayer.DisplayedShulkerBox.get((Player) e.getInventory().getHolder()));
+						p.openInventory(ChatDisplayListener.DisplayedShulkerBox.get((Player) e.getInventory().getHolder()));
 					}
 				}
 

@@ -35,8 +35,8 @@ public class ViewItemExecutor implements CommandExecutor {
 			if (Bukkit.getPlayer(args[0]) != null) {
 				target = Bukkit.getPlayer(args[0]).getName();
 			}
-			if (ItemDisplayer.DisplayedItem.containsKey(target)) {
-				p.openInventory(ItemDisplayer.DisplayedItem.get(target));
+			if (ChatDisplayListener.DisplayedItem.containsKey(target)) {
+				p.openInventory(ChatDisplayListener.DisplayedItem.get(target));
 				return true;
 			}
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&',

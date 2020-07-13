@@ -5,6 +5,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import me.BingoRufus.ChatDisplay.Display;
 import me.BingoRufus.ChatDisplay.Main;
 import net.md_5.bungee.api.ChatColor;
 
@@ -31,7 +32,10 @@ public class DisplayCommandExecutor implements CommandExecutor {
 						main.getConfig().getString("messages.not-holding-anything")));
 				return true;
 			}
-			new DisplayPermissionChecker(main, p, debug, null);
+			if (new DisplayPermissionChecker(main, p).hasPermission()) {
+				new Display(main, p).cmdMsg();
+				;
+			}
 			return true;
 		}
 		return false;

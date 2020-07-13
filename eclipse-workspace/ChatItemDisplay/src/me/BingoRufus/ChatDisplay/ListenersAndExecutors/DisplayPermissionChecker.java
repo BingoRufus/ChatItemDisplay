@@ -4,19 +4,25 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import me.BingoRufus.ChatDisplay.Display;
 import me.BingoRufus.ChatDisplay.Main;
 import net.md_5.bungee.api.ChatColor;
 
 public class DisplayPermissionChecker {
 	Boolean CancelMessage = true;
 
-	public DisplayPermissionChecker(Main main, Player p, Boolean debug, String message) {
+	public boolean hasPermission() {
+		return CancelMessage;
+	}
+
+	public DisplayPermissionChecker(Main main, Player p) {
+		Boolean debug = main.getConfig().getBoolean("debug-mode");
 		ItemStack HeldItem = p.getInventory().getItemInMainHand().clone();
 
 		if (HeldItem.getItemMeta() == null) {
 			if (debug)
 				Bukkit.getLogger().info(p.getName() + "'s item has no meta data");
+			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					main.getConfig().getString("messages.not-holding-anything")));
 			CancelMessage = false;
 			return;
 		}
@@ -43,9 +49,9 @@ public class DisplayPermissionChecker {
 		if (debug)
 			Bukkit.getLogger().info(p.getName() + "'s item is not blacklisted");
 
-		if (ItemDisplayer.DisplayItemCooldowns.containsKey(p.getUniqueId())) {
+		if (ChatDisplayListener.DisplayItemCooldowns.containsKey(p.getUniqueId())) {
 			Long CooldownRemaining = (main.getConfig().getLong("display-item-cooldown") * 1000)
-					- (System.currentTimeMillis() - ItemDisplayer.DisplayItemCooldowns.get(p.getUniqueId()));
+					- (System.currentTimeMillis() - ChatDisplayListener.DisplayItemCooldowns.get(p.getUniqueId()));
 
 			if (CooldownRemaining > 0) {
 				if (debug)
@@ -54,18 +60,15 @@ public class DisplayPermissionChecker {
 				Double SecondsRemaining = (double) (Math.round(CooldownRemaining.doubleValue() / 100)) / 10;
 				p.sendMessage(ChatColor.translateAlternateColorCodes('&', main.getConfig()
 						.getString("messages.cooldown").replaceAll("%seconds%", "" + SecondsRemaining)));
+				CancelMessage = false;
 				return;
 
 			}
 		}
-		new Display(main, debug).doStuff(HeldItem, p, message);
 
 		if (!p.hasPermission("chatitemdisplay.cooldownbypass")) {
-			ItemDisplayer.DisplayItemCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+			ChatDisplayListener.DisplayItemCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
 		}
 	}
 
-	public Boolean sendMessage() {
-		return CancelMessage;
-	}
 }

@@ -17,22 +17,23 @@ public class ItemStackStuff {
 				continue;
 			}
 
-			out = out + " ";
-			out = out + part;
+			out += " ";
+			out += part;
 		}
+		out += ChatColor.RESET;
 		return out;
 	}
 
 	public static String NameFromItem(ItemStack item) {
 
-		String out = "";
+		String out = "§r";
 
 		if (item.getItemMeta().hasEnchants())
 			out = ChatColor.AQUA + "";
 
 		if (item.getItemMeta().hasDisplayName()) {
-			out = out + ChatColor.ITALIC;
-			out = out + item.getItemMeta().getDisplayName();
+			out += ChatColor.ITALIC;
+			out += item.getItemMeta().getDisplayName();
 			return out;
 
 		}
@@ -44,7 +45,7 @@ public class ItemStackStuff {
 			}
 
 		}
-		return out + makeStringPretty(item.getType().name());
+		return out + makeStringPretty(item.getType().name()) + ChatColor.RESET;
 
 	}
 

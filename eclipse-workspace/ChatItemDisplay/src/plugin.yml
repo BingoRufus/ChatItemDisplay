@@ -3,7 +3,8 @@ main: me.BingoRufus.ChatDisplay.Main
 description: Display items in Chat
 api-version: 1.13
 author: BingoRufus
-version: 1.3.6
+version: 1.4.0
+depend: [ProtocolLib]
 commands:
   viewitem:
     description: See what item a player is displaying
@@ -11,22 +12,24 @@ commands:
   chatitemreload:
     description: Reload the ChatItemDisplay config
   displayitem:
+    usage: /<command>
+    permission: chatitemdisplay.display
     description: Display your items in chat
     aliases: [display]
 permissions:
   ChatItemDisplay.*:
     description: Parent node to all ChatItemDisplay permissions
-    default: false
+    default: op
     children:
       ChatItemDisplay.reload:
         description: Reload the ChatItemDisplay config
-        default: false
+        default: op
       ChatItemDisplay.display:
         description: Display Items using one of the Triggers in the config.yml
         default: true
       ChatItemDisplay.cooldownbypass:
         description: Bypass the display cooldown
-        default: false
+        default: op
       ChatItemDisplay.blacklistbypass:
         description: Display blacklisted items
-        default: false
+        default: op

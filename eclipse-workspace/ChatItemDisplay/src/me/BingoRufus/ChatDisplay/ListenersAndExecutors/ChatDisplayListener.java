@@ -8,13 +8,17 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.Inventory;
 
 import me.BingoRufus.ChatDisplay.Main;
 
-public class ItemDisplayer implements Listener {
+public class ChatDisplayListener implements Listener {
+
+	char bell = '\u0007';
+
 	public static Map<String, Inventory> DisplayedItem = new HashMap<String, Inventory>();
 	public static Map<Player, Inventory> DisplayedShulkerBox = new HashMap<Player, Inventory>();
 	public static Map<UUID, Long> DisplayItemCooldowns = new HashMap<UUID, Long>();
@@ -24,7 +28,7 @@ public class ItemDisplayer implements Listener {
 	boolean debug;
 	String Version;
 
-	public ItemDisplayer(Main m) {
+	public ChatDisplayListener(Main m) {
 		m.reloadConfig();
 		main = m;
 		debug = main.getConfig().getBoolean("debug-mode");
@@ -33,7 +37,7 @@ public class ItemDisplayer implements Listener {
 		Bukkit.getPluginManager().registerEvents(new InventoryClick(main, Version), main);
 	}
 
-	@EventHandler()
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onChat(AsyncPlayerChatEvent e) {
 
 		if (debug)
@@ -51,11 +55,14 @@ public class ItemDisplayer implements Listener {
 				if (debug)
 					Bukkit.getLogger().info(e.getPlayer().getName() + "'s message contains an item display trigger");
 
-				if (new DisplayPermissionChecker(main, e.getPlayer(), debug,
-						e.getMessage().replaceAll("(?i)" + Pattern.quote(Trigger), "%item%")).sendMessage()) {
-					e.setCancelled(true);
+				if (new DisplayPermissionChecker(main, e.getPlayer()).hasPermission()) {
+					String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),
+							bell + "cid" + e.getPlayer().getName() + bell);
+					e.setMessage(newmsg);
+					return;
 
 				}
+				e.setCancelled(true);
 				break;
 			}
 		}

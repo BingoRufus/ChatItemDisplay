@@ -20,6 +20,7 @@ enchantments:
   
   
 messages:
+  inchat-format: "[%item%]"
   display-format: "&6%player%&6 is displaying their &f%item%"
   gui-format: "&a%player%&a's &cDisplayed Item"
   missing-permission: "&cYou do not have permission to do that"

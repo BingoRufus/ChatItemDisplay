@@ -5,9 +5,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.ListenerPriority;
+
+import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatDisplayListener;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatItemReloadExecutor;
+import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatPacketListener;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.DisplayCommandExecutor;
-import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ItemDisplayer;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.NewVersionDisplayer;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ViewItemExecutor;
 import me.BingoRufus.ChatDisplay.Utils.Metrics;
@@ -15,7 +21,7 @@ import me.BingoRufus.ChatDisplay.Utils.UpdateChecker;
 import me.BingoRufus.ChatDisplay.Utils.UpdateDownloader;
 
 public class Main extends JavaPlugin {
-	ItemDisplayer DisplayListener;
+	ChatDisplayListener DisplayListener;
 	NewVersionDisplayer NewVer;
 	Main plugin;
 
@@ -34,15 +40,18 @@ public class Main extends JavaPlugin {
 		new Metrics(this, 7229);
 		this.getCommand("displayitem").setExecutor(new DisplayCommandExecutor(this));
 
+		ProtocolManager pm = ProtocolLibrary.getProtocolManager();
+		pm.addPacketListener(new ChatPacketListener(this, ListenerPriority.HIGHEST, PacketType.Play.Server.CHAT));
+
 	}
 
 	@Override
 	public void onDisable() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (ItemDisplayer.DisplayedItem.values().contains(p.getOpenInventory().getTopInventory())) {
+			if (ChatDisplayListener.DisplayedItem.values().contains(p.getOpenInventory().getTopInventory())) {
 				p.closeInventory();
 			}
-			if (ItemDisplayer.DisplayedShulkerBox.values().contains(p.getOpenInventory().getTopInventory())) {
+			if (ChatDisplayListener.DisplayedShulkerBox.values().contains(p.getOpenInventory().getTopInventory())) {
 				p.closeInventory();
 			}
 		}
@@ -56,10 +65,10 @@ public class Main extends JavaPlugin {
 		if (NewVer != null)
 			HandlerList.unregisterAll(NewVer);
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (ItemDisplayer.DisplayedItem.values().contains(p.getOpenInventory().getTopInventory())) {
+			if (ChatDisplayListener.DisplayedItem.values().contains(p.getOpenInventory().getTopInventory())) {
 				p.closeInventory();
 			}
-			if (ItemDisplayer.DisplayedShulkerBox.values().contains(p.getOpenInventory().getTopInventory())) {
+			if (ChatDisplayListener.DisplayedShulkerBox.values().contains(p.getOpenInventory().getTopInventory())) {
 				p.closeInventory();
 			}
 		}
@@ -88,7 +97,7 @@ public class Main extends JavaPlugin {
 			});
 		}
 
-		DisplayListener = new ItemDisplayer(this);
+		DisplayListener = new ChatDisplayListener(this);
 		Bukkit.getPluginManager().registerEvents(DisplayListener, this);
 	}
 
