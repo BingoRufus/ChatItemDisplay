@@ -5,10 +5,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ListenerPriority;
 
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatDisplayListener;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatItemReloadExecutor;
@@ -19,6 +15,7 @@ import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ViewItemExecutor;
 import me.BingoRufus.ChatDisplay.Utils.Metrics;
 import me.BingoRufus.ChatDisplay.Utils.UpdateChecker;
 import me.BingoRufus.ChatDisplay.Utils.UpdateDownloader;
+import net.md_5.bungee.api.ChatColor;
 
 public class Main extends JavaPlugin {
 	ChatDisplayListener DisplayListener;
@@ -31,6 +28,18 @@ public class Main extends JavaPlugin {
 	 */
 	@Override
 	public void onEnable() {
+		if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
+			Bukkit.getServer().getConsoleSender()
+					.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "CHATITEMDISPLAY REQUIRES PROTOCOLLIB");
+			Bukkit.getServer().getConsoleSender()
+					.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "CHATITEMDISPLAY REQUIRES PROTOCOLLIB");
+			Bukkit.getServer().getConsoleSender()
+					.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "CHATITEMDISPLAY REQUIRES PROTOCOLLIB");
+
+			Bukkit.getPluginManager().disablePlugin(this);
+			return;
+
+		}
 		plugin = this;
 
 		this.saveDefaultConfig();
@@ -40,8 +49,9 @@ public class Main extends JavaPlugin {
 		new Metrics(this, 7229);
 		this.getCommand("displayitem").setExecutor(new DisplayCommandExecutor(this));
 
-		ProtocolManager pm = ProtocolLibrary.getProtocolManager();
-		pm.addPacketListener(new ChatPacketListener(this, ListenerPriority.HIGHEST, PacketType.Play.Server.CHAT));
+		com.comphenix.protocol.ProtocolManager pm = com.comphenix.protocol.ProtocolLibrary.getProtocolManager();
+		pm.addPacketListener(new ChatPacketListener(this, com.comphenix.protocol.events.ListenerPriority.HIGHEST,
+				com.comphenix.protocol.PacketType.Play.Server.CHAT));
 
 	}
 
