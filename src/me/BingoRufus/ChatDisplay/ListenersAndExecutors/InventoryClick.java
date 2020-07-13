@@ -25,8 +25,7 @@ public class InventoryClick implements Listener {
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
 
-		if (ChatDisplayListener.DisplayedShulkerBox.values().contains(e.getInventory())
-				|| ChatDisplayListener.DisplayedItem.values().contains(e.getInventory())) {
+		if (ChatDisplayListener.invs.contains(e.getInventory())) {
 			e.setCancelled(true);
 			if (e.getClickedInventory() == null)
 				return;

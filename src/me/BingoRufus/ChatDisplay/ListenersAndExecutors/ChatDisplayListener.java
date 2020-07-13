@@ -1,6 +1,8 @@
 package me.BingoRufus.ChatDisplay.ListenersAndExecutors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -22,6 +24,7 @@ public class ChatDisplayListener implements Listener {
 	public static Map<String, Inventory> DisplayedItem = new HashMap<String, Inventory>();
 	public static Map<Player, Inventory> DisplayedShulkerBox = new HashMap<Player, Inventory>();
 	public static Map<UUID, Long> DisplayItemCooldowns = new HashMap<UUID, Long>();
+	public static List<Inventory> invs = new ArrayList<Inventory>();
 	String MsgName;
 	String GUIName;
 	Main main;

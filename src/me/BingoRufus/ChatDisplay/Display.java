@@ -25,7 +25,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class Display {
 	Boolean debug;
-	Main main;
+	Main m;
 	String Version;
 	String ItemInfo = null;
 	String ItemName = null;
@@ -40,9 +40,10 @@ public class Display {
 	TextComponent EndMsg = new TextComponent();
 	public ItemStack item;
 	Player p;
+	Inventory inventory;
 
 	public Display(Main m, Player p) {
-		main = m;
+		this.m = m;
 		debug = m.getConfig().getBoolean("debug-mode");
 		roman = m.getConfig().getBoolean("enchantments.use-roman-numerals");
 		this.item = p.getInventory().getItemInMainHand();
@@ -51,11 +52,18 @@ public class Display {
 		guiname = ChatColor.translateAlternateColorCodes('&', guiname);
 		;
 
-		Inventory inv = Bukkit.createInventory(p, 9, guiname.replaceAll("%player%",
+		inventory = Bukkit.createInventory(p, 9, guiname.replaceAll("%player%",
 				m.getConfig().getBoolean("use-nicks-in-gui") ? p.getDisplayName() : p.getName()));
-		inv.setItem(4, item);
+		inventory.setItem(4, item);
 
-		ChatDisplayListener.DisplayedItem.put(p.getName(), inv);
+		Bukkit.getScheduler().runTask(m, () -> {
+			if (!ChatDisplayListener.invs.contains(inventory)) {
+			ChatDisplayListener.invs.add(inventory);
+			ChatDisplayListener.DisplayedItem.put(p.getName(), inventory);
+			}
+		});
+
+
 	}
 
 	public String getLore() {
@@ -105,7 +113,7 @@ public class Display {
 					Bukkit.getLogger().info("Item is a Shulker Box");
 				ShulkerBox shulker = (ShulkerBox) im.getBlockState();
 				try {
-					ShulkerBoxInventory = Bukkit.createInventory(p, 36, name);
+					ShulkerBoxInventory = Bukkit.createInventory(p, 27, name);
 					ShulkerBoxInventory.setContents(shulker.getInventory().getContents());
 				} catch (NullPointerException e) {
 					if (debug)
@@ -124,7 +132,10 @@ public class Display {
 					if (debug)
 						Bukkit.getLogger().info("Shulker Box is empty");
 				}
-				ChatDisplayListener.DisplayedShulkerBox.put(p, ShulkerBoxInventory);
+				if (!ChatDisplayListener.invs.contains(ShulkerBoxInventory)) {
+					ChatDisplayListener.DisplayedShulkerBox.put(p, ShulkerBoxInventory);
+					ChatDisplayListener.invs.add(ShulkerBoxInventory);
+				}
 				if (debug)
 					Bukkit.getLogger()
 							.info("Shulker box contents have been saved, there are " + Contents.size() + " items");
@@ -165,9 +176,9 @@ public class Display {
 
 	public String getName() {
 		String ItemName = ItemStackStuff.NameFromItem(item);
-		if (main.getConfig().getBoolean("messages.remove-item-colors"))
+		if (m.getConfig().getBoolean("messages.remove-item-colors"))
 			ItemName = ChatColor.stripColor(ItemName);
-		if (main.getConfig().getBoolean("show-item-amount") && item.getAmount() > 1)
+		if (m.getConfig().getBoolean("show-item-amount") && item.getAmount() > 1)
 			ItemName += " x" + item.getAmount();
 		return ItemName + ChatColor.RESET;
 	}
@@ -182,9 +193,9 @@ public class Display {
 
 	public void cmdMsg() {
 
-		String format = main.getConfig().getString("messages.display-format");
+		String format = m.getConfig().getString("messages.display-format");
 		format = format.replaceAll("%player%",
-				main.getConfig().getBoolean("use-nicks-in-display-message") ? p.getDisplayName() : p.getName());
+				m.getConfig().getBoolean("use-nicks-in-display-message") ? p.getDisplayName() : p.getName());
 		format = ChatColor.translateAlternateColorCodes('&', format);
 		String[] sects = format.split("%item%");
 		PreMsg = format.indexOf("%item%") > 0 ? new TextComponent(sects[0]) : new TextComponent("");
@@ -200,7 +211,7 @@ public class Display {
 			return s.toString();
 		StringBuilder sb = new StringBuilder();
 		sb.append(ChatColor.GRAY);
-		if (main.getConfig().getBoolean("enchantments.use-minecraft-style-numerals") && level > 10)
+		if (m.getConfig().getBoolean("enchantments.use-minecraft-style-numerals") && level > 10)
 			return s.toString();
 		if (level >= 10000) {
 			for (int i = 0; i < level / 10000; i++) {
