@@ -1,16 +1,19 @@
 package me.BingoRufus.ChatDisplay.ListenersAndExecutors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
 import me.BingoRufus.ChatDisplay.Main;
+import me.BingoRufus.ChatDisplay.Utils.ItemStackStuff;
 
 public class InventoryClick implements Listener {
 	String Version;
@@ -25,7 +28,7 @@ public class InventoryClick implements Listener {
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
 
-		if (ChatDisplayListener.invs.contains(e.getInventory())) {
+		if (main.invs.contains(e.getInventory())) {
 			e.setCancelled(true);
 			if (e.getClickedInventory() == null)
 				return;
@@ -36,7 +39,14 @@ public class InventoryClick implements Listener {
 			if (!e.getClickedInventory().equals(p.getInventory())) {
 				if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
 					if (((BlockStateMeta) e.getCurrentItem().getItemMeta()).getBlockState() instanceof ShulkerBox) {
-						p.openInventory(ChatDisplayListener.DisplayedShulkerBox.get((Player) e.getInventory().getHolder()));
+						ShulkerBox shulker = (ShulkerBox) ((BlockStateMeta) e.getCurrentItem().getItemMeta())
+								.getBlockState();
+						Inventory ShulkerBoxInventory = Bukkit.createInventory(e.getInventory().getHolder(), 27,
+								ItemStackStuff.NameFromItem(e.getCurrentItem(), true));
+						ShulkerBoxInventory.setContents(shulker.getInventory().getContents());
+						main.invs.add(ShulkerBoxInventory);
+						e.getWhoClicked().openInventory(ShulkerBoxInventory);
+
 					}
 				}
 

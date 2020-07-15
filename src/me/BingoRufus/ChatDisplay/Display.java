@@ -16,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
-import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatDisplayListener;
 import me.BingoRufus.ChatDisplay.Utils.ItemStackStuff;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -57,9 +56,9 @@ public class Display {
 		inventory.setItem(4, item);
 
 		Bukkit.getScheduler().runTask(m, () -> {
-			if (!ChatDisplayListener.invs.contains(inventory)) {
-			ChatDisplayListener.invs.add(inventory);
-			ChatDisplayListener.DisplayedItem.put(p.getName(), inventory);
+			if (!m.invs.contains(inventory)) {
+				m.invs.add(inventory);
+				m.displaying.put(p.getName(), inventory);
 			}
 		});
 
@@ -67,8 +66,7 @@ public class Display {
 	}
 
 	public String getLore() {
-		String ItemInfo = ItemStackStuff.NameFromItem(item);
-		String name = ItemInfo;
+		String ItemInfo = ItemStackStuff.NameFromItem(item, false);
 
 		if (item.getType().equals(Material.WRITTEN_BOOK)) {
 			BookMeta book = (BookMeta) item.getItemMeta();
@@ -112,19 +110,12 @@ public class Display {
 				if (debug)
 					Bukkit.getLogger().info("Item is a Shulker Box");
 				ShulkerBox shulker = (ShulkerBox) im.getBlockState();
-				try {
-					ShulkerBoxInventory = Bukkit.createInventory(p, 27, name);
-					ShulkerBoxInventory.setContents(shulker.getInventory().getContents());
-				} catch (NullPointerException e) {
-					if (debug)
-						Bukkit.getLogger().info("Shulker Box is empty");
-				}
+
 				List<ItemStack> Contents = new ArrayList<ItemStack>();
 
-				if (debug)
-					Bukkit.getLogger().info("Shulker Box inventory has been created");
+
 				try {
-					for (ItemStack i : ShulkerBoxInventory.getContents()) {
+					for (ItemStack i : shulker.getInventory().getContents()) {
 						if (!(i == null))
 							Contents.add(i);
 					}
@@ -132,10 +123,7 @@ public class Display {
 					if (debug)
 						Bukkit.getLogger().info("Shulker Box is empty");
 				}
-				if (!ChatDisplayListener.invs.contains(ShulkerBoxInventory)) {
-					ChatDisplayListener.DisplayedShulkerBox.put(p, ShulkerBoxInventory);
-					ChatDisplayListener.invs.add(ShulkerBoxInventory);
-				}
+
 				if (debug)
 					Bukkit.getLogger()
 							.info("Shulker box contents have been saved, there are " + Contents.size() + " items");
@@ -143,7 +131,7 @@ public class Display {
 					if (debug)
 						Bukkit.getLogger().info("In For loop");
 					if (i < 5) {
-						ItemInfo += "\n" + ChatColor.WHITE + ItemStackStuff.NameFromItem(Contents.get(i)) + " x"
+						ItemInfo += "\n" + ChatColor.WHITE + ItemStackStuff.NameFromItem(Contents.get(i), false) + " x"
 								+ Contents.get(i).getAmount();
 
 					} else {
@@ -175,7 +163,7 @@ public class Display {
 	}
 
 	public String getName() {
-		String ItemName = ItemStackStuff.NameFromItem(item);
+		String ItemName = ItemStackStuff.NameFromItem(item, false);
 		if (m.getConfig().getBoolean("messages.remove-item-colors"))
 			ItemName = ChatColor.stripColor(ItemName);
 		if (m.getConfig().getBoolean("show-item-amount") && item.getAmount() > 1)

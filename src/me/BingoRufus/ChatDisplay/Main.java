@@ -1,26 +1,39 @@
 package me.BingoRufus.ChatDisplay;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
-
 
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatDisplayListener;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatItemReloadExecutor;
-import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatPacketListener;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.DisplayCommandExecutor;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.NewVersionDisplayer;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ViewItemExecutor;
 import me.BingoRufus.ChatDisplay.Utils.Metrics;
+import me.BingoRufus.ChatDisplay.Utils.ProtocolLibRegister;
 import me.BingoRufus.ChatDisplay.Utils.UpdateChecker;
 import me.BingoRufus.ChatDisplay.Utils.UpdateDownloader;
-import net.md_5.bungee.api.ChatColor;
 
 public class Main extends JavaPlugin {
 	ChatDisplayListener DisplayListener;
 	NewVersionDisplayer NewVer;
+
+	ProtocolLibRegister pl;
+
 	Main plugin;
+	public HashMap<String, Inventory> displaying = new HashMap<String, Inventory>();
+	public HashMap<String, Display> displays = new HashMap<String, Display>();
+
+	public List<Inventory> invs = new ArrayList<Inventory>();
+
+	public Boolean useOldFormat = false;
 
 	/*
 	 * TODO: a /version command that shows java version server cversion etc auto
@@ -28,18 +41,7 @@ public class Main extends JavaPlugin {
 	 */
 	@Override
 	public void onEnable() {
-		if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-			Bukkit.getServer().getConsoleSender()
-					.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "CHATITEMDISPLAY REQUIRES PROTOCOLLIB");
-			Bukkit.getServer().getConsoleSender()
-					.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "CHATITEMDISPLAY REQUIRES PROTOCOLLIB");
-			Bukkit.getServer().getConsoleSender()
-					.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "CHATITEMDISPLAY REQUIRES PROTOCOLLIB");
 
-			Bukkit.getPluginManager().disablePlugin(this);
-			return;
-
-		}
 		plugin = this;
 
 		this.saveDefaultConfig();
@@ -49,38 +51,42 @@ public class Main extends JavaPlugin {
 		new Metrics(this, 7229);
 		this.getCommand("displayitem").setExecutor(new DisplayCommandExecutor(this));
 
-		com.comphenix.protocol.ProtocolManager pm = com.comphenix.protocol.ProtocolLibrary.getProtocolManager();
-		pm.addPacketListener(new ChatPacketListener(this, com.comphenix.protocol.events.ListenerPriority.HIGHEST,
-				com.comphenix.protocol.PacketType.Play.Server.CHAT));
-
 	}
 
 	@Override
 	public void onDisable() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (ChatDisplayListener.DisplayedItem.values().contains(p.getOpenInventory().getTopInventory())) {
+			if (invs.contains(p.getOpenInventory().getTopInventory())) {
 				p.closeInventory();
 			}
-			if (ChatDisplayListener.DisplayedShulkerBox.values().contains(p.getOpenInventory().getTopInventory())) {
-				p.closeInventory();
-			}
+
 		}
 	}
 
 	public void reloadConfigVars() {
+
+
 		this.saveDefaultConfig();
 		this.reloadConfig();
+
+		useOldFormat = this.getConfig().getBoolean("use-old-format")
+				|| Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") == null;
+		if (!useOldFormat) {
+			pl = new ProtocolLibRegister(this);
+			pl.registerPacketListener();
+		} else {
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "" + ChatColor.BOLD
+					+ "[ChatItemDisplay] In Chat Item Displaying has Been Disabled Because This Server Does Not Have ProtocolLib");
+		}
 		if (DisplayListener != null)
 			HandlerList.unregisterAll(DisplayListener);
 		if (NewVer != null)
 			HandlerList.unregisterAll(NewVer);
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (ChatDisplayListener.DisplayedItem.values().contains(p.getOpenInventory().getTopInventory())) {
+			if (invs.contains(p.getOpenInventory().getTopInventory())) {
 				p.closeInventory();
 			}
-			if (ChatDisplayListener.DisplayedShulkerBox.values().contains(p.getOpenInventory().getTopInventory())) {
-				p.closeInventory();
-			}
+
 		}
 		if (!plugin.getConfig().getBoolean("disable-update-checking")) {
 			new UpdateChecker(plugin, 77177).getLatestVersion(version -> {

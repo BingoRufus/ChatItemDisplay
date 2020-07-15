@@ -26,6 +26,7 @@ public class ViewItemExecutor implements CommandExecutor {
 			}
 			if (!(sender instanceof Player)) {
 				sender.sendMessage(ChatColor.RED + "Only players can run this command");
+				return true;
 			}
 
 			if (args.length != 1)
@@ -35,8 +36,8 @@ public class ViewItemExecutor implements CommandExecutor {
 			if (Bukkit.getPlayer(args[0]) != null) {
 				target = Bukkit.getPlayer(args[0]).getName();
 			}
-			if (ChatDisplayListener.DisplayedItem.containsKey(target)) {
-				p.openInventory(ChatDisplayListener.DisplayedItem.get(target));
+			if (main.displaying.containsKey(target)) {
+				p.openInventory(main.displaying.get(target));
 				return true;
 			}
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&',

@@ -2,6 +2,7 @@ package me.BingoRufus.ChatDisplay.ListenersAndExecutors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.comphenix.protocol.PacketType;
@@ -11,7 +12,6 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
-import me.BingoRufus.ChatDisplay.Display;
 import me.BingoRufus.ChatDisplay.Main;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -47,16 +47,22 @@ public class ChatPacketListener extends PacketAdapter {
 
 		TextComponent pt3 = legacy.length > 1 ? new TextComponent(TextComponent.fromLegacyText(legacy[1]))
 				: new TextComponent("");
-		Display info = new Display(m,
-				Bukkit.getPlayerExact(replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell))));
-		TextComponent pt2 = info.getHover();
+		Player displaying = Bukkit
+				.getPlayerExact(replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell)));
+
+		TextComponent pt2 = m.displays.get(displaying.getName()).getHover();
 
 		pt2.setText(
 				ChatColor.translateAlternateColorCodes('&', m.getConfig().getString("messages.inchat-format") + "&r")
 						.replaceAll("%item%", pt2.getText()));
-
-		e.getPlayer().spigot().sendMessage(pt1, pt2, pt3);
-		e.setCancelled(true);
+		String messageJson = ComponentSerializer.toString(new TextComponent(pt1, pt2, pt3)); // Converts the text
+																								// components into 1
+																								// text component, and
+																								// then turns it into
+																								// json text
+		packet.getChatComponents().write(0, WrappedChatComponent.fromJson(messageJson));// Turns the json into a
+																						// WrappedChatComponent, and
+																						// replaces the previous message
 
 	}
 

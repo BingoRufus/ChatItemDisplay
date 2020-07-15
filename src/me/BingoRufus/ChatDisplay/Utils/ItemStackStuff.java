@@ -20,11 +20,11 @@ public class ItemStackStuff {
 			out += " ";
 			out += part;
 		}
-		out += ChatColor.RESET;
+
 		return out;
 	}
 
-	public static String NameFromItem(ItemStack item) {
+	public static String NameFromItem(ItemStack item, boolean isInv) {
 
 		String out = "§r";
 
@@ -32,7 +32,7 @@ public class ItemStackStuff {
 			out = ChatColor.AQUA + "";
 
 		if (item.getItemMeta().hasDisplayName()) {
-			out += ChatColor.ITALIC;
+			out += isInv ? "" : ChatColor.ITALIC;
 			out += item.getItemMeta().getDisplayName();
 			return out;
 
