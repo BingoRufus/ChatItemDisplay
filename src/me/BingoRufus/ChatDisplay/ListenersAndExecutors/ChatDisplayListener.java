@@ -65,9 +65,9 @@ public class ChatDisplayListener implements Listener {
 							String first = newmsg.indexOf(bell + "split") > 0 ? parts[0] : "";
 							String last = parts.length == 0 ? ""
 									: parts.length == 2 ? parts[1] : first.equals("") ? parts[0] : "";
-							e.getPlayer().chat(first);
+							e.getPlayer().chat(first.trim());
 						main.displays.get(e.getPlayer().getName()).cmdMsg();
-							e.getPlayer().chat(last);
+							e.getPlayer().chat(last.trim());
 
 
 						});
