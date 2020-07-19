@@ -29,6 +29,7 @@ messages:
   player-not-displaying-anything: "&cThat player isn't displaying anything" #when someone does /viewitem <player> and the <player> isn't displaying anything
   cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
   gui-disabled: "&cThis feature has been disabled"
+  map-notification: "&eDrop or click on the map to receive your item back"
   not-holding-anything: "&cYou are not holding anything"
   remove-item-colors: false #Remove Item colors from the display message
   

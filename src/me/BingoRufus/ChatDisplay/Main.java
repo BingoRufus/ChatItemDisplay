@@ -9,11 +9,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatDisplayListener;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatItemReloadExecutor;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.DisplayCommandExecutor;
+import me.BingoRufus.ChatDisplay.ListenersAndExecutors.MapViewerListener;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.NewVersionDisplayer;
 import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ViewItemExecutor;
 import me.BingoRufus.ChatDisplay.Utils.Metrics;
@@ -27,9 +29,9 @@ public class Main extends JavaPlugin {
 
 	ProtocolLibRegister pl;
 
-	Main plugin;
 	public HashMap<String, Inventory> displaying = new HashMap<String, Inventory>();
 	public HashMap<String, Display> displays = new HashMap<String, Display>();
+	public HashMap<Player, ItemStack> viewingMap = new HashMap<Player, ItemStack>();
 
 	public List<Inventory> invs = new ArrayList<Inventory>();
 
@@ -42,7 +44,6 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 
-		plugin = this;
 
 		this.saveDefaultConfig();
 		reloadConfigVars();
@@ -56,6 +57,9 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (viewingMap.containsKey(p)) {
+				p.getInventory().setItemInMainHand(viewingMap.get(p));
+			}
 			if (invs.contains(p.getOpenInventory().getTopInventory())) {
 				p.closeInventory();
 			}
@@ -68,6 +72,7 @@ public class Main extends JavaPlugin {
 
 		this.saveDefaultConfig();
 		this.reloadConfig();
+		Bukkit.getPluginManager().registerEvents(new MapViewerListener(this), this);
 
 		useOldFormat = this.getConfig().getBoolean("use-old-format")
 				|| Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") == null;
@@ -88,15 +93,15 @@ public class Main extends JavaPlugin {
 			}
 
 		}
-		if (!plugin.getConfig().getBoolean("disable-update-checking")) {
-			new UpdateChecker(plugin, 77177).getLatestVersion(version -> {
+		if (!getConfig().getBoolean("disable-update-checking")) {
+			new UpdateChecker(this, 77177).getLatestVersion(version -> {
 
 				if (UpToDate(this.getDescription().getVersion().split("[.]"), version.split("[.]"))) {
 					this.getLogger().info("ChatItemDisplay is up to date");
 				} else {
 
 					this.getLogger().warning("ChatItemDisplay is currently running version "
-							+ plugin.getDescription().getVersion() + " and can be updated to " + version);
+							+ getDescription().getVersion() + " and can be updated to " + version);
 					if (getConfig().getBoolean("auto-update")) {
 						new UpdateDownloader(this, version).download();
 						this.getLogger().info("The download process has begun automatically");
