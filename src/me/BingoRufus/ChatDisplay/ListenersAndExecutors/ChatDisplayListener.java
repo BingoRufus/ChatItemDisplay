@@ -53,8 +53,8 @@ public class ChatDisplayListener implements Listener {
 				if (debug)
 					Bukkit.getLogger().info(e.getPlayer().getName() + "'s message contains an item display trigger");
 
-
-				if (new DisplayPermissionChecker(main, e.getPlayer()).hasPermission()) {
+				DisplayPermissionChecker dpc = new DisplayPermissionChecker(main, e.getPlayer());
+				if (dpc.hasPermission()) {
 					if (main.useOldFormat) {
 						main.displays.put(e.getPlayer().getName(), new Display(main, e.getPlayer()));
 						e.setCancelled(true);
@@ -81,7 +81,7 @@ public class ChatDisplayListener implements Listener {
 					return;
 
 				}
-				e.setCancelled(true);
+				e.setCancelled(dpc.CancelMessage());
 				break;
 			}
 		}

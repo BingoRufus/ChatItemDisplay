@@ -3,6 +3,7 @@ package me.BingoRufus.ChatDisplay;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -49,8 +50,14 @@ public class Main extends JavaPlugin {
 		reloadConfigVars();
 		this.getCommand("viewitem").setExecutor(new ViewItemExecutor(this));
 		this.getCommand("chatitemreload").setExecutor(new ChatItemReloadExecutor(this));
-		new Metrics(this, 7229);
+		Metrics metrics = new Metrics(this, 7229);
 		this.getCommand("displayitem").setExecutor(new DisplayCommandExecutor(this));
+		metrics.addCustomChart(new Metrics.SimplePie("old_display_messages", new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return getConfig().getString("use-old-format");
+			}
+		}));
 
 	}
 

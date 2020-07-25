@@ -9,9 +9,13 @@ import net.md_5.bungee.api.ChatColor;
 
 public class DisplayPermissionChecker {
 	Boolean CancelMessage = true;
+	boolean perm = true;
 
-	public boolean hasPermission() {
+	public boolean CancelMessage() {
 		return CancelMessage;
+	}
+	public boolean hasPermission() {
+		return perm;
 	}
 
 	public DisplayPermissionChecker(Main main, Player p) {
@@ -23,6 +27,7 @@ public class DisplayPermissionChecker {
 				Bukkit.getLogger().info(p.getName() + "'s item has no meta data");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
 					main.getConfig().getString("messages.not-holding-anything")));
+			perm = false;
 			CancelMessage = false;
 			return;
 		}
@@ -32,6 +37,8 @@ public class DisplayPermissionChecker {
 
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
 					main.getConfig().getString("messages.missing-permission-to-display")));
+			perm = false;
+			CancelMessage = true;
 			return;
 		}
 		if (main.getConfig().getStringList("blacklisted-items").contains(HeldItem.getType().getKey().toString())) {
@@ -41,6 +48,8 @@ public class DisplayPermissionChecker {
 
 				p.sendMessage(ChatColor.translateAlternateColorCodes('&',
 						main.getConfig().getString("messages.black-listed-item")));
+				perm = false;
+				CancelMessage = true;
 				return;
 			}
 
@@ -61,6 +70,7 @@ public class DisplayPermissionChecker {
 				p.sendMessage(ChatColor.translateAlternateColorCodes('&', main.getConfig()
 						.getString("messages.cooldown").replaceAll("%seconds%", "" + SecondsRemaining)));
 				CancelMessage = false;
+				perm = false;
 				return;
 
 			}

@@ -265,7 +265,6 @@ public class Metrics {
 		data.addProperty("onlineMode", onlineMode);
 		data.addProperty("bukkitVersion", bukkitVersion);
 		data.addProperty("bukkitName", bukkitName);
-		data.addProperty("old_display_messages", plugin.getConfig().getBoolean("use-old-format"));
 
 		data.addProperty("javaVersion", javaVersion);
 		data.addProperty("osName", osName);

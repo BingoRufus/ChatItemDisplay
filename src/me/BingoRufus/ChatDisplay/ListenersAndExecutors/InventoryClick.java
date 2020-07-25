@@ -78,7 +78,7 @@ public class InventoryClick implements Listener {
 
 	public void container(ItemStack item, Player p, InventoryHolder h) {
 		Container c = (Container) ((BlockStateMeta) item.getItemMeta()).getBlockState();
-		Inventory containerInv = Bukkit.createInventory(h, 27, ItemStackStuff.NameFromItem(item, true));
+		Inventory containerInv = Bukkit.createInventory(h, 27, ItemStackStuff.ItemName(item));
 		containerInv.setContents(c.getInventory().getContents());
 		main.invs.add(containerInv);
 		p.openInventory(containerInv);

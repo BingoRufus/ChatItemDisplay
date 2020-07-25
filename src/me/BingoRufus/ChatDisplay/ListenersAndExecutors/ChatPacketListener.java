@@ -50,11 +50,12 @@ public class ChatPacketListener extends PacketAdapter {
 		Player displaying = Bukkit
 				.getPlayerExact(replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell)));
 
-		TextComponent pt2 = m.displays.get(displaying.getName()).getHover();
+		String format = ChatColor.translateAlternateColorCodes('&',
+				m.getConfig().getString("messages.inchat-format") + "&r");
+		TextComponent pt2 = new TextComponent(format.substring(0, format.indexOf("%item%")));
+		pt2.addExtra(m.displays.get(displaying.getName()).getHover());
+		pt2.addExtra(format.substring(format.indexOf("%item%") + 6, format.length()));
 
-		pt2.setText(
-				ChatColor.translateAlternateColorCodes('&', m.getConfig().getString("messages.inchat-format") + "&r")
-						.replaceAll("%item%", pt2.getText()));
 		String messageJson = ComponentSerializer.toString(new TextComponent(pt1, pt2, pt3)); // Converts the text
 																								// components into 1
 																								// text component, and

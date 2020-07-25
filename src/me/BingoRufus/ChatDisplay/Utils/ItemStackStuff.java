@@ -9,6 +9,7 @@ import org.bukkit.potion.PotionType;
 
 import me.BingoRufus.ChatDisplay.Main;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class ItemStackStuff {
 	Main m;
@@ -18,24 +19,6 @@ public class ItemStackStuff {
 	}
 	public String makeStringPretty(String s) {
 		switch (s) {
-		case "WRITABLE_BOOK":
-			return "Book and Quill";
-		case "FLINT_AND_STEEL":
-			return "Flint and Steel";
-		case "ENDER_EYE":
-			return "Eye of Ender";
-		case "INSTANT_DAMAGE":
-			return "Harming";
-		case "INSTANT_HEAL":
-			return "Healing";
-		case "TURTLE_MASTER":
-			return "the Turtle Master";
-		case "REGEN":
-			return "Regeneration";
-		case "FILLED_MAP":
-			return "Map";
-		case "MAP":
-			return "Empty Map";
 		default:
 			String out = null;
 			String[] Nameparts = s.toLowerCase().split("_");
@@ -54,7 +37,7 @@ public class ItemStackStuff {
 		}
 	}
 
-	public String NameFromItem(ItemStack item, boolean isInv) {
+	public String ItemName(ItemStack item) {
 
 		String out = "§r";
 		if (item.getType().equals(Material.DRAGON_EGG) || item.getType().equals(Material.ENCHANTED_GOLDEN_APPLE))
@@ -64,7 +47,6 @@ public class ItemStackStuff {
 			out = ChatColor.AQUA + "";
 
 		if (item.getItemMeta().hasDisplayName()) {
-			out += isInv ? "" : ChatColor.ITALIC;
 			out += item.getItemMeta().getDisplayName();
 			return out;
 
@@ -111,6 +93,34 @@ public class ItemStackStuff {
 
 		}
 		return out + makeStringPretty(item.getType().name()) + ChatColor.RESET;
+
+	}
+
+	public TextComponent NameFromItem(ItemStack item) {
+
+		String out = "§r";
+		if (item.getType().equals(Material.DRAGON_EGG) || item.getType().equals(Material.ENCHANTED_GOLDEN_APPLE))
+			out = "§d";
+
+		if (item.getItemMeta().hasEnchants())
+			out = ChatColor.AQUA + "";
+
+		if (item.getItemMeta().hasDisplayName()) {
+			out += ChatColor.ITALIC;
+			out += item.getItemMeta().getDisplayName();
+			return new TextComponent(out);
+
+		}
+		if (item.getType().equals(Material.WRITTEN_BOOK)) {
+
+			BookMeta book = (BookMeta) item.getItemMeta();
+			if (book.hasTitle()) {
+				return new TextComponent(book.getTitle());
+			}
+
+		}
+		return new TextComponent(new ItemStackTranslator().translateItemStack(item));
+
 
 	}
 

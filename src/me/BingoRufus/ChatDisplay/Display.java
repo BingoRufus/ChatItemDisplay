@@ -16,17 +16,20 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 
 import me.BingoRufus.ChatDisplay.Utils.ItemStackStuff;
+import me.BingoRufus.ChatDisplay.Utils.ItemStackTranslator;
 import me.BingoRufus.ChatDisplay.Utils.PotionInfo;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class Display {
 	Boolean debug;
@@ -65,25 +68,50 @@ public class Display {
 
 	}
 
-	public String getLore() {
-		String ItemInfo = ItemStackStuff.NameFromItem(item, false);
+	public TextComponent getLore() {
+		TextComponent ItemInfo = ItemStackStuff.NameFromItem(item);
+		if(item.getItemMeta() instanceof EnchantmentStorageMeta) {
+			EnchantmentStorageMeta esm = (EnchantmentStorageMeta) item.getItemMeta();
+			ItemInfo.addExtra(enchantLore(esm.getStoredEnchants()));
+		}
+		if (item.getType().isRecord()) {
+			ItemInfo.addExtra("\n");
+			TextComponent disc = new TextComponent(ChatColor.GRAY + "");
+			disc.addExtra(new TranslatableComponent(new ItemStackTranslator().getId(item) + ".desc"));
+			ItemInfo.addExtra(disc);
+		}
 
 		if (item.getType().equals(Material.WRITTEN_BOOK)) {
 			BookMeta book = (BookMeta) item.getItemMeta();
-			if (book.hasAuthor())
-				ItemInfo += ChatColor.GRAY + "\nby " + book.getAuthor();
-			if (book.hasGeneration()) {
-				ItemInfo += ChatColor.GRAY + "\n" + ItemStackStuff.makeStringPretty(book.getGeneration().toString());
-			} else {
-				ItemInfo += ChatColor.GRAY + "\nOriginal";
 
+			if (book.hasAuthor()) {
+				ItemInfo.addExtra("\n");
+				TextComponent author = new TextComponent(new TranslatableComponent("book.byAuthor"));
+				author.addExtra(book.getAuthor());
+				author.setColor(net.md_5.bungee.api.ChatColor.GRAY);
+				ItemInfo.addExtra(author);
 			}
-		}
+			ItemInfo.addExtra("\n");
+
+			TranslatableComponent generation = new TranslatableComponent(
+					"book.generation." + (book.hasGeneration() ? book.getGeneration().ordinal() : 0));
+			generation.setColor(net.md_5.bungee.api.ChatColor.GRAY);
+			ItemInfo.addExtra(generation);
+			}
+
 		if (item.getType().equals(Material.FILLED_MAP)) {
 			MapMeta mm = (MapMeta) item.getItemMeta();
-			ItemInfo += ChatColor.GRAY + "\nId #" + mm.getMapView().getId();
-			ItemInfo += ChatColor.GRAY + "\nScaling at 1:" + (int) Math.pow(2, mm.getMapView().getScale().ordinal());
-			ItemInfo += ChatColor.GRAY + "\n(Level " + mm.getMapView().getScale().ordinal() + "/4)";
+			TextComponent map = new TextComponent();
+			map.addExtra(new TranslatableComponent("filled_map.id"));
+			map.addExtra(mm.getMapView().getId() + "");
+			map.addExtra("\n");
+			map.addExtra(new TranslatableComponent("filled_map.scale"));
+			map.addExtra((int) Math.pow(2, mm.getMapView().getScale().ordinal()) + "");
+			map.addExtra("\n");
+			map.addExtra("(Level " + mm.getMapView().getScale().ordinal() + "/4)");
+			map.setColor(net.md_5.bungee.api.ChatColor.GRAY);
+			ItemInfo.addExtra("\n");
+			ItemInfo.addExtra(map);
 
 		}
 		if (!item.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_POTION_EFFECTS)) {
@@ -92,19 +120,33 @@ public class Display {
 				if (!Arrays.asList(PotionType.MUNDANE, PotionType.UNCRAFTABLE, PotionType.AWKWARD, PotionType.THICK)
 						.contains(pm.getBasePotionData().getType())) {
 				PotionInfo pi = new PotionInfo(item, ItemStackStuff);
-				ItemInfo += "\n" + pi.getPotionInfo();
+					ItemInfo.addExtra(pi.getPotionInfo());
 				}
 
 				for (PotionEffect pot : pm.getCustomEffects()) {
+					String effectname = "";
+					try {
+						effectname = new ItemStackTranslator().potionId(PotionType.valueOf(pot.getType().getName()));
+					} catch (Exception e) {
+						effectname = pot.getType().getName().toLowerCase();
 
-					ItemInfo += "\n" + ChatColor.BLUE + ItemStackStuff.makeStringPretty(pot.getType().getName());
+					}
+					effectname = effectname.replace("minecraft:", "");
+					TranslatableComponent potname = new TranslatableComponent(
+							"effect." + (effectname.equals("swiftness") ? "minecraft.speed"
+									: effectname.equals("water") ? "none"
+											: "minecraft."
+													+ (effectname.equals("leaping") ? "jump_boost" : effectname)));
+
+					ItemInfo.addExtra("\n" + ChatColor.BLUE);
+					ItemInfo.addExtra(potname);
 					String s = pot.getAmplifier() != 0
 							? ItemStackStuff.romanNumeralify((short) (pot.getAmplifier() + 1)) + " "
 							: "";
 
-					ItemInfo += " " + s;
-					ItemInfo += "(" + PotionInfo.timeFromInt(pot.getDuration());
-					ItemInfo += ")";
+					ItemInfo.addExtra(" " + s);
+					ItemInfo.addExtra("(" + PotionInfo.timeFromInt(pot.getDuration(), true));
+					ItemInfo.addExtra(")");
 				}
 
 			}
@@ -113,24 +155,7 @@ public class Display {
 		if (!item.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_ENCHANTS)) {
 
 			if (item.getItemMeta().hasEnchants()) {
-				Map<Enchantment, Integer> enchants = item.getItemMeta().getEnchants();
-				for (Enchantment ench : item.getItemMeta().getEnchants().keySet()) {
-					if (ench.getMaxLevel() == 1 && enchants.get(ench) == ench.getMaxLevel()) {
-						ItemInfo += "\n" + ChatColor.GRAY
-								+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString());
-						continue;
-					}
-					if (!roman) {
-						ItemInfo += "\n" + ChatColor.GRAY
-								+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString()) + " "
-								+ enchants.get(ench).shortValue();
-					} else {
-						ItemInfo += "\n" + ChatColor.GRAY
-								+ ItemStackStuff.makeStringPretty(ench.getKey().getKey().toString()) + " "
-								+ ChatColor.GRAY + ItemStackStuff.romanNumeralify(enchants.get(ench).shortValue());
-					}
-
-				}
+				ItemInfo.addExtra(enchantLore(item.getItemMeta().getEnchants()));
 			}
 			if (debug)
 				Bukkit.getLogger().info("Enchants have been created");
@@ -162,12 +187,14 @@ public class Display {
 					if (debug)
 						Bukkit.getLogger().info("In For loop");
 					if (i < 5) {
-						ItemInfo += "\n" + ChatColor.WHITE + ItemStackStuff.NameFromItem(Contents.get(i), false) + " x"
-								+ Contents.get(i).getAmount();
+						TextComponent items = new TextComponent("\n" + ChatColor.WHITE);
+						items.addExtra(new ItemStackTranslator().translateItemStack(Contents.get(i)));
+						items.addExtra(new TextComponent(" x" + Contents.get(i).getAmount()));
+						ItemInfo.addExtra(items);
 
 					} else {
-						ItemInfo += "\n" + ChatColor.WHITE + "" + ChatColor.ITALIC + "and " + (Contents.size() - 4)
-								+ " more...";
+						ItemInfo.addExtra("\n" + ChatColor.WHITE + "" + ChatColor.ITALIC + "and "
+								+ (Contents.size() - 4) + " more...");
 						break;
 
 					}
@@ -181,13 +208,16 @@ public class Display {
 			if (item.getItemMeta().hasLore()) {
 				List<String> lore = item.getItemMeta().getLore();
 				for (int i = 0; i < lore.size(); i++) {
-					ItemInfo += "\n" + ChatColor.DARK_PURPLE + "" + ChatColor.ITALIC + lore.get(i);
+					ItemInfo.addExtra("\n" + ChatColor.DARK_PURPLE + "" + ChatColor.ITALIC + lore.get(i));
 
 				}
 			}
 			if ((!item.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_UNBREAKABLE)
 					&& item.getItemMeta().isUnbreakable())) {
-				ItemInfo += "\n" + ChatColor.BLUE + "Unbreakable";
+				TextComponent unbreakable = new TextComponent("\n");
+				unbreakable.addExtra(new TranslatableComponent("item.unbreakable"));
+				unbreakable.setColor(net.md_5.bungee.api.ChatColor.BLUE);
+				ItemInfo.addExtra(unbreakable);
 			}
 			if (debug)
 				Bukkit.getLogger().info("Lore has been created");
@@ -195,19 +225,38 @@ public class Display {
 		}
 
 
-		ItemInfo += "\n" + ChatColor.DARK_GRAY + item.getType().getKey().toString();
+		ItemInfo.addExtra("\n" + ChatColor.DARK_GRAY + item.getType().getKey().toString());
 
 		return ItemInfo;
 
 	}
 
-	public String getName() {
-		String ItemName = ItemStackStuff.NameFromItem(item, false);
+	private TextComponent enchantLore(Map<Enchantment, Integer> enchants) {
+		TextComponent lore = new TextComponent();
+		for (Enchantment ench : enchants.keySet()) {
+			lore.addExtra("\n" + ChatColor.GRAY);
+			lore.addExtra(new TranslatableComponent(
+					"enchantment." + ench.getKey().getNamespace() + "." + ench.getKey().getKey()));
+			if (ench.getMaxLevel() == 1 && enchants.get(ench) == ench.getMaxLevel())
+				continue;
+
+			if (!roman) {
+				lore.addExtra(" " + enchants.get(ench).shortValue());
+			} else {
+				lore.addExtra(" " + ItemStackStuff.romanNumeralify(enchants.get(ench).shortValue()));
+			}
+
+		}
+		return lore;
+	}
+
+	public TextComponent getName() {
+		TextComponent ItemName = ItemStackStuff.NameFromItem(item);
 		if (m.getConfig().getBoolean("messages.remove-item-colors"))
-			ItemName = ChatColor.stripColor(ItemName);
+			ItemName.setColor(net.md_5.bungee.api.ChatColor.RESET);
 		if (m.getConfig().getBoolean("show-item-amount") && item.getAmount() > 1)
-			ItemName += " x" + item.getAmount();
-		return ItemName + ChatColor.RESET;
+			ItemName.addExtra(" x" + item.getAmount());
+		return ItemName;
 	}
 
 	public TextComponent getHover() {
