@@ -1,10 +1,14 @@
-package me.BingoRufus.ChatDisplay.ListenersAndExecutors;
+package me.BingoRufus.ChatDisplay.Listeners;
 
+
+import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Container;
+import org.bukkit.block.EnderChest;
+import org.bukkit.block.Furnace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,24 +20,26 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
 import me.BingoRufus.ChatDisplay.Main;
-import me.BingoRufus.ChatDisplay.Utils.ItemStackStuff;
+import me.BingoRufus.ChatDisplay.Utils.ItemInfo.ItemStackStuff;
 
 public class InventoryClick implements Listener {
 	String Version;
-	private Main main;
+	private Main m;
 	ItemStackStuff ItemStackStuff;
 
 	public InventoryClick(Main m, String ver) {
 		ItemStackStuff = new ItemStackStuff(m);
-		this.main = m;
+		this.m = m;
 		Version = ver;
 
 	}
 
+
+
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
 
-		if (main.invs.contains(e.getInventory())) {
+		if (m.invs.contains(e.getInventory())) {
 			e.setCancelled(true);
 			if (e.getClickedInventory() == null)
 				return;
@@ -44,7 +50,9 @@ public class InventoryClick implements Listener {
 			if (!e.getClickedInventory().equals(p.getInventory())) {
 
 				if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
-					if (((BlockStateMeta) e.getCurrentItem().getItemMeta()).getBlockState() instanceof Container) {
+					if (((BlockStateMeta) e.getCurrentItem().getItemMeta()).getBlockState() instanceof Container
+							|| ((BlockStateMeta) e.getCurrentItem().getItemMeta()).getBlockState()
+							instanceof EnderChest) {
 						container(e.getCurrentItem(), p, e.getInventory().getHolder());
 						return;
 					}
@@ -52,7 +60,7 @@ public class InventoryClick implements Listener {
 				}
 
 
-			if (main.UpToDate(Version.split("[.]"), "1.14.2".split("[.]"))) { // The player.openBook() was added in //
+				if (m.UpToDate(Version.split("[.]"), "1.14.2".split("[.]"))) { // The player.openBook() was added in //
 																				// Spigot for version 1.14.2 this
 				// checks to make sure the version
 				// is past 1.14.2
@@ -68,19 +76,38 @@ public class InventoryClick implements Listener {
 	}
 
 	public void map(ItemStack item, Player p) {
-		main.viewingMap.put(p, p.getInventory().getItemInMainHand());
+		m.viewingMap.put(p, p.getInventory().getItemInMainHand());
 
 		p.sendMessage(
-				ChatColor.translateAlternateColorCodes('&', main.getConfig().getString("messages.map-notification")));
+				ChatColor.translateAlternateColorCodes('&', m.getConfig().getString("messages.map-notification")));
 		p.closeInventory();
 		p.getInventory().setItemInMainHand(item);
 	}
 
 	public void container(ItemStack item, Player p, InventoryHolder h) {
+		Inventory container = null;
+
+		if (((BlockStateMeta) item.getItemMeta()).getBlockState() instanceof EnderChest) {
+			container = ((Player) h).getEnderChest();
+		} else {
 		Container c = (Container) ((BlockStateMeta) item.getItemMeta()).getBlockState();
-		Inventory containerInv = Bukkit.createInventory(h, 27, ItemStackStuff.ItemName(item));
-		containerInv.setContents(c.getInventory().getContents());
-		main.invs.add(containerInv);
+			if (c instanceof Furnace && !m.hasProtocollib) {
+			return;
+		}
+			container = c.getInventory();
+		}
+
+		boolean isEmpty = Arrays.asList(container.getContents()).stream().allMatch(i -> {
+			return i == null;
+		});
+		if (isEmpty)
+			return;
+
+		Inventory containerInv = Bukkit.createInventory(h, container.getType());
+		if (item.getItemMeta().hasDisplayName())
+			containerInv = Bukkit.createInventory(h, container.getType(), ItemStackStuff.ItemName(item));
+		containerInv.setContents(container.getContents());
+		m.invs.add(containerInv);
 		p.openInventory(containerInv);
 
 	}

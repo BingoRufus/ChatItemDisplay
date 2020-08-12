@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils;
+package me.BingoRufus.ChatDisplay.Utils.Loaders;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

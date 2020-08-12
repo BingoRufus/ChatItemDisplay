@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.ListenersAndExecutors;
+package me.BingoRufus.ChatDisplay.Listeners;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +13,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import me.BingoRufus.ChatDisplay.Display;
 import me.BingoRufus.ChatDisplay.Main;
+import me.BingoRufus.ChatDisplay.Utils.DisplayPermissionChecker;
 
 public class ChatDisplayListener implements Listener {
 

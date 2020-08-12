@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils;
+package me.BingoRufus.ChatDisplay.Utils.Updater;
 
 import java.io.IOException;
 import java.io.InputStream;

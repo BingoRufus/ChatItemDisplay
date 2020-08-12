@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils;
+package me.BingoRufus.ChatDisplay.Utils.ItemInfo;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

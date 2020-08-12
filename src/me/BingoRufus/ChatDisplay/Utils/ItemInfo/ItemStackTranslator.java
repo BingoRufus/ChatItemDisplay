@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils;
+package me.BingoRufus.ChatDisplay.Utils.ItemInfo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,6 +26,32 @@ public class ItemStackTranslator {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	public String getNBT(ItemStack item) {
+		try {
+			Method asNms = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
+			asNms.setAccessible(true);
+			Object nmsItem = asNms.invoke(craftItemStack, item);
+			if (nmsItem == null) {
+				throw new IllegalArgumentException(item.getType().name() + " could not be queried!");
+			}
+			Method hasTag = nmsItem.getClass().getMethod("hasTag");
+
+			if ((boolean) hasTag.invoke(nmsItem)) {
+				Method getTag = nmsItem.getClass().getMethod("getTag");
+				Object nbtData = getTag.invoke(nmsItem);
+
+				Method asString = nbtData.getClass().getMethod("asString");
+				return (String) asString.invoke(nbtData);
+			}
+
+		} catch (IllegalArgumentException | NoSuchMethodException | SecurityException | IllegalAccessException
+				| InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return "{}";
 
 	}
 

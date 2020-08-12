@@ -1,10 +1,11 @@
-package me.BingoRufus.ChatDisplay.ListenersAndExecutors;
+package me.BingoRufus.ChatDisplay.Utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.BingoRufus.ChatDisplay.Main;
+import me.BingoRufus.ChatDisplay.Listeners.ChatDisplayListener;
 import net.md_5.bungee.api.ChatColor;
 
 public class DisplayPermissionChecker {
@@ -14,6 +15,7 @@ public class DisplayPermissionChecker {
 	public boolean CancelMessage() {
 		return CancelMessage;
 	}
+
 	public boolean hasPermission() {
 		return perm;
 	}

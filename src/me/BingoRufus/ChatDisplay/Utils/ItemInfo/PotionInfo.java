@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils;
+package me.BingoRufus.ChatDisplay.Utils.ItemInfo;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +9,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
+import me.BingoRufus.ChatDisplay.Utils.ItemInfo.ItemStackStuff;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;

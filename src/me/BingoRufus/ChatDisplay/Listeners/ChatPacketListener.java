@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.ListenersAndExecutors;
+package me.BingoRufus.ChatDisplay.Listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,9 +25,18 @@ public class ChatPacketListener extends PacketAdapter {
 		super(plugin, listenerPriority, types);
 		m = (Main) plugin;
 	}
+	@Override
+	public void onPacketReceiving(final PacketEvent e) {
+		if (m.invs.contains(e.getPlayer().getOpenInventory().getTopInventory())) {
+			e.setCancelled(true);
+			return;
+		}
+	}
 
 	@Override
 	public void onPacketSending(final PacketEvent e) {
+
+
 		PacketContainer packet = e.getPacket();
 		WrappedChatComponent chat = packet.getChatComponents().read(0);
 		if (chat == null)

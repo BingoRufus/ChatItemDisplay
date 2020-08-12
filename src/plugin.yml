@@ -1,9 +1,9 @@
 name: ChatItemDisplay
 main: me.BingoRufus.ChatDisplay.Main
-description: Display items in Chat
+description: Display items in chat
 api-version: 1.13
 author: BingoRufus
-version: 1.4.3
+version: 1.4.4
 softdepend: [ProtocolLib]
 load: POSTWORLD
 commands:

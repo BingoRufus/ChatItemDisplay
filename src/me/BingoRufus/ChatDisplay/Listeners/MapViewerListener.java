@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.ListenersAndExecutors;
+package me.BingoRufus.ChatDisplay.Listeners;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

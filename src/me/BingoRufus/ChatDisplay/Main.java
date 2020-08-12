@@ -13,16 +13,16 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatDisplayListener;
-import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ChatItemReloadExecutor;
-import me.BingoRufus.ChatDisplay.ListenersAndExecutors.DisplayCommandExecutor;
-import me.BingoRufus.ChatDisplay.ListenersAndExecutors.MapViewerListener;
-import me.BingoRufus.ChatDisplay.ListenersAndExecutors.NewVersionDisplayer;
-import me.BingoRufus.ChatDisplay.ListenersAndExecutors.ViewItemExecutor;
-import me.BingoRufus.ChatDisplay.Utils.Metrics;
-import me.BingoRufus.ChatDisplay.Utils.ProtocolLibRegister;
-import me.BingoRufus.ChatDisplay.Utils.UpdateChecker;
-import me.BingoRufus.ChatDisplay.Utils.UpdateDownloader;
+import me.BingoRufus.ChatDisplay.Executors.ChatItemReloadExecutor;
+import me.BingoRufus.ChatDisplay.Executors.DisplayCommandExecutor;
+import me.BingoRufus.ChatDisplay.Executors.ViewItemExecutor;
+import me.BingoRufus.ChatDisplay.Listeners.ChatDisplayListener;
+import me.BingoRufus.ChatDisplay.Listeners.MapViewerListener;
+import me.BingoRufus.ChatDisplay.Listeners.NewVersionDisplayer;
+import me.BingoRufus.ChatDisplay.Utils.Loaders.Metrics;
+import me.BingoRufus.ChatDisplay.Utils.Loaders.ProtocolLibRegister;
+import me.BingoRufus.ChatDisplay.Utils.Updater.UpdateChecker;
+import me.BingoRufus.ChatDisplay.Utils.Updater.UpdateDownloader;
 
 public class Main extends JavaPlugin {
 	ChatDisplayListener DisplayListener;
@@ -36,6 +36,7 @@ public class Main extends JavaPlugin {
 
 	public List<Inventory> invs = new ArrayList<Inventory>();
 
+	public boolean hasProtocollib = false;
 	public Boolean useOldFormat = false;
 
 	/*
@@ -86,9 +87,11 @@ public class Main extends JavaPlugin {
 		if (!useOldFormat) {
 			pl = new ProtocolLibRegister(this);
 			pl.registerPacketListener();
+			hasProtocollib = true;
 		} else {
 			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "" + ChatColor.BOLD
 					+ "[ChatItemDisplay] In Chat Item Displaying has Been Disabled Because This Server Does Not Have ProtocolLib");
+			hasProtocollib = false;
 		}
 		if (DisplayListener != null)
 			HandlerList.unregisterAll(DisplayListener);

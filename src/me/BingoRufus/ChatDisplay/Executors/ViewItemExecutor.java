@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.ListenersAndExecutors;
+package me.BingoRufus.ChatDisplay.Executors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
