@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Listeners;
+package me.bingorufus.chatitemdisplay.listeners;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,12 +17,12 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 
-import me.BingoRufus.ChatDisplay.Main;
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 
 public class MapViewerListener implements Listener {
-	Main m;
+	ChatItemDisplay m;
 
-	public MapViewerListener(Main m) {
+	public MapViewerListener(ChatItemDisplay m) {
 		this.m = m;
 	}
 

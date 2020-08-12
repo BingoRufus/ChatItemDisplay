@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils.ItemInfo;
+package me.bingorufus.chatitemdisplay.Utils.iteminfo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

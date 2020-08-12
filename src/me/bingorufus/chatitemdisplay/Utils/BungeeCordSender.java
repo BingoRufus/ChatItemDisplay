@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils;
+package me.bingorufus.chatitemdisplay.Utils;
 
 
 import net.md_5.bungee.BungeeCord;

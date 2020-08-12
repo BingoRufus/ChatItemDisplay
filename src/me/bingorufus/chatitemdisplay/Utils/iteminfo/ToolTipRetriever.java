@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils.ItemInfo;
+package me.bingorufus.chatitemdisplay.Utils.iteminfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,17 +20,17 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 
-import me.BingoRufus.ChatDisplay.Main;
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class ToolTipRetriever {
-	Main m;
+	ChatItemDisplay m;
 	boolean debug;
 	ItemStackStuff ItemStackStuff;
 	boolean roman;
 
-	public ToolTipRetriever(Main m) {
+	public ToolTipRetriever(ChatItemDisplay m) {
 		this.m = m;
 		debug = m.getConfig().getBoolean("debug-mode");
 		roman = m.getConfig().getBoolean("enchantments.use-roman-numerals");

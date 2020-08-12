@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Listeners;
+package me.bingorufus.chatitemdisplay.listeners;
 
 
 import java.util.Arrays;
@@ -19,15 +19,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
-import me.BingoRufus.ChatDisplay.Main;
-import me.BingoRufus.ChatDisplay.Utils.ItemInfo.ItemStackStuff;
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.Utils.iteminfo.ItemStackStuff;
 
 public class InventoryClick implements Listener {
 	String Version;
-	private Main m;
+	private ChatItemDisplay m;
 	ItemStackStuff ItemStackStuff;
 
-	public InventoryClick(Main m, String ver) {
+	public InventoryClick(ChatItemDisplay m, String ver) {
 		ItemStackStuff = new ItemStackStuff(m);
 		this.m = m;
 		Version = ver;

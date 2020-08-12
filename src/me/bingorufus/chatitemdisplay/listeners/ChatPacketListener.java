@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Listeners;
+package me.bingorufus.chatitemdisplay.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -12,18 +12,18 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
-import me.BingoRufus.ChatDisplay.Main;
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ChatPacketListener extends PacketAdapter {
 	char bell = '\u0007';
 
-	Main m;
+	ChatItemDisplay m;
 
 	public ChatPacketListener(Plugin plugin, ListenerPriority listenerPriority, PacketType... types) {
 		super(plugin, listenerPriority, types);
-		m = (Main) plugin;
+		m = (ChatItemDisplay) plugin;
 	}
 	@Override
 	public void onPacketReceiving(final PacketEvent e) {

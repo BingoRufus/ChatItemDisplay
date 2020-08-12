@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Listeners;
+package me.bingorufus.chatitemdisplay.listeners;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,9 +11,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import me.BingoRufus.ChatDisplay.Display;
-import me.BingoRufus.ChatDisplay.Main;
-import me.BingoRufus.ChatDisplay.Utils.DisplayPermissionChecker;
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.Display;
+import me.bingorufus.chatitemdisplay.Utils.DisplayPermissionChecker;
 
 public class ChatDisplayListener implements Listener {
 
@@ -23,17 +23,17 @@ public class ChatDisplayListener implements Listener {
 	public static Map<UUID, Long> DisplayItemCooldowns = new HashMap<UUID, Long>();
 	String MsgName;
 	String GUIName;
-	Main main;
+	ChatItemDisplay chatItemDisplay;
 	boolean debug;
 	String Version;
 
-	public ChatDisplayListener(Main m) {
+	public ChatDisplayListener(ChatItemDisplay m) {
 		m.reloadConfig();
-		main = m;
-		debug = main.getConfig().getBoolean("debug-mode");
+		chatItemDisplay = m;
+		debug = chatItemDisplay.getConfig().getBoolean("debug-mode");
 		Version = Bukkit.getServer().getVersion().substring(Bukkit.getServer().getVersion().indexOf("(MC: ") + 5,
 				Bukkit.getServer().getVersion().indexOf(")"));
-		Bukkit.getPluginManager().registerEvents(new InventoryClick(main, Version), main);
+		Bukkit.getPluginManager().registerEvents(new InventoryClick(chatItemDisplay, Version), chatItemDisplay);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -48,18 +48,18 @@ public class ChatDisplayListener implements Listener {
 			return;
 		}
 
-		for (String Trigger : main.getConfig().getStringList("triggers")) {
+		for (String Trigger : chatItemDisplay.getConfig().getStringList("triggers")) {
 			if (e.getMessage().toUpperCase().contains(Trigger.toUpperCase())) {
 
 				if (debug)
 					Bukkit.getLogger().info(e.getPlayer().getName() + "'s message contains an item display trigger");
 
-				DisplayPermissionChecker dpc = new DisplayPermissionChecker(main, e.getPlayer());
+				DisplayPermissionChecker dpc = new DisplayPermissionChecker(chatItemDisplay, e.getPlayer());
 				if (dpc.hasPermission()) {
-					if (main.useOldFormat) {
-						main.displays.put(e.getPlayer().getName(), new Display(main, e.getPlayer()));
+					if (chatItemDisplay.useOldFormat) {
+						chatItemDisplay.displays.put(e.getPlayer().getName(), new Display(chatItemDisplay, e.getPlayer()));
 						e.setCancelled(true);
-						Bukkit.getScheduler().runTask(main, () -> {
+						Bukkit.getScheduler().runTask(chatItemDisplay, () -> {
 							String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),
 									bell + "split");
 							String[] parts = newmsg.split(bell + "split");
@@ -67,7 +67,7 @@ public class ChatDisplayListener implements Listener {
 							String last = parts.length == 0 ? ""
 									: parts.length == 2 ? parts[1] : first.equals("") ? parts[0] : "";
 							e.getPlayer().chat(first.trim());
-						main.displays.get(e.getPlayer().getName()).cmdMsg();
+						chatItemDisplay.displays.get(e.getPlayer().getName()).cmdMsg();
 							e.getPlayer().chat(last.trim());
 
 
@@ -78,7 +78,7 @@ public class ChatDisplayListener implements Listener {
 					String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),
 							bell + "cid" + e.getPlayer().getName() + bell);
 					e.setMessage(newmsg);
-					main.displays.put(e.getPlayer().getName(), new Display(main, e.getPlayer()));
+					chatItemDisplay.displays.put(e.getPlayer().getName(), new Display(chatItemDisplay, e.getPlayer()));
 					return;
 
 				}

@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay;
+package me.bingorufus.chatitemdisplay;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -6,10 +6,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import me.BingoRufus.ChatDisplay.Utils.MessageBroadcaster;
-import me.BingoRufus.ChatDisplay.Utils.ItemInfo.ItemStackStuff;
-import me.BingoRufus.ChatDisplay.Utils.ItemInfo.ItemStackTranslator;
-import me.BingoRufus.ChatDisplay.Utils.ItemInfo.ToolTipRetriever;
+import me.bingorufus.chatitemdisplay.Utils.MessageBroadcaster;
+import me.bingorufus.chatitemdisplay.Utils.iteminfo.ItemStackStuff;
+import me.bingorufus.chatitemdisplay.Utils.iteminfo.ItemStackTranslator;
+import me.bingorufus.chatitemdisplay.Utils.iteminfo.ToolTipRetriever;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -19,7 +19,7 @@ import net.md_5.bungee.api.chat.hover.content.Item;
 
 public class Display {
 	Boolean debug;
-	Main m;
+	ChatItemDisplay m;
 	TextComponent PreMsg = new TextComponent();
 	TextComponent EndMsg = new TextComponent();
 	public ItemStack item;
@@ -28,7 +28,7 @@ public class Display {
 	ItemStackStuff ItemStackStuff;
 
 
-	public Display(Main m, Player p) {
+	public Display(ChatItemDisplay m, Player p) {
 		ItemStackStuff = new ItemStackStuff(m);
 		this.m = m;
 		this.item = p.getInventory().getItemInMainHand();

@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils;
+package me.bingorufus.chatitemdisplay.Utils;
 
 import org.bukkit.Bukkit;
 import org.spigotmc.SpigotConfig;

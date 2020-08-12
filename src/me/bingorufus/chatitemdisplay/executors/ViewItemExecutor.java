@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Executors;
+package me.bingorufus.chatitemdisplay.executors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -6,21 +6,21 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import me.BingoRufus.ChatDisplay.Main;
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import net.md_5.bungee.api.ChatColor;
 
 public class ViewItemExecutor implements CommandExecutor {
-	Main main;
+	ChatItemDisplay chatItemDisplay;
 
-	public ViewItemExecutor(Main m) {
-		main = m;
+	public ViewItemExecutor(ChatItemDisplay m) {
+		chatItemDisplay = m;
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("viewitem")) {
-			if (main.getConfig().getBoolean("disable-gui")) {
+			if (chatItemDisplay.getConfig().getBoolean("disable-gui")) {
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-						main.getConfig().getString("messages.gui-disabled")));
+						chatItemDisplay.getConfig().getString("messages.gui-disabled")));
 				return true;
 
 			}
@@ -36,12 +36,12 @@ public class ViewItemExecutor implements CommandExecutor {
 			if (Bukkit.getPlayer(args[0]) != null) {
 				target = Bukkit.getPlayer(args[0]).getName();
 			}
-			if (main.displaying.containsKey(target)) {
-				p.openInventory(main.displaying.get(target));
+			if (chatItemDisplay.displaying.containsKey(target)) {
+				p.openInventory(chatItemDisplay.displaying.get(target));
 				return true;
 			}
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-					main.getConfig().getString("messages.player-not-displaying-anything")));
+					chatItemDisplay.getConfig().getString("messages.player-not-displaying-anything")));
 			return true;
 
 		}

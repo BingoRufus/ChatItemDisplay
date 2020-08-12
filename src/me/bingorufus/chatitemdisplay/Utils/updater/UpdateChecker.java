@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils.Updater;
+package me.bingorufus.chatitemdisplay.Utils.updater;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,14 +9,14 @@ import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
 
-import me.BingoRufus.ChatDisplay.Main;
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 
 public class UpdateChecker {
 
-	private Main plugin;
+	private ChatItemDisplay plugin;
 	private Integer id;
 
-	public UpdateChecker(Main m, Integer i) {
+	public UpdateChecker(ChatItemDisplay m, Integer i) {
 		this.plugin = m;
 		this.id = i;
 	}

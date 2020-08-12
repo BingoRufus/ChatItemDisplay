@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils.Updater;
+package me.bingorufus.chatitemdisplay.Utils.updater;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -11,19 +11,19 @@ import java.util.Scanner;
 
 import org.bukkit.Bukkit;
 
-import me.BingoRufus.ChatDisplay.Main;
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 
 public class UpdateDownloader {
-	Main main;
+	ChatItemDisplay chatItemDisplay;
 	String version;
 
-	public UpdateDownloader(Main m, String ver) {
-		main = m;
+	public UpdateDownloader(ChatItemDisplay m, String ver) {
+		chatItemDisplay = m;
 		version = ver;
 	}
 
 	public void download() {
-		Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+		Bukkit.getScheduler().runTaskAsynchronously(chatItemDisplay, () -> {
 			try (BufferedReader inputStream = new BufferedReader(new InputStreamReader(new URL(
 					"https://gist.githubusercontent.com/BingoRufus/a3714f3e6afb400122ec5ffefe6c430c/raw/?version="
 							+ Math.random()).openStream()));

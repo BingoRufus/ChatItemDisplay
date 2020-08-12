@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay;
+package me.bingorufus.chatitemdisplay;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,18 +13,18 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.BingoRufus.ChatDisplay.Executors.ChatItemReloadExecutor;
-import me.BingoRufus.ChatDisplay.Executors.DisplayCommandExecutor;
-import me.BingoRufus.ChatDisplay.Executors.ViewItemExecutor;
-import me.BingoRufus.ChatDisplay.Listeners.ChatDisplayListener;
-import me.BingoRufus.ChatDisplay.Listeners.MapViewerListener;
-import me.BingoRufus.ChatDisplay.Listeners.NewVersionDisplayer;
-import me.BingoRufus.ChatDisplay.Utils.Loaders.Metrics;
-import me.BingoRufus.ChatDisplay.Utils.Loaders.ProtocolLibRegister;
-import me.BingoRufus.ChatDisplay.Utils.Updater.UpdateChecker;
-import me.BingoRufus.ChatDisplay.Utils.Updater.UpdateDownloader;
+import me.bingorufus.chatitemdisplay.Utils.loaders.Metrics;
+import me.bingorufus.chatitemdisplay.Utils.loaders.ProtocolLibRegister;
+import me.bingorufus.chatitemdisplay.Utils.updater.UpdateChecker;
+import me.bingorufus.chatitemdisplay.Utils.updater.UpdateDownloader;
+import me.bingorufus.chatitemdisplay.executors.ChatItemReloadExecutor;
+import me.bingorufus.chatitemdisplay.executors.DisplayCommandExecutor;
+import me.bingorufus.chatitemdisplay.executors.ViewItemExecutor;
+import me.bingorufus.chatitemdisplay.listeners.ChatDisplayListener;
+import me.bingorufus.chatitemdisplay.listeners.MapViewerListener;
+import me.bingorufus.chatitemdisplay.listeners.NewVersionDisplayer;
 
-public class Main extends JavaPlugin {
+public class ChatItemDisplay extends JavaPlugin {
 	ChatDisplayListener DisplayListener;
 	NewVersionDisplayer NewVer;
 

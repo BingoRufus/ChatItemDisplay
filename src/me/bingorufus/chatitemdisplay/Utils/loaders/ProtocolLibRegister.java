@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils.Loaders;
+package me.bingorufus.chatitemdisplay.Utils.loaders;
 
 
 import com.comphenix.protocol.PacketType;
@@ -6,16 +6,16 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 
-import me.BingoRufus.ChatDisplay.Main;
-import me.BingoRufus.ChatDisplay.Listeners.ChatPacketListener;
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.listeners.ChatPacketListener;
 
 public class ProtocolLibRegister {
-	Main m;
+	ChatItemDisplay m;
 	ChatPacketListener packetListener;
 
 	ProtocolManager pm;
 
-	public ProtocolLibRegister(Main m) {
+	public ProtocolLibRegister(ChatItemDisplay m) {
 		pm = ProtocolLibrary.getProtocolManager();
 		this.m = m;
 	}

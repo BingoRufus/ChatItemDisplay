@@ -1,5 +1,5 @@
 name: ChatItemDisplay
-main: me.BingoRufus.ChatDisplay.Main
+main: me.BingoRufus.ChatDisplay.ChatItemDisplay
 description: Display items in chat
 api-version: 1.13
 author: BingoRufus

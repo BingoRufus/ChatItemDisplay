@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils.Loaders;
+package me.bingorufus.chatitemdisplay.Utils.loaders;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -185,7 +185,7 @@ public class Metrics {
 					timer.cancel();
 					return;
 				}
-				// Nevertheless we want our code to run in the Bukkit main thread, so we have to
+				// Nevertheless we want our code to run in the Bukkit chatItemDisplay thread, so we have to
 				// use the Bukkit scheduler
 				// Don't be afraid! The connection to the bStats server is still async, only the
 				// stats collection is sync ;)
@@ -345,7 +345,7 @@ public class Metrics {
 			throw new IllegalArgumentException("Data cannot be null!");
 		}
 		if (Bukkit.isPrimaryThread()) {
-			throw new IllegalAccessException("This method must not be called from the main thread!");
+			throw new IllegalAccessException("This method must not be called from the chatItemDisplay thread!");
 		}
 		if (logSentData) {
 			plugin.getLogger().info("Sending data to bStats: " + data);

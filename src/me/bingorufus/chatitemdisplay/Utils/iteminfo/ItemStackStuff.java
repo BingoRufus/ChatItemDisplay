@@ -1,4 +1,4 @@
-package me.BingoRufus.ChatDisplay.Utils.ItemInfo;
+package me.bingorufus.chatitemdisplay.Utils.iteminfo;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -7,14 +7,14 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 
-import me.BingoRufus.ChatDisplay.Main;
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class ItemStackStuff {
-	Main m;
+	ChatItemDisplay m;
 
-	public ItemStackStuff(Main m) {
+	public ItemStackStuff(ChatItemDisplay m) {
 		this.m = m;
 	}
 	public String makeStringPretty(String s) {
