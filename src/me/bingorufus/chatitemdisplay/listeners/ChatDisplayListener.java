@@ -13,7 +13,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.Display;
-import me.bingorufus.chatitemdisplay.Utils.DisplayPermissionChecker;
+import me.bingorufus.chatitemdisplay.utils.DisplayPermissionChecker;
 
 public class ChatDisplayListener implements Listener {
 
@@ -56,8 +56,12 @@ public class ChatDisplayListener implements Listener {
 
 				DisplayPermissionChecker dpc = new DisplayPermissionChecker(chatItemDisplay, e.getPlayer());
 				if (dpc.hasPermission()) {
+
+					chatItemDisplay.displays.put(e.getPlayer().getName(),
+							new Display(chatItemDisplay, e.getPlayer().getInventory().getItemInMainHand(),
+									e.getPlayer().getName(), e.getPlayer().getDisplayName(), false));
 					if (chatItemDisplay.useOldFormat) {
-						chatItemDisplay.displays.put(e.getPlayer().getName(), new Display(chatItemDisplay, e.getPlayer()));
+
 						e.setCancelled(true);
 						Bukkit.getScheduler().runTask(chatItemDisplay, () -> {
 							String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),
@@ -78,7 +82,6 @@ public class ChatDisplayListener implements Listener {
 					String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),
 							bell + "cid" + e.getPlayer().getName() + bell);
 					e.setMessage(newmsg);
-					chatItemDisplay.displays.put(e.getPlayer().getName(), new Display(chatItemDisplay, e.getPlayer()));
 					return;
 
 				}

@@ -1,4 +1,4 @@
-package me.bingorufus.chatitemdisplay.Utils;
+package me.bingorufus.chatitemdisplay.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

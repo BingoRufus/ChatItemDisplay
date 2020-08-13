@@ -1,4 +1,4 @@
-package me.bingorufus.chatitemdisplay.Utils.updater;
+package me.bingorufus.chatitemdisplay.utils.updater;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

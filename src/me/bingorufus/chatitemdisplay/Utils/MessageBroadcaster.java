@@ -1,24 +1,25 @@
-package me.bingorufus.chatitemdisplay.Utils;
+package me.bingorufus.chatitemdisplay.utils;
 
 import org.bukkit.Bukkit;
-import org.spigotmc.SpigotConfig;
 
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.Display;
+import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordSender;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class MessageBroadcaster {
-
-	public void broadcast(TextComponent... tc) {
+//new Display(chatItemDisplay, p.getInventory().getItemInMainHand(), p.getName(), p.getDisplayName())
+	public void broadcast(ChatItemDisplay m, Display dis, boolean isCmd, boolean fromBungee, TextComponent... tc) {
 		TextComponent msg = new TextComponent();
-		for(TextComponent text : tc ) {
+
+		for (TextComponent text : tc) {
 			msg.addExtra(text);
 		}
-		if(!Bukkit.getServer().getOnlineMode() && SpigotConfig.bungee) {
-			new BungeeCordSender().sendTextComponent(msg);
-			return;
+
+		if (!fromBungee && m.isBungee()) {
+			new BungeeCordSender(m).sendTextComponent(msg, dis, isCmd);
 		}
-		Bukkit.getOnlinePlayers().forEach(p -> {
-			p.spigot().sendMessage(msg);
-		});
+		Bukkit.spigot().broadcast(msg);
 
 	}
 }

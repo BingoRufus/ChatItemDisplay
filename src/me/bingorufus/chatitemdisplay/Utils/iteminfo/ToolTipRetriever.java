@@ -1,4 +1,4 @@
-package me.bingorufus.chatitemdisplay.Utils.iteminfo;
+package me.bingorufus.chatitemdisplay.utils.iteminfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +35,7 @@ public class ToolTipRetriever {
 		debug = m.getConfig().getBoolean("debug-mode");
 		roman = m.getConfig().getBoolean("enchantments.use-roman-numerals");
 
-		ItemStackStuff = new ItemStackStuff(m);
+		ItemStackStuff = new ItemStackStuff();
 		
 	}
 	public TextComponent getLore(ItemStack item) {
@@ -116,7 +116,8 @@ public class ToolTipRetriever {
 					ItemInfo.addExtra("\n" + ChatColor.BLUE);
 					ItemInfo.addExtra(potname);
 					String s = pot.getAmplifier() != 0
-							? ItemStackStuff.romanNumeralify((short) (pot.getAmplifier() + 1)) + " "
+							? ItemStackStuff.romanNumeralify((short) (pot.getAmplifier() + 1),
+									m.getConfig().getBoolean("enchantments.use-minecraft-style-numerals")) + " "
 							: "";
 
 					ItemInfo.addExtra(" " + s);
@@ -215,7 +216,8 @@ public class ToolTipRetriever {
 			if (!roman) {
 				lore.addExtra(" " + enchants.get(ench).shortValue());
 			} else {
-				lore.addExtra(" " + ItemStackStuff.romanNumeralify(enchants.get(ench).shortValue()));
+				lore.addExtra(" " + ItemStackStuff.romanNumeralify(enchants.get(ench).shortValue(),
+						m.getConfig().getBoolean("enchantments.use-minecraft-style-numerals")));
 			}
 
 		}

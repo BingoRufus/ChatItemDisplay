@@ -1,4 +1,4 @@
-package me.bingorufus.chatitemdisplay.Utils.loaders;
+package me.bingorufus.chatitemdisplay.utils.loaders;
 
 
 import com.comphenix.protocol.PacketType;

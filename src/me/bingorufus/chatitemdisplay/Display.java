@@ -2,14 +2,13 @@ package me.bingorufus.chatitemdisplay;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import me.bingorufus.chatitemdisplay.Utils.MessageBroadcaster;
-import me.bingorufus.chatitemdisplay.Utils.iteminfo.ItemStackStuff;
-import me.bingorufus.chatitemdisplay.Utils.iteminfo.ItemStackTranslator;
-import me.bingorufus.chatitemdisplay.Utils.iteminfo.ToolTipRetriever;
+import me.bingorufus.chatitemdisplay.utils.MessageBroadcaster;
+import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemStackStuff;
+import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemStackTranslator;
+import me.bingorufus.chatitemdisplay.utils.iteminfo.ToolTipRetriever;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -23,28 +22,33 @@ public class Display {
 	TextComponent PreMsg = new TextComponent();
 	TextComponent EndMsg = new TextComponent();
 	public ItemStack item;
-	Player p;
 	Inventory inventory;
 	ItemStackStuff ItemStackStuff;
+	public String playerName;
+	public String displayName;
+	public boolean fromBungee;
 
 
-	public Display(ChatItemDisplay m, Player p) {
-		ItemStackStuff = new ItemStackStuff(m);
+	public Display(ChatItemDisplay m, ItemStack item, String playerName, String displayName, Boolean fromBungee) {
+		ItemStackStuff = new ItemStackStuff();
 		this.m = m;
-		this.item = p.getInventory().getItemInMainHand();
-		this.p = p;
+		this.playerName = playerName;
+		this.item = item;
+		this.displayName = displayName;
+		this.fromBungee = fromBungee;
+
 		String guiname = m.getConfig().getString("messages.gui-format");
 		guiname = ChatColor.translateAlternateColorCodes('&', guiname);
-		;
 
-		inventory = Bukkit.createInventory(p, 9, guiname.replaceAll("%player%",
-				m.getConfig().getBoolean("use-nicks-in-gui") ? p.getDisplayName() : p.getName()));
+
+		inventory = Bukkit.createInventory(null, 9, guiname.replaceAll("%player%",
+				m.getConfig().getBoolean("use-nicks-in-gui") ? displayName : playerName));
 		inventory.setItem(4, item);
 
 		Bukkit.getScheduler().runTask(m, () -> {
 			if (!m.invs.contains(inventory)) {
 				m.invs.add(inventory);
-				m.displaying.put(p.getName(), inventory);
+				m.displaying.put(playerName, inventory);
 			}
 		});
 
@@ -77,22 +81,23 @@ public class Display {
 					new ComponentBuilder(new ToolTipRetriever(m).getLore(item)).create()));
 
 		}
-		Hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + p.getName()));
+		Hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + playerName));
 
 		return Hover;
 	}
+
 
 	public void cmdMsg() {
 
 		String format = m.getConfig().getString("messages.display-format");
 		format = format.replaceAll("%player%",
-				m.getConfig().getBoolean("use-nicks-in-display-message") ? p.getDisplayName() : p.getName());
+				m.getConfig().getBoolean("use-nicks-in-display-message") ? displayName : playerName);
 		format = ChatColor.translateAlternateColorCodes('&', format);
 		String[] sects = format.split("%item%");
 		PreMsg = format.indexOf("%item%") > 0 ? new TextComponent(sects[0]) : new TextComponent("");
 		EndMsg = sects.length == 2 ? new TextComponent(sects[1])
 				: PreMsg.getText() == null ? new TextComponent(sects[0]) : new TextComponent("");
-		new MessageBroadcaster().broadcast(PreMsg, getHover(), EndMsg);
+		new MessageBroadcaster().broadcast(m, this, true, this.fromBungee, PreMsg, getHover(), EndMsg);
 	}
 
 

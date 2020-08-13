@@ -13,22 +13,25 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.bingorufus.chatitemdisplay.Utils.loaders.Metrics;
-import me.bingorufus.chatitemdisplay.Utils.loaders.ProtocolLibRegister;
-import me.bingorufus.chatitemdisplay.Utils.updater.UpdateChecker;
-import me.bingorufus.chatitemdisplay.Utils.updater.UpdateDownloader;
 import me.bingorufus.chatitemdisplay.executors.ChatItemReloadExecutor;
 import me.bingorufus.chatitemdisplay.executors.DisplayCommandExecutor;
 import me.bingorufus.chatitemdisplay.executors.ViewItemExecutor;
 import me.bingorufus.chatitemdisplay.listeners.ChatDisplayListener;
 import me.bingorufus.chatitemdisplay.listeners.MapViewerListener;
 import me.bingorufus.chatitemdisplay.listeners.NewVersionDisplayer;
+import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordReceiver;
+import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordSender;
+import me.bingorufus.chatitemdisplay.utils.loaders.Metrics;
+import me.bingorufus.chatitemdisplay.utils.loaders.ProtocolLibRegister;
+import me.bingorufus.chatitemdisplay.utils.updater.UpdateChecker;
+import me.bingorufus.chatitemdisplay.utils.updater.UpdateDownloader;
 
 public class ChatItemDisplay extends JavaPlugin {
 	ChatDisplayListener DisplayListener;
 	NewVersionDisplayer NewVer;
-
 	ProtocolLibRegister pl;
+	BungeeCordReceiver in;
+	BungeeCordSender out;
 
 	public HashMap<String, Inventory> displaying = new HashMap<String, Inventory>();
 	public HashMap<String, Display> displays = new HashMap<String, Display>();
@@ -76,7 +79,17 @@ public class ChatItemDisplay extends JavaPlugin {
 	}
 
 	public void reloadConfigVars() {
+		if (in != null) {
+			getServer().getMessenger().unregisterIncomingPluginChannel(this, "chatitemdisplay:itemin", in);
+		}
 
+		if (isBungee()) {
+
+			in = new BungeeCordReceiver(this);
+			getServer().getMessenger().registerIncomingPluginChannel(this, "chatitemdisplay:itemin", in);
+			getServer().getMessenger().registerOutgoingPluginChannel(this, "chatitemdisplay:itemout");
+
+		}
 
 		this.saveDefaultConfig();
 		this.reloadConfig();
@@ -90,7 +103,7 @@ public class ChatItemDisplay extends JavaPlugin {
 			hasProtocollib = true;
 		} else {
 			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "" + ChatColor.BOLD
-					+ "[ChatItemDisplay] In Chat Item Displaying has Been Disabled Because This Server Does Not Have ProtocolLib");
+					+ "[ChatItemDisplay] In Chat Item Displaying has Been Disabled Because This Server Does Not Have ProtocolLib Or Has Been Disabled in The config.yml");
 			hasProtocollib = false;
 		}
 		if (DisplayListener != null)
@@ -166,6 +179,17 @@ public class ChatItemDisplay extends JavaPlugin {
 			return true;
 
 		return false;
+	}
+
+	public boolean isBungee() {
+		// we check if the server is Spigot/Paper (because of the spigot.yml file)
+		if (!getServer().getVersion().contains("Spigot") && !getServer().getVersion().contains("Paper"))
+			return false;
+
+		if (getServer().spigot().getConfig().getConfigurationSection("settings").getBoolean("settings.bungeecord"))
+			return false;
+		return true;
+
 	}
 
 }

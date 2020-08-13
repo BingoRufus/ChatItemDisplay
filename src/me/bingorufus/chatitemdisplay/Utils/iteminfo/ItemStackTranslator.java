@@ -1,9 +1,10 @@
-package me.bingorufus.chatitemdisplay.Utils.iteminfo;
+package me.bingorufus.chatitemdisplay.utils.iteminfo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -15,6 +16,8 @@ public class ItemStackTranslator {
 
 	private Class<?> craftPotionUtil;
 	private Class<?> craftItemStack;
+	private Class<?> mojangsonParser;
+	private Class<?> nmsItemStack;
 	
 	public ItemStackTranslator() {
 		try {
@@ -23,6 +26,9 @@ public class ItemStackTranslator {
 					.forName("org.bukkit.craftbukkit.{v}.potion.CraftPotionUtil".replace("{v}", version));
 			craftItemStack = Class
 					.forName("org.bukkit.craftbukkit.{v}.inventory.CraftItemStack".replace("{v}", version));
+			mojangsonParser = Class
+					.forName("net.minecraft.server.{v}.MojangsonParser".replace("{v}", version));
+			nmsItemStack = Class.forName("net.minecraft.server.{v}.ItemStack".replace("{v}", version));
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -52,6 +58,29 @@ public class ItemStackTranslator {
 			e.printStackTrace();
 		}
 		return "{}";
+
+	}
+
+	public ItemStack fromNBT(ItemStack baseItem, String NBTData) {
+		try {
+			Method asNMS = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
+			Object nmsItem = asNMS.invoke(craftItemStack, baseItem);
+
+			Method parseNBT = mojangsonParser.getMethod("parse", String.class);
+			Object nbtCompound = parseNBT.invoke(mojangsonParser, NBTData);
+
+			Method setTag = nmsItemStack.getMethod("setTag", nbtCompound.getClass());
+			setTag.invoke(nmsItem, nbtCompound);
+
+			Method asBukkitCopy = craftItemStack.getMethod("asBukkitCopy", nmsItemStack);
+			ItemStack editedItem = (ItemStack) asBukkitCopy.invoke(craftItemStack, nmsItem);
+			return editedItem;
+
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return new ItemStack(Material.AIR);
 
 	}
 

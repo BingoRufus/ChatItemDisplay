@@ -1,4 +1,4 @@
-package me.bingorufus.chatitemdisplay.Utils.iteminfo;
+package me.bingorufus.chatitemdisplay.utils.iteminfo;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -7,16 +7,19 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 
-import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class ItemStackStuff {
-	ChatItemDisplay m;
+	public ItemStack deserialize(String serialized) {
 
-	public ItemStackStuff(ChatItemDisplay m) {
-		this.m = m;
+		return new ItemStack(Material.AIR);
 	}
+
+	public String serialize(ItemStack item) {
+		return "";
+	}
+
 	public String makeStringPretty(String s) {
 		switch (s) {
 		default:
@@ -129,13 +132,14 @@ public class ItemStackStuff {
 
 	}
 
-	public String romanNumeralify(Short s) {
+
+	public String romanNumeralify(Short s, boolean useMinecraft) {
 		Integer level = s.intValue();
 		if (s <= 0)
 			return s.toString();
 		StringBuilder sb = new StringBuilder();
 
-		if (m.getConfig().getBoolean("enchantments.use-minecraft-style-numerals") && level > 10)
+		if (useMinecraft && level > 10)
 			return s.toString();
 		if (level >= 10000) {
 			for (int i = 0; i < level / 10000; i++) {

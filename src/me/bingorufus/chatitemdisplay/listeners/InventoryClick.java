@@ -20,7 +20,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.Utils.iteminfo.ItemStackStuff;
+import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemStackStuff;
 
 public class InventoryClick implements Listener {
 	String Version;
@@ -28,7 +28,7 @@ public class InventoryClick implements Listener {
 	ItemStackStuff ItemStackStuff;
 
 	public InventoryClick(ChatItemDisplay m, String ver) {
-		ItemStackStuff = new ItemStackStuff(m);
+		ItemStackStuff = new ItemStackStuff();
 		this.m = m;
 		Version = ver;
 
