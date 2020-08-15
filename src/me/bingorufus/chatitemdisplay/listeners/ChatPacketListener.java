@@ -1,5 +1,6 @@
 package me.bingorufus.chatitemdisplay.listeners;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
@@ -17,6 +18,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.utils.MessageBroadcaster;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
@@ -44,16 +46,37 @@ public class ChatPacketListener extends PacketAdapter {
 	@Override
 	public void onPacketSending(final PacketEvent e) {
 
-
+		String json;
 		PacketContainer packet = e.getPacket();
 		WrappedChatComponent chat = packet.getChatComponents().read(0);
-		if (chat == null)
+		TextComponent tc = new TextComponent();
+		BaseComponent[] baseComps;
+		
+		if (chat == null) {
+			Object chatPacket = packet.getHandle();
+			
+			try {
+				Field f = chatPacket.getClass().getDeclaredField("components");
+				baseComps = (BaseComponent[]) f.get(chatPacket);
+				tc = new TextComponent(baseComps);
+				json = ComponentSerializer.toString(tc);
+
+			} catch (SecurityException | NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
+				ex.printStackTrace();
+				return;
+			}
+
+		} else {
+			json = chat.getJson();
+			baseComps = ComponentSerializer.parse(chat.getJson());
+			tc = new TextComponent(baseComps);
+		}
+		
+
+		if (!json.contains("\\u0007cid"))
 			return;
 
-		if (!chat.getJson().contains("\\u0007cid"))
-			return;
-
-		if (msgs.containsKey(chat.getJson()) && msgs.get(chat.getJson()) == w.getFullTime()) { // Check if
+		if (msgs.containsKey(json) && msgs.get(json) == w.getFullTime()) { // Check if
 																											// packet is
 																											// being
 																											// sent
@@ -61,11 +84,12 @@ public class ChatPacketListener extends PacketAdapter {
 																											// time to
 																											// someone
 																											// else
-
 			e.setCancelled(true);
 			return;
 		}
-		TextComponent tc = new TextComponent(ComponentSerializer.parse(chat.getJson()));
+
+
+
 
 		String replace = tc.toLegacyText().substring(tc.toLegacyText().indexOf(bell),
 				tc.toLegacyText().lastIndexOf(bell) + 1);
@@ -87,8 +111,11 @@ public class ChatPacketListener extends PacketAdapter {
 
 		new MessageBroadcaster().broadcast(m, m.displays.get(displaying.getName()), false, false,
 				new TextComponent(pt1, pt2, pt3));
-		msgs.put(chat.getJson(), w.getFullTime());
+		msgs.put(json, w.getFullTime());
 		e.setCancelled(true);
+		
 	}
+
+
 
 }

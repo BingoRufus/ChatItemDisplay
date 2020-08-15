@@ -93,7 +93,7 @@ public class Display {
 		format = format.replaceAll("%player%",
 				m.getConfig().getBoolean("use-nicks-in-display-message") ? displayName : playerName);
 		format = ChatColor.translateAlternateColorCodes('&', format);
-		String[] sects = format.split("%item%");
+		String[] sects = format.split("%item%", 2);
 		PreMsg = format.indexOf("%item%") > 0 ? new TextComponent(sects[0]) : new TextComponent("");
 		EndMsg = sects.length == 2 ? new TextComponent(sects[1])
 				: PreMsg.getText() == null ? new TextComponent(sects[0]) : new TextComponent("");

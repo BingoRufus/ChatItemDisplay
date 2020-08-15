@@ -80,6 +80,7 @@ public class ChatDisplayListener implements Listener {
 
 					}
 					String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),
+
 							bell + "cid" + e.getPlayer().getName() + bell);
 					e.setMessage(newmsg);
 					return;

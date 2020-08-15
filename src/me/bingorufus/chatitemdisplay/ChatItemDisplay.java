@@ -30,6 +30,7 @@ public class ChatItemDisplay extends JavaPlugin {
 	ChatDisplayListener DisplayListener;
 	NewVersionDisplayer NewVer;
 	ProtocolLibRegister pl;
+
 	BungeeCordReceiver in;
 	BungeeCordSender out;
 
