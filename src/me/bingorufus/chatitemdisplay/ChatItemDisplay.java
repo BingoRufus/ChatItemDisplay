@@ -1,8 +1,10 @@
 package me.bingorufus.chatitemdisplay;
 
-import java.util.ArrayList;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.HashMap;
-import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
@@ -19,6 +21,7 @@ import me.bingorufus.chatitemdisplay.executors.ViewItemExecutor;
 import me.bingorufus.chatitemdisplay.listeners.ChatDisplayListener;
 import me.bingorufus.chatitemdisplay.listeners.MapViewerListener;
 import me.bingorufus.chatitemdisplay.listeners.NewVersionDisplayer;
+import me.bingorufus.chatitemdisplay.utils.VersionComparer;
 import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordReceiver;
 import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordSender;
 import me.bingorufus.chatitemdisplay.utils.loaders.Metrics;
@@ -38,7 +41,7 @@ public class ChatItemDisplay extends JavaPlugin {
 	public HashMap<String, Display> displays = new HashMap<String, Display>();
 	public HashMap<Player, ItemStack> viewingMap = new HashMap<Player, ItemStack>();
 
-	public List<Inventory> invs = new ArrayList<Inventory>();
+	public HashMap<Inventory, UUID> invs = new HashMap<Inventory, UUID>();
 
 	public boolean hasProtocollib = false;
 	public Boolean useOldFormat = false;
@@ -72,7 +75,7 @@ public class ChatItemDisplay extends JavaPlugin {
 			if (viewingMap.containsKey(p)) {
 				p.getInventory().setItemInMainHand(viewingMap.get(p));
 			}
-			if (invs.contains(p.getOpenInventory().getTopInventory())) {
+			if (invs.keySet().contains(p.getOpenInventory().getTopInventory())) {
 				p.closeInventory();
 			}
 
@@ -81,14 +84,14 @@ public class ChatItemDisplay extends JavaPlugin {
 
 	public void reloadConfigVars() {
 		if (in != null) {
-			getServer().getMessenger().unregisterIncomingPluginChannel(this, "chatitemdisplay:itemin", in);
+			getServer().getMessenger().unregisterIncomingPluginChannel(this, "chatitemdisplay:in", in);
 		}
 
 		if (isBungee()) {
 
 			in = new BungeeCordReceiver(this);
-			getServer().getMessenger().registerIncomingPluginChannel(this, "chatitemdisplay:itemin", in);
-			getServer().getMessenger().registerOutgoingPluginChannel(this, "chatitemdisplay:itemout");
+			getServer().getMessenger().registerIncomingPluginChannel(this, "chatitemdisplay:in", in);
+			getServer().getMessenger().registerOutgoingPluginChannel(this, "chatitemdisplay:out");
 
 		}
 
@@ -112,23 +115,40 @@ public class ChatItemDisplay extends JavaPlugin {
 		if (NewVer != null)
 			HandlerList.unregisterAll(NewVer);
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (invs.contains(p.getOpenInventory().getTopInventory())) {
+			if (invs.keySet().contains(p.getOpenInventory().getTopInventory())) {
 				p.closeInventory();
 			}
 
 		}
 		if (!getConfig().getBoolean("disable-update-checking")) {
-			new UpdateChecker(this, 77177).getLatestVersion(version -> {
+			String checkerError = new UpdateChecker(77177).getLatestVersion(version -> {
 
-				if (UpToDate(this.getDescription().getVersion().split("[.]"), version.split("[.]"))) {
+				VersionComparer.Status s = new VersionComparer().isRecent(this.getDescription().getVersion(), version);
+				if (!s.equals(VersionComparer.Status.BEHIND)) {
 					this.getLogger().info("ChatItemDisplay is up to date");
 				} else {
 
 					this.getLogger().warning("ChatItemDisplay is currently running version "
 							+ getDescription().getVersion() + " and can be updated to " + version);
 					if (getConfig().getBoolean("auto-update")) {
-						new UpdateDownloader(this, version).download();
-						this.getLogger().info("The download process has begun automatically");
+						Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+							try {
+								UpdateDownloader updater = new UpdateDownloader(version);
+								String downloadMsg = updater
+										.download(new FileOutputStream("plugins/ChatItemDisplay " + version + ".jar"));
+								if (downloadMsg != null) {
+									Bukkit.getLogger().severe(downloadMsg);
+									return;
+								}
+
+								updater.deletePlugin(this);
+								Bukkit.getLogger().info(
+										"The newest version of ChatItemDisplay has been downloaded automatically, it will be loaded upon the next startup");
+							} catch (FileNotFoundException e) {
+								e.printStackTrace();
+							}
+
+						});
 						return;
 
 					}
@@ -140,47 +160,16 @@ public class ChatItemDisplay extends JavaPlugin {
 					Bukkit.getPluginManager().registerEvents(NewVer, this);
 				}
 			});
+			if (checkerError != null) {
+				Bukkit.getLogger().warning(checkerError);
+			}
 		}
 
 		DisplayListener = new ChatDisplayListener(this);
 		Bukkit.getPluginManager().registerEvents(DisplayListener, this);
 	}
 
-	public Boolean UpToDate(String cur[], String upd[]) {
-		Integer[] CurrentVer = new Integer[3];
-		Integer[] UpdateVer = new Integer[3];
-		int lengthtouse = 0;
-		if (cur.length < upd.length)
-			lengthtouse = cur.length;
-		if (cur.length > upd.length)
-			lengthtouse = cur.length;
-		if (cur.length == upd.length)
-			lengthtouse = cur.length;
-		for (int i = 0; i < lengthtouse; i++) {
-			CurrentVer[i] = Integer.parseInt(cur[i]);
-			UpdateVer[i] = Integer.parseInt(upd[i]);
-		}
-		if (CurrentVer.equals(UpdateVer)) {
-			if (CurrentVer.length < UpdateVer.length)
-				return false;
-			return true;
-		}
 
-		if (CurrentVer[0] < UpdateVer[0])
-			return false;
-		if (CurrentVer[0] > UpdateVer[0])
-			return true;
-		// CurrentVer[0] has to be equal to UpdateVer[0]
-		if (CurrentVer[1] < UpdateVer[1])
-			return false;
-		if (CurrentVer[1] > UpdateVer[1])
-			return true;
-		// Second number is now equal
-		if (CurrentVer[2] >= UpdateVer[2])
-			return true;
-
-		return false;
-	}
 
 	public boolean isBungee() {
 		// we check if the server is Spigot/Paper (because of the spigot.yml file)

@@ -12,15 +12,9 @@ triggers: #These will determine when the item is displayed, they are not case se
 
 
 disable-gui: false #Disable all the GUIs
-
-
-enchantments:
-  use-roman-numerals: true
-  use-minecraft-style-numerals: false #If enabled, only enchant levels up to 10 will be converted to roman numerals
-  
   
 messages:
-  inchat-format: "[%item%]"
+  inchat-format: "&r[%item%&r]"
   display-format: "&6%player%&6 is displaying their &f%item%"
   gui-format: "&a%player%&a's &cDisplayed Item"
   missing-permission: "&cYou do not have permission to do that"
@@ -32,7 +26,6 @@ messages:
   map-notification: "&eDrop or click on the map to receive your item back"
   not-holding-anything: "&cYou are not holding anything"
   remove-item-colors: false #Remove Item colors from the display message
-  
   
 use-old-format: false #This will use the regular message format, disabling in chat formatting.    Note: This value will be null if the server does not have ProtocolLib
 

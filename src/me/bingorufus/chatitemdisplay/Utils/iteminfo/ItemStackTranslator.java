@@ -18,28 +18,46 @@ public class ItemStackTranslator {
 	private Class<?> craftItemStack;
 	private Class<?> mojangsonParser;
 	private Class<?> nmsItemStack;
+
 	
 	public ItemStackTranslator() {
 		try {
 			String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 			craftPotionUtil = Class
 					.forName("org.bukkit.craftbukkit.{v}.potion.CraftPotionUtil".replace("{v}", version));
+
 			craftItemStack = Class
 					.forName("org.bukkit.craftbukkit.{v}.inventory.CraftItemStack".replace("{v}", version));
+
 			mojangsonParser = Class
 					.forName("net.minecraft.server.{v}.MojangsonParser".replace("{v}", version));
+
 			nmsItemStack = Class.forName("net.minecraft.server.{v}.ItemStack".replace("{v}", version));
+
+
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 
 	}
 
-	public String getNBT(ItemStack item) {
-		try {
+	public Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException, NoSuchMethodException, SecurityException {
+
 			Method asNms = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
 			asNms.setAccessible(true);
 			Object nmsItem = asNms.invoke(craftItemStack, item);
+		return nmsItem;
+
+	}
+
+
+
+
+
+	public String getNBT(ItemStack item) {
+		try {
+			Object nmsItem = nmsItem(item);
 			if (nmsItem == null) {
 				throw new IllegalArgumentException(item.getType().name() + " could not be queried!");
 			}
@@ -48,7 +66,6 @@ public class ItemStackTranslator {
 			if ((boolean) hasTag.invoke(nmsItem)) {
 				Method getTag = nmsItem.getClass().getMethod("getTag");
 				Object nbtData = getTag.invoke(nmsItem);
-
 				Method asString = nbtData.getClass().getMethod("asString");
 				return (String) asString.invoke(nbtData);
 			}
@@ -63,8 +80,8 @@ public class ItemStackTranslator {
 
 	public ItemStack fromNBT(ItemStack baseItem, String NBTData) {
 		try {
-			Method asNMS = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
-			Object nmsItem = asNMS.invoke(craftItemStack, baseItem);
+
+			Object nmsItem = nmsItem(baseItem);
 
 			Method parseNBT = mojangsonParser.getMethod("parse", String.class);
 			Object nbtCompound = parseNBT.invoke(mojangsonParser, NBTData);
@@ -86,9 +103,7 @@ public class ItemStackTranslator {
 
 	public String getId(ItemStack holding) {
 		try {
-			Method asNms = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
-			asNms.setAccessible(true);
-			Object item = asNms.invoke(craftItemStack, holding);
+			Object item = nmsItem(holding);
 			if (item == null) {
 				throw new IllegalArgumentException(holding.getType().name() + " could not be queried!");
 			}
@@ -121,9 +136,9 @@ public class ItemStackTranslator {
 
 	}
 
+
 	public TranslatableComponent translateItemStack(ItemStack holding) {
 		return new TranslatableComponent(getId(holding));
-
 	}
 
 	public String potionId(PotionType pt) {

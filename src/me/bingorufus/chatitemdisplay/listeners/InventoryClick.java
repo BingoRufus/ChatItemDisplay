@@ -1,45 +1,57 @@
 package me.bingorufus.chatitemdisplay.listeners;
 
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
 import org.bukkit.block.EnderChest;
 import org.bukkit.block.Furnace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.utils.VersionComparer;
+import me.bingorufus.chatitemdisplay.utils.VersionComparer.Status;
 import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemStackStuff;
 
 public class InventoryClick implements Listener {
-	String Version;
+	String version;
 	private ChatItemDisplay m;
 	ItemStackStuff ItemStackStuff;
-
+	List<PlayerInteractEvent> pies = new ArrayList<>();
 	public InventoryClick(ChatItemDisplay m, String ver) {
 		ItemStackStuff = new ItemStackStuff();
 		this.m = m;
-		Version = ver;
+		version = ver;
 
 	}
 
 
 
-	@EventHandler
-	public void onClick(InventoryClickEvent e) {
 
-		if (m.invs.contains(e.getInventory())) {
+	@EventHandler
+	public void onClick(final InventoryClickEvent e) {
+		if (m.invs.keySet().contains(e.getInventory())) {
 			e.setCancelled(true);
 			if (e.getClickedInventory() == null)
 				return;
@@ -47,21 +59,21 @@ public class InventoryClick implements Listener {
 				return;
 			Player p = (Player) e.getWhoClicked();
 
-			if (!e.getClickedInventory().equals(p.getInventory())) {
+			if (e.getClickedInventory().equals(p.getInventory()))
+				return;
 
-				if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
-					if (((BlockStateMeta) e.getCurrentItem().getItemMeta()).getBlockState() instanceof Container
-							|| ((BlockStateMeta) e.getCurrentItem().getItemMeta()).getBlockState()
-							instanceof EnderChest) {
-						container(e.getCurrentItem(), p, e.getInventory().getHolder());
-						return;
-					}
-
+			if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
+				BlockStateMeta bsm = ((BlockStateMeta) e.getCurrentItem().getItemMeta());
+				if (bsm.getBlockState() instanceof Container || bsm.getBlockState() instanceof EnderChest) {
+					container(e.getCurrentItem(), p, m.invs.get(e.getInventory()));
+					return;
 				}
 
+			}
 
-				if (m.UpToDate(Version.split("[.]"), "1.14.2".split("[.]"))) { // The player.openBook() was added in //
-																				// Spigot for version 1.14.2 this
+			Status s = new VersionComparer().isRecent(version, "1.14.2");
+			if (!s.equals(Status.BEHIND)) { // The player.openBook() was added in //
+											// Spigot for version 1.14.2 this
 				// checks to make sure the version
 				// is past 1.14.2
 				book(e.getCurrentItem(), p);
@@ -69,10 +81,31 @@ public class InventoryClick implements Listener {
 			if (e.getCurrentItem().getType().equals(Material.FILLED_MAP)) {
 				map(e.getCurrentItem(), p);
 			}
-		}
+			if (e.getCurrentItem().getType().isRecord()) {
+				Block b = p.getLocation().subtract(0, 10, 0).getBlock();
+				BlockData bd = b.getBlockData();
+				b.setType(Material.JUKEBOX);
+
+				PlayerInteractEvent pie = new PlayerInteractEvent(p, Action.RIGHT_CLICK_BLOCK, e.getCurrentItem(), b,
+						BlockFace.UP);
+				pies.add(pie);
+				Bukkit.getPluginManager().callEvent(pie);
+
+				b.setBlockData(bd, false);
+				p.playEffect(p.getLocation(), Effect.RECORD_PLAY, e.getCurrentItem().getType());
+				p.closeInventory();
+			}
 
 		}
 
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void recordInteract(final PlayerInteractEvent e) { // This just checks if it is a Custom Music disc
+		if (!pies.contains(e))
+			return;
+		if (!e.useItemInHand().equals(Result.DENY))
+			e.getPlayer().playEffect(e.getPlayer().getLocation(), Effect.RECORD_PLAY, e.getItem().getType());
 	}
 
 	public void map(ItemStack item, Player p) {
@@ -84,16 +117,22 @@ public class InventoryClick implements Listener {
 		p.getInventory().setItemInMainHand(item);
 	}
 
-	public void container(ItemStack item, Player p, InventoryHolder h) {
+	public void container(ItemStack item, Player p, UUID owner) {
+
+		BlockStateMeta bsm = ((BlockStateMeta) item.getItemMeta());
+
 		Inventory container = null;
 
-		if (((BlockStateMeta) item.getItemMeta()).getBlockState() instanceof EnderChest) {
-			container = ((Player) h).getEnderChest();
+		Player holder = Bukkit.getOfflinePlayer(owner).getPlayer();
+
+		if (bsm.getBlockState() instanceof EnderChest) {
+
+			container = holder.getEnderChest();
 		} else {
-		Container c = (Container) ((BlockStateMeta) item.getItemMeta()).getBlockState();
+			Container c = (Container) bsm.getBlockState();
 			if (c instanceof Furnace && !m.hasProtocollib) {
-			return;
-		}
+				return;
+			}
 			container = c.getInventory();
 		}
 
@@ -102,16 +141,17 @@ public class InventoryClick implements Listener {
 		});
 		if (isEmpty)
 			return;
+		InventoryType type = container.getType();
+		Inventory containerInv = Bukkit.createInventory(holder, type, type.getDefaultTitle());
 
-		Inventory containerInv = Bukkit.createInventory(h, container.getType());
 		if (item.getItemMeta().hasDisplayName())
-			containerInv = Bukkit.createInventory(h, container.getType(), ItemStackStuff.ItemName(item));
+			containerInv = Bukkit.createInventory(holder, container.getType(), ItemStackStuff.ItemName(item));
 		containerInv.setContents(container.getContents());
-		m.invs.add(containerInv);
+
+		m.invs.put(containerInv, owner);
 		p.openInventory(containerInv);
 
 	}
-
 
 	public void book(ItemStack item, Player p) {
 

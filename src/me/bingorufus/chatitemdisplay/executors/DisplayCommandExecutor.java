@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.Display;
 import me.bingorufus.chatitemdisplay.utils.DisplayPermissionChecker;
+import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordSender;
 import net.md_5.bungee.api.ChatColor;
 
 public class DisplayCommandExecutor implements CommandExecutor {
@@ -34,10 +35,12 @@ public class DisplayCommandExecutor implements CommandExecutor {
 				return true;
 			}
 			if (new DisplayPermissionChecker(chatItemDisplay, p).hasPermission()) {
-				new Display(chatItemDisplay, p.getInventory().getItemInMainHand(), p.getName(), p.getDisplayName(),
-						false)
-						.cmdMsg();
-				;
+				Display d = new Display(chatItemDisplay, p.getInventory().getItemInMainHand(), p.getUniqueId(),
+						p.getName(),
+						p.getDisplayName(), false);
+				d.cmdMsg();
+
+				new BungeeCordSender(chatItemDisplay).sendItem(d, true);
 			}
 			return true;
 		}

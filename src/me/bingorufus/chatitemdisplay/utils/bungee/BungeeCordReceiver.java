@@ -1,5 +1,7 @@
 package me.bingorufus.chatitemdisplay.utils.bungee;
 
+import java.util.UUID;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -28,24 +30,31 @@ public class BungeeCordReceiver implements PluginMessageListener {
 																						// ammount, ItemStack nbtdata,
 																						// Player name, Display name, Is
 																						// command
-		if(!channel.equalsIgnoreCase("chatitemdisplay:itemin")) return;
+		if (!channel.equalsIgnoreCase("chatitemdisplay:in"))
+			return;
 		ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
 		String subchannel = in.readUTF();
 		if (!subchannel.equalsIgnoreCase("ItemReceiver"))
 			return;
 		Material mat = Material.getMaterial(in.readUTF());
+		mat = mat == null ? Material.STONE : mat;
+
 		int amt = in.readInt();
 		String nbt = in.readUTF();
-		String pname = in.readUTF();
+		UUID uuid = UUID.fromString(in.readUTF());
+		String playerName = in.readUTF();
+
 		String displayName = in.readUTF();
 		boolean isCmd = in.readBoolean();
 
 		ItemStack item = new ItemStackTranslator().fromNBT(new ItemStack(mat, amt), nbt);
-		Display dis = new Display(m, item, pname, displayName, true);
-		m.displays.put(pname, dis);
+		Display dis = new Display(m, item, uuid, playerName, displayName, true);
+
+		m.displays.put(playerName.toUpperCase(), dis);
 
 		if (isCmd) {
 			dis.cmdMsg();
+
 		}
 
 

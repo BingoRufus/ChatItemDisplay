@@ -9,48 +9,44 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
-import org.bukkit.Bukkit;
-
-import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-
 public class UpdateDownloader {
-	ChatItemDisplay chatItemDisplay;
 	String version;
 
-	public UpdateDownloader(ChatItemDisplay m, String ver) {
-		chatItemDisplay = m;
+	public UpdateDownloader(String ver) {
 		version = ver;
 	}
 
-	public void download() {
-		Bukkit.getScheduler().runTaskAsynchronously(chatItemDisplay, () -> {
-			try (BufferedReader inputStream = new BufferedReader(new InputStreamReader(new URL(
-					"https://gist.githubusercontent.com/BingoRufus/a3714f3e6afb400122ec5ffefe6c430c/raw/?version="
-							+ Math.random()).openStream()));
-					Scanner scanner = new Scanner(inputStream)) {
-				String link = scanner.next();
+	public String download(FileOutputStream downloadPath) {
 
-				try (BufferedInputStream in = new BufferedInputStream(new URL(link).openStream())) {
-					FileOutputStream download = new FileOutputStream("plugins/ChatItemDisplay " + version + ".jar");
-					byte dataBuffer[] = new byte[1024];
-					int bytesRead;
-					while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-						download.write(dataBuffer, 0, bytesRead);
+		try (BufferedReader inputStream = new BufferedReader(new InputStreamReader(
+				new URL("https://gist.githubusercontent.com/BingoRufus/a3714f3e6afb400122ec5ffefe6c430c/raw/?version="
+						+ Math.random()).openStream()));
+				Scanner scanner = new Scanner(inputStream)) {
+			String link = scanner.next();
 
-					}
-					Bukkit.getLogger().info(
-							"The newest version of ChatItemDisplay has been downloaded automatically, it will be loaded upon startup");
-					download.close();
+			try (BufferedInputStream in = new BufferedInputStream(new URL(link).openStream())) {
 
-					Paths.get((Bukkit.getPluginManager().getPlugin("ChatItemDisplay").getClass().getProtectionDomain()
-							.getCodeSource().getLocation().getFile().replaceAll("%20", " "))).toFile().delete();
+				byte dataBuffer[] = new byte[1024];
+				int bytesRead;
+				while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+					downloadPath.write(dataBuffer, 0, bytesRead);
 
 				}
 
-			} catch (IOException e) {
+				downloadPath.close();
+				return null;
 
-				e.printStackTrace();
 			}
-		});
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "Unable to download the newest version of ChatItemDisplay (" + e.getMessage() + ")";
+		}
 	}
+
+	public void deletePlugin(Object plugin) {
+		Paths.get((plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getFile().replaceAll("%20",
+				" "))).toFile().delete();
+	}
+
 }

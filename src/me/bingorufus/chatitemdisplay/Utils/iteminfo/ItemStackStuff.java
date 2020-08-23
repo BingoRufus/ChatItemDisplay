@@ -4,11 +4,13 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 
 public class ItemStackStuff {
 	public ItemStack deserialize(String serialized) {
@@ -102,10 +104,11 @@ public class ItemStackStuff {
 	public TextComponent NameFromItem(ItemStack item) {
 
 		String out = "§r";
-		if (item.getType().equals(Material.DRAGON_EGG) || item.getType().equals(Material.ENCHANTED_GOLDEN_APPLE))
+		if (item.getType().equals(Material.DRAGON_EGG) || item.getType().equals(Material.ENCHANTED_GOLDEN_APPLE)
+				|| item.getType().equals(Material.COMMAND_BLOCK))
 			out = "§d";
 
-		if (item.getItemMeta().hasEnchants())
+		if (item.getItemMeta().hasEnchants() || item.getType().isRecord())
 			out = ChatColor.AQUA + "";
 
 		if (item.getItemMeta().hasDisplayName()) {
@@ -113,6 +116,12 @@ public class ItemStackStuff {
 			out += item.getItemMeta().getDisplayName();
 			return new TextComponent(out);
 
+		}
+		if (item.getItemMeta() instanceof SkullMeta) {
+			TranslatableComponent translatable = new TranslatableComponent("block.minecraft.player_head.named");
+			translatable.addWith(new TextComponent(((SkullMeta) item.getItemMeta()).getOwningPlayer().getName()));
+
+			return new TextComponent(new TextComponent("§e"), translatable);
 		}
 		if (item.getType().equals(Material.WRITTEN_BOOK)) {
 
@@ -122,8 +131,7 @@ public class ItemStackStuff {
 			}
 
 		}
-		return new TextComponent(new ItemStackTranslator().translateItemStack(item));
-
+		return new TextComponent(new TextComponent(out), new ItemStackTranslator().translateItemStack(item));
 
 	}
 
@@ -131,7 +139,6 @@ public class ItemStackStuff {
 		return "";
 
 	}
-
 
 	public String romanNumeralify(Short s, boolean useMinecraft) {
 		Integer level = s.intValue();

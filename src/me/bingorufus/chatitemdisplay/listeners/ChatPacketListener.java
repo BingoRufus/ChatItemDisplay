@@ -6,7 +6,6 @@ import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.comphenix.protocol.PacketType;
@@ -37,7 +36,7 @@ public class ChatPacketListener extends PacketAdapter {
 	}
 	@Override
 	public void onPacketReceiving(final PacketEvent e) {
-		if (m.invs.contains(e.getPlayer().getOpenInventory().getTopInventory())) {
+		if (m.invs.keySet().contains(e.getPlayer().getOpenInventory().getTopInventory())) {
 			e.setCancelled(true);
 			return;
 		}
@@ -93,23 +92,23 @@ public class ChatPacketListener extends PacketAdapter {
 
 		String replace = tc.toLegacyText().substring(tc.toLegacyText().indexOf(bell),
 				tc.toLegacyText().lastIndexOf(bell) + 1);
-
-		String[] legacy = tc.toLegacyText().split(replace);
+		String legacyText = tc.toLegacyText().replace(replace,
+				replace + ChatColor.getLastColors(tc.toLegacyText().substring(0, tc.toLegacyText().indexOf(replace))));
+		String[] legacy = legacyText.split(replace);
 
 		TextComponent pt1 = new TextComponent(TextComponent.fromLegacyText(legacy[0]));
 
 		TextComponent pt3 = legacy.length > 1 ? new TextComponent(TextComponent.fromLegacyText(legacy[1]))
 				: new TextComponent("");
-		Player displaying = Bukkit
-				.getPlayerExact(replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell)));
+		String displaying = replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell));
 
 		String format = ChatColor.translateAlternateColorCodes('&',
 				m.getConfig().getString("messages.inchat-format") + "&r");
 		TextComponent pt2 = new TextComponent(format.substring(0, format.indexOf("%item%")));
-		pt2.addExtra(m.displays.get(displaying.getName()).getHover());
+		pt2.addExtra(m.displays.get(displaying.toUpperCase()).getHover());
 		pt2.addExtra(format.substring(format.indexOf("%item%") + 6, format.length()));
 
-		new MessageBroadcaster().broadcast(m, m.displays.get(displaying.getName()), false, false,
+		new MessageBroadcaster().broadcast(
 				new TextComponent(pt1, pt2, pt3));
 		msgs.put(json, w.getFullTime());
 		e.setCancelled(true);
