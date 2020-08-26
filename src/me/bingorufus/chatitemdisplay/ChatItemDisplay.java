@@ -15,6 +15,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.bingorufus.chatitemdisplay.displayables.Displayable;
 import me.bingorufus.chatitemdisplay.executors.ChatItemReloadExecutor;
 import me.bingorufus.chatitemdisplay.executors.DisplayCommandExecutor;
 import me.bingorufus.chatitemdisplay.executors.ViewItemExecutor;
@@ -37,8 +38,8 @@ public class ChatItemDisplay extends JavaPlugin {
 	BungeeCordReceiver in;
 	BungeeCordSender out;
 
-	public HashMap<String, Inventory> displaying = new HashMap<String, Inventory>();
-	public HashMap<String, Display> displays = new HashMap<String, Display>();
+	public HashMap<String, Displayable> displayed = new HashMap<String, Displayable>(); // Player, Displayable
+
 	public HashMap<Player, ItemStack> viewingMap = new HashMap<Player, ItemStack>();
 
 	public HashMap<Inventory, UUID> invs = new HashMap<Inventory, UUID>();
@@ -102,7 +103,8 @@ public class ChatItemDisplay extends JavaPlugin {
 		useOldFormat = this.getConfig().getBoolean("use-old-format")
 				|| Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") == null;
 		if (!useOldFormat) {
-			pl = new ProtocolLibRegister(this);
+			if (pl == null)
+				pl = new ProtocolLibRegister(this);
 			pl.registerPacketListener();
 			hasProtocollib = true;
 		} else {

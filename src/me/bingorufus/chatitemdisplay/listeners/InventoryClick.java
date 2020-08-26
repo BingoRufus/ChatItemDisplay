@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -30,6 +29,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.utils.StringFormatter;
 import me.bingorufus.chatitemdisplay.utils.VersionComparer;
 import me.bingorufus.chatitemdisplay.utils.VersionComparer.Status;
 import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemStackStuff;
@@ -112,7 +112,7 @@ public class InventoryClick implements Listener {
 		m.viewingMap.put(p, p.getInventory().getItemInMainHand());
 
 		p.sendMessage(
-				ChatColor.translateAlternateColorCodes('&', m.getConfig().getString("messages.map-notification")));
+				new StringFormatter().format(m.getConfig().getString("messages.map-notification")));
 		p.closeInventory();
 		p.getInventory().setItemInMainHand(item);
 	}

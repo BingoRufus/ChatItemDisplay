@@ -24,9 +24,6 @@ public class ProtocolLibRegister {
 		if (packetListener != null) {
 			pm.removePacketListener(packetListener);
 		}
-
-
-
 		packetListener = new ChatPacketListener(m, ListenerPriority.LOWEST, PacketType.Play.Server.CHAT,
 				PacketType.Play.Client.AUTO_RECIPE);
 

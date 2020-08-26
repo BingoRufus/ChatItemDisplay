@@ -6,11 +6,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.bukkit.Bukkit;
-import org.bukkit.inventory.ItemStack;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.Display;
-import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemStackTranslator;
+import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
 
 public class BungeeCordSender {
 
@@ -20,27 +19,15 @@ public class BungeeCordSender {
 		this.m = m;
 	}
 
-	public void sendItem(Display dis, boolean isCmd) {
-		// chatItemDisplay.displays.put(e.getPlayer().getName(), new
-		// Display(chatItemDisplay, e.getPlayer()));
+	public void sendItem(DisplayItem dis, boolean isCmd) {
 
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(b);
-//new Display(m, item, playerName, displayName, fromBungee)
+
 		try {
-			out.writeUTF("ItemSender");// Subchannel, Material Name, Item ammount, ItemStack nbtdata, Player UUID,
-										// Display name, Is command
-			ItemStack item = dis.item;
+			out.writeUTF("ItemSender");
 
-			out.writeUTF(item.getType().name());
-			out.writeInt(item.getAmount());
-			out.writeUTF(new ItemStackTranslator().getNBT(item));
-
-
-			out.writeUTF(dis.getUUID().toString());
-			out.writeUTF(dis.getPlayerName());
-
-			out.writeUTF(dis.displayName);
+			out.writeUTF(dis.serialize());
 
 			out.writeBoolean(isCmd);
 
@@ -49,7 +36,23 @@ public class BungeeCordSender {
 		}
 		Bukkit.getServer().sendPluginMessage(m, "chatitemdisplay:out", b.toByteArray());
 
+	}
 
+	public void sendInv(DisplayInventory dis, boolean isCmd) {
+
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+		DataOutputStream out = new DataOutputStream(b);
+
+		try {
+			out.writeUTF("InventorySender");
+
+			out.writeUTF(dis.serialize());
+
+			out.writeBoolean(isCmd);
+
+		} catch (IOException e) {
+		}
+		Bukkit.getServer().sendPluginMessage(m, "chatitemdisplay:out", b.toByteArray());
 
 	}
 }

@@ -6,7 +6,6 @@ import org.bukkit.inventory.ItemStack;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.listeners.ChatDisplayListener;
-import net.md_5.bungee.api.ChatColor;
 
 public class DisplayPermissionChecker {
 	Boolean CancelMessage = true;
@@ -27,7 +26,7 @@ public class DisplayPermissionChecker {
 		if (HeldItem.getItemMeta() == null) {
 			if (debug)
 				Bukkit.getLogger().info(p.getName() + "'s item has no meta data");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+			p.sendMessage(new StringFormatter().format(
 					chatItemDisplay.getConfig().getString("messages.not-holding-anything")));
 			perm = false;
 			CancelMessage = false;
@@ -37,7 +36,7 @@ public class DisplayPermissionChecker {
 			if (debug)
 				Bukkit.getLogger().info(p.getName() + " does not have permission to display items");
 
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+			p.sendMessage(new StringFormatter().format(
 					chatItemDisplay.getConfig().getString("messages.missing-permission-to-display")));
 			perm = false;
 			CancelMessage = true;
@@ -48,7 +47,7 @@ public class DisplayPermissionChecker {
 				if (debug)
 					Bukkit.getLogger().info(p.getName() + "'s displayed item was blacklisted");
 
-				p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				p.sendMessage(new StringFormatter().format(
 						chatItemDisplay.getConfig().getString("messages.black-listed-item")));
 				perm = false;
 				CancelMessage = true;
@@ -69,7 +68,7 @@ public class DisplayPermissionChecker {
 					Bukkit.getLogger().info(p.getName() + " is on a chat display cooldown");
 
 				Double SecondsRemaining = (double) (Math.round(CooldownRemaining.doubleValue() / 100)) / 10;
-				p.sendMessage(ChatColor.translateAlternateColorCodes('&', chatItemDisplay.getConfig()
+				p.sendMessage(new StringFormatter().format(chatItemDisplay.getConfig()
 						.getString("messages.cooldown").replaceAll("%seconds%", "" + SecondsRemaining)));
 				CancelMessage = false;
 				perm = false;

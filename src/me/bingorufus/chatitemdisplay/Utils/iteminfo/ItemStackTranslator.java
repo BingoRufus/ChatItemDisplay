@@ -4,11 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
-import org.bukkit.potion.PotionType;
 
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
@@ -16,8 +14,6 @@ public class ItemStackTranslator {
 
 	private Class<?> craftPotionUtil;
 	private Class<?> craftItemStack;
-	private Class<?> mojangsonParser;
-	private Class<?> nmsItemStack;
 
 	
 	public ItemStackTranslator() {
@@ -29,10 +25,6 @@ public class ItemStackTranslator {
 			craftItemStack = Class
 					.forName("org.bukkit.craftbukkit.{v}.inventory.CraftItemStack".replace("{v}", version));
 
-			mojangsonParser = Class
-					.forName("net.minecraft.server.{v}.MojangsonParser".replace("{v}", version));
-
-			nmsItemStack = Class.forName("net.minecraft.server.{v}.ItemStack".replace("{v}", version));
 
 
 		} catch (ClassNotFoundException e) {
@@ -41,7 +33,7 @@ public class ItemStackTranslator {
 
 	}
 
-	public Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
+	private Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {
 
 			Method asNms = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
@@ -78,30 +70,8 @@ public class ItemStackTranslator {
 
 	}
 
-	public ItemStack fromNBT(ItemStack baseItem, String NBTData) {
-		try {
 
-			Object nmsItem = nmsItem(baseItem);
-
-			Method parseNBT = mojangsonParser.getMethod("parse", String.class);
-			Object nbtCompound = parseNBT.invoke(mojangsonParser, NBTData);
-
-			Method setTag = nmsItemStack.getMethod("setTag", nbtCompound.getClass());
-			setTag.invoke(nmsItem, nbtCompound);
-
-			Method asBukkitCopy = craftItemStack.getMethod("asBukkitCopy", nmsItemStack);
-			ItemStack editedItem = (ItemStack) asBukkitCopy.invoke(craftItemStack, nmsItem);
-			return editedItem;
-
-		} catch (NoSuchMethodException | SecurityException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
-		return new ItemStack(Material.AIR);
-
-	}
-
-	public String getId(ItemStack holding) {
+	private String getId(ItemStack holding) {
 		try {
 			Object item = nmsItem(holding);
 			if (item == null) {
@@ -141,22 +111,6 @@ public class ItemStackTranslator {
 		return new TranslatableComponent(getId(holding));
 	}
 
-	public String potionId(PotionType pt) {
-		try {
-		Method fromBukkit = craftPotionUtil.getMethod("fromBukkit", PotionData.class);
-		fromBukkit.setAccessible(true);
 
-
-			String potionkey = (String) fromBukkit.invoke(craftPotionUtil, new PotionData(pt));
-			return potionkey;
-
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-				| SecurityException e) {
-			e.printStackTrace();
-			return "";
-
-		}
-
-	}
 
 }

@@ -1,18 +1,18 @@
 package me.bingorufus.chatitemdisplay.utils.bungee;
 
-import java.util.UUID;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.Display;
-import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemStackTranslator;
+import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
+import me.bingorufus.chatitemdisplay.displayables.DisplayInventoryInfo;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
+import me.bingorufus.chatitemdisplay.displayables.Displayable;
 
 
 public class BungeeCordReceiver implements PluginMessageListener {
@@ -34,29 +34,33 @@ public class BungeeCordReceiver implements PluginMessageListener {
 			return;
 		ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
 		String subchannel = in.readUTF();
-		if (!subchannel.equalsIgnoreCase("ItemReceiver"))
+		if (subchannel.equalsIgnoreCase("ItemReceiver")) {
+			receiveItem(in);
 			return;
-		Material mat = Material.getMaterial(in.readUTF());
-		mat = mat == null ? Material.STONE : mat;
-
-		int amt = in.readInt();
-		String nbt = in.readUTF();
-		UUID uuid = UUID.fromString(in.readUTF());
-		String playerName = in.readUTF();
-
-		String displayName = in.readUTF();
-		boolean isCmd = in.readBoolean();
-
-		ItemStack item = new ItemStackTranslator().fromNBT(new ItemStack(mat, amt), nbt);
-		Display dis = new Display(m, item, uuid, playerName, displayName, true);
-
-		m.displays.put(playerName.toUpperCase(), dis);
-
-		if (isCmd) {
-			dis.cmdMsg();
-
+		}
+		if (subchannel.equalsIgnoreCase("InventoryReceiver")) {
+			receiveInventory(in);
+			return;
 		}
 
 
+
 	}
+
+	public void receiveItem(ByteArrayDataInput in) {
+		DisplayItem item = (DisplayItem) Displayable.deserialize(in.readUTF());
+		m.displayed.put(item.getPlayer().toUpperCase(), item);
+		if (in.readBoolean() == true) {
+			new DisplayItemInfo(m, item).cmdMsg();
+		}
+	}
+
+	public void receiveInventory(ByteArrayDataInput in) {
+		DisplayInventory inv = (DisplayInventory) Displayable.deserialize(in.readUTF());
+		m.displayed.put(inv.getPlayer().toUpperCase(), inv);
+		if (in.readBoolean() == true) {
+			new DisplayInventoryInfo(m, inv).cmdMsg();
+		}
+	}
+
 }

@@ -28,6 +28,7 @@ public class ChatItemDisplayBungee extends Plugin {
 		BungeeCord.getInstance().getScheduler().runAsync(this, () -> {
 			String error = new UpdateChecker(77177).getLatestVersion(ver -> {
 				Status s = new VersionComparer().isRecent(this.getDescription().getVersion(), ver);
+
 				if (s.equals(Status.BEHIND)) {
 					try {
 						UpdateDownloader downloader = new UpdateDownloader(ver);

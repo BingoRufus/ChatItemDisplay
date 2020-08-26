@@ -12,7 +12,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.Display;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
 import me.bingorufus.chatitemdisplay.utils.DisplayPermissionChecker;
 import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordSender;
 
@@ -57,11 +58,12 @@ public class ChatDisplayListener implements Listener {
 
 				DisplayPermissionChecker dpc = new DisplayPermissionChecker(chatItemDisplay, e.getPlayer());
 				if (dpc.hasPermission()) {
-					Display d = new Display(chatItemDisplay, e.getPlayer().getInventory().getItemInMainHand(),
-							e.getPlayer().getUniqueId(), e.getPlayer().getName(), e.getPlayer().getDisplayName(),
-							false);
 
-					chatItemDisplay.displays.put(e.getPlayer().getName().toUpperCase(), d);
+
+					chatItemDisplay.displayed.put(e.getPlayer().getName().toUpperCase(),
+							new DisplayItem(e.getPlayer().getInventory().getItemInMainHand(), e.getPlayer().getName(),
+									e.getPlayer().getDisplayName(),
+									e.getPlayer().getUniqueId(), false));
 
 					if (chatItemDisplay.useOldFormat) {
 
@@ -74,19 +76,25 @@ public class ChatDisplayListener implements Listener {
 							String last = parts.length == 0 ? ""
 									: parts.length == 2 ? parts[1] : first.equals("") ? parts[0] : "";
 							e.getPlayer().chat(first.trim());
-						chatItemDisplay.displays.get(e.getPlayer().getName().toUpperCase()).cmdMsg();
+							new DisplayItemInfo(chatItemDisplay,
+									(DisplayItem) chatItemDisplay.displayed.get(e.getPlayer().getName().toUpperCase()))
+									.cmdMsg();
 							e.getPlayer().chat(last.trim());
 
 
 						});
 						if (chatItemDisplay.isBungee()) {
-							new BungeeCordSender(chatItemDisplay).sendItem(d, true);
+							new BungeeCordSender(chatItemDisplay).sendItem(
+									(DisplayItem) chatItemDisplay.displayed.get(e.getPlayer().getName().toUpperCase()),
+									true);
 						}
 						return;
 
 					}
 					if (chatItemDisplay.isBungee()) {
-						new BungeeCordSender(chatItemDisplay).sendItem(d, false);
+						new BungeeCordSender(chatItemDisplay).sendItem(
+								(DisplayItem) chatItemDisplay.displayed.get(e.getPlayer().getName().toUpperCase()),
+								false);
 					}
 
 					String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),

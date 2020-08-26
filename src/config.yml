@@ -29,7 +29,7 @@ messages:
   
 use-old-format: false #This will use the regular message format, disabling in chat formatting.    Note: This value will be null if the server does not have ProtocolLib
 
-use-nicks-in-display-message: true #Will also use any custom colors
+use-nicks-in-display-message: true #Will also use any custom colors. This is used in the command message
 
 
 use-nicks-in-gui: true #Will also use any custom colors

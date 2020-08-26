@@ -7,6 +7,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
+import me.bingorufus.chatitemdisplay.utils.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
 
 public class ViewItemExecutor implements CommandExecutor {
@@ -19,7 +22,7 @@ public class ViewItemExecutor implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("viewitem")) {
 			if (chatItemDisplay.getConfig().getBoolean("disable-gui")) {
-				sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				sender.sendMessage(new StringFormatter().format(
 						chatItemDisplay.getConfig().getString("messages.gui-disabled")));
 				return true;
 
@@ -36,11 +39,13 @@ public class ViewItemExecutor implements CommandExecutor {
 			if (Bukkit.getPlayer(args[0]) != null) {
 				target = Bukkit.getPlayer(args[0]).getName();
 			}
-			if (chatItemDisplay.displaying.containsKey(target.toUpperCase())) {
-				p.openInventory(chatItemDisplay.displaying.get(target.toUpperCase()));
+			if (chatItemDisplay.displayed.containsKey(target.toUpperCase())) {
+				p.openInventory(new DisplayItemInfo(chatItemDisplay,
+						(DisplayItem) chatItemDisplay.displayed.get(target.toUpperCase())).getInventory());
 				return true;
 			}
-			sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+			sender.sendMessage(new StringFormatter()
+					.format(
 					chatItemDisplay.getConfig().getString("messages.player-not-displaying-anything")));
 			return true;
 

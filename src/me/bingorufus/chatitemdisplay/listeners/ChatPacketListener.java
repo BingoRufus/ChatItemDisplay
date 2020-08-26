@@ -16,7 +16,10 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.utils.MessageBroadcaster;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
+import me.bingorufus.chatitemdisplay.utils.DisplayableBroadcaster;
+import me.bingorufus.chatitemdisplay.utils.StringFormatter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -102,13 +105,13 @@ public class ChatPacketListener extends PacketAdapter {
 				: new TextComponent("");
 		String displaying = replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell));
 
-		String format = ChatColor.translateAlternateColorCodes('&',
-				m.getConfig().getString("messages.inchat-format") + "&r");
+		String format = new StringFormatter().format(
+				m.getConfig().getString("messages.inchat-format"));
 		TextComponent pt2 = new TextComponent(format.substring(0, format.indexOf("%item%")));
-		pt2.addExtra(m.displays.get(displaying.toUpperCase()).getHover());
+		pt2.addExtra(new DisplayItemInfo(m, (DisplayItem) m.displayed.get(displaying.toUpperCase())).getHover());
 		pt2.addExtra(format.substring(format.indexOf("%item%") + 6, format.length()));
 
-		new MessageBroadcaster().broadcast(
+		new DisplayableBroadcaster().broadcast(
 				new TextComponent(pt1, pt2, pt3));
 		msgs.put(json, w.getFullTime());
 		e.setCancelled(true);

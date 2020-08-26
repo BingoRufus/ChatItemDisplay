@@ -6,8 +6,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.Display;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
+import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
 import me.bingorufus.chatitemdisplay.utils.DisplayPermissionChecker;
+import me.bingorufus.chatitemdisplay.utils.StringFormatter;
 import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordSender;
 import net.md_5.bungee.api.ChatColor;
 
@@ -30,17 +32,21 @@ public class DisplayCommandExecutor implements CommandExecutor {
 
 			Player p = (Player) sender;
 			if (p.getInventory().getItemInMainHand().getItemMeta() == null) {
-				sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				sender.sendMessage(new StringFormatter()
+						.format(
 						chatItemDisplay.getConfig().getString("messages.not-holding-anything")));
 				return true;
 			}
 			if (new DisplayPermissionChecker(chatItemDisplay, p).hasPermission()) {
-				Display d = new Display(chatItemDisplay, p.getInventory().getItemInMainHand(), p.getUniqueId(),
-						p.getName(),
-						p.getDisplayName(), false);
-				d.cmdMsg();
-
+				DisplayItem d = new DisplayItem(p.getInventory().getItemInMainHand(), p.getName(), p.getDisplayName(),
+						p.getUniqueId(),
+						false);
+				chatItemDisplay.displayed.put(p.getName().toUpperCase(), d);
 				new BungeeCordSender(chatItemDisplay).sendItem(d, true);
+				new DisplayItemInfo(chatItemDisplay, d).cmdMsg();
+				;
+
+
 			}
 			return true;
 		}

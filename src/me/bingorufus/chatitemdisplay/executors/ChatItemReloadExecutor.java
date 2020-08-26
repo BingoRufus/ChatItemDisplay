@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.utils.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
 
 public class ChatItemReloadExecutor implements CommandExecutor {
@@ -22,7 +23,9 @@ public class ChatItemReloadExecutor implements CommandExecutor {
 				sender.sendMessage(ChatColor.GREEN + "ChatItemDisplay Reloaded");
 				return true;
 			}
-			sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+			
+
+			sender.sendMessage(new StringFormatter().format(
 					this.chatItemDisplay.getConfig().getString("messages.missing-permission")));
 			return true;
 		}

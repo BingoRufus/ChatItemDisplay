@@ -30,15 +30,14 @@ public class ItemReceiver implements Listener {
 		UserConnection rec = (UserConnection) e.getReceiver();
 		
 		Server receiver = (Server) rec.getServer();
-		String material = in.readUTF();
-		int amt = in.readInt();
-		String nbt = in.readUTF();
+		String item = in.readUTF();
+
 		String uuid = in.readUTF();
 		String playerName = in.readUTF();
 		String displayName = in.readUTF();
 		boolean isCmd = in.readBoolean();
 
-		new MessageSender().sendMessage(receiver, material, amt, nbt, uuid, playerName, displayName, isCmd);
+		new MessageSender().sendMessage(receiver, item, uuid, playerName, displayName, isCmd);
 
 
 	}
