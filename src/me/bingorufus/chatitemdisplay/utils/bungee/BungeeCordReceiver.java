@@ -34,6 +34,7 @@ public class BungeeCordReceiver implements PluginMessageListener {
 			return;
 		ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
 		String subchannel = in.readUTF();
+
 		if (subchannel.equalsIgnoreCase("ItemReceiver")) {
 			receiveItem(in);
 			return;

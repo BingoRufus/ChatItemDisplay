@@ -1,4 +1,4 @@
-package me.bingorufus.chatitemdisplay.executors;
+package me.bingorufus.chatitemdisplay.executors.display;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -7,8 +7,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
+import me.bingorufus.chatitemdisplay.displayables.DisplayInventoryInfo;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
+import me.bingorufus.chatitemdisplay.displayables.Displayable;
 import me.bingorufus.chatitemdisplay.utils.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
 
@@ -20,7 +23,6 @@ public class ViewItemExecutor implements CommandExecutor {
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (cmd.getName().equalsIgnoreCase("viewitem")) {
 			if (chatItemDisplay.getConfig().getBoolean("disable-gui")) {
 				sender.sendMessage(new StringFormatter().format(
 						chatItemDisplay.getConfig().getString("messages.gui-disabled")));
@@ -40,16 +42,22 @@ public class ViewItemExecutor implements CommandExecutor {
 				target = Bukkit.getPlayer(args[0]).getName();
 			}
 			if (chatItemDisplay.displayed.containsKey(target.toUpperCase())) {
-				p.openInventory(new DisplayItemInfo(chatItemDisplay,
-						(DisplayItem) chatItemDisplay.displayed.get(target.toUpperCase())).getInventory());
+				Displayable d = chatItemDisplay.displayed.get(target.toUpperCase());
+				if (d instanceof DisplayItem) {
+					p.openInventory(new DisplayItemInfo(chatItemDisplay,
+						(DisplayItem) d).getInventory());
 				return true;
+			}
+			if (d instanceof DisplayInventory) {
+				p.openInventory(new DisplayInventoryInfo(chatItemDisplay, (DisplayInventory) d).getInventory());
+				return true;
+				}
 			}
 			sender.sendMessage(new StringFormatter()
 					.format(
 					chatItemDisplay.getConfig().getString("messages.player-not-displaying-anything")));
 			return true;
 
-		}
-		return false;
+
 	}
 }

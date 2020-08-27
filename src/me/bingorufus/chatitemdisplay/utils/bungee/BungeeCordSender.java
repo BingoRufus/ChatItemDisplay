@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
+import me.bingorufus.chatitemdisplay.displayables.Displayable;
 
 public class BungeeCordSender {
 
@@ -19,7 +20,15 @@ public class BungeeCordSender {
 		this.m = m;
 	}
 
-	public void sendItem(DisplayItem dis, boolean isCmd) {
+	public void send(Displayable dis, boolean isCmd) {
+		if (dis instanceof DisplayItem)
+			sendItem((DisplayItem) dis, isCmd);
+		if (dis instanceof DisplayInventory)
+			sendInv((DisplayInventory) dis, isCmd);
+
+	}
+
+	private void sendItem(DisplayItem dis, boolean isCmd) {
 
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(b);
@@ -38,7 +47,7 @@ public class BungeeCordSender {
 
 	}
 
-	public void sendInv(DisplayInventory dis, boolean isCmd) {
+	private void sendInv(DisplayInventory dis, boolean isCmd) {
 
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(b);

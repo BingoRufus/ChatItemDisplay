@@ -17,7 +17,7 @@ public class ChatItemDisplayBungee extends Plugin {
 		getProxy().registerChannel("chatitemdisplay:out");
 		getProxy().registerChannel("chatitemdisplay:in");
 
-		BungeeCord.getInstance().getPluginManager().registerListener(this, new ItemReceiver());
+		BungeeCord.getInstance().getPluginManager().registerListener(this, new DisplayReceiver());
 	}
 
 	@Override

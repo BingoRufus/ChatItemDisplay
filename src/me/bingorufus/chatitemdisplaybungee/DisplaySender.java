@@ -6,25 +6,21 @@ import com.google.common.io.ByteStreams;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.connection.Server;
 
-public class MessageSender {
+public class DisplaySender {
 
 
 
-	public void sendMessage(Server from, String item, String UUID, String playerName,
-			String displayName,
-			boolean isCmd) {
+	public void sendMessage(Server from, String subchannel, String item, boolean isCmd) {
 
 
 		ByteArrayDataOutput out = ByteStreams.newDataOutput(); // Subchannel, Material Name, Item ammount, ItemStack
 																// nbtdata, Player name,
 		// Display name, Is command
-		out.writeUTF("ItemReceiver"); // Sub Channel
+		out.writeUTF(subchannel.equalsIgnoreCase("ItemSender") ? "ItemReceiver"
+				: subchannel.equalsIgnoreCase("InventorySender") ? "InventoryReceiver" : subchannel); // Sub Channel
 
 		out.writeUTF(item); // Serialized ItemStack
-		out.writeUTF(UUID); // Player name
-		out.writeUTF(playerName); // Player name
 
-		out.writeUTF(displayName); // Display name
 		out.writeBoolean(isCmd);// Is a command
 
 

@@ -4,6 +4,7 @@ package me.bingorufus.chatitemdisplay;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -17,8 +18,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import me.bingorufus.chatitemdisplay.displayables.Displayable;
 import me.bingorufus.chatitemdisplay.executors.ChatItemReloadExecutor;
-import me.bingorufus.chatitemdisplay.executors.DisplayCommandExecutor;
-import me.bingorufus.chatitemdisplay.executors.ViewItemExecutor;
+import me.bingorufus.chatitemdisplay.executors.display.DisplayEnderChestExecutor;
+import me.bingorufus.chatitemdisplay.executors.display.DisplayInventoryExecutor;
+import me.bingorufus.chatitemdisplay.executors.display.DisplayItemExecutor;
+import me.bingorufus.chatitemdisplay.executors.display.ViewItemExecutor;
 import me.bingorufus.chatitemdisplay.listeners.ChatDisplayListener;
 import me.bingorufus.chatitemdisplay.listeners.MapViewerListener;
 import me.bingorufus.chatitemdisplay.listeners.NewVersionDisplayer;
@@ -37,6 +40,7 @@ public class ChatItemDisplay extends JavaPlugin {
 
 	BungeeCordReceiver in;
 	BungeeCordSender out;
+	public Map<UUID, Long> DisplayCooldowns = new HashMap<UUID, Long>();
 
 	public HashMap<String, Displayable> displayed = new HashMap<String, Displayable>(); // Player, Displayable
 
@@ -60,7 +64,10 @@ public class ChatItemDisplay extends JavaPlugin {
 		this.getCommand("viewitem").setExecutor(new ViewItemExecutor(this));
 		this.getCommand("chatitemreload").setExecutor(new ChatItemReloadExecutor(this));
 		Metrics metrics = new Metrics(this, 7229);
-		this.getCommand("displayitem").setExecutor(new DisplayCommandExecutor(this));
+		this.getCommand("displayitem").setExecutor(new DisplayItemExecutor(this));
+		this.getCommand("displayinv").setExecutor(new DisplayInventoryExecutor(this));
+		this.getCommand("displayenderchest").setExecutor(new DisplayEnderChestExecutor(this));
+
 		metrics.addCustomChart(new Metrics.SimplePie("old_display_messages", new Callable<String>() {
 			@Override
 			public String call() throws Exception {

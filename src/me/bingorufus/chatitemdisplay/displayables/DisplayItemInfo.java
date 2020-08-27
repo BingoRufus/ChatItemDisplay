@@ -58,7 +58,7 @@ public class DisplayItemInfo implements DisplayInfo {
 	}
 
 	@SuppressWarnings("deprecation")
-	public TextComponent getHover() {
+	public TextComponent baseHover() {
 
 		TextComponent Hover = new TextComponent(itemStuff.NameFromItem(display.getItem()));
 		if (m.getConfig().getBoolean("show-item-amount") && display.getItem().getAmount() > 1)
@@ -94,9 +94,32 @@ public class DisplayItemInfo implements DisplayInfo {
 	}
 
 	@Override
+	public TextComponent getHover() {
+		TextComponent base= baseHover();
+		
+		String format = new StringFormatter().format(m.getConfig().getString("display-messages.inchat-item-format"));
+		format = format.replaceAll("%player%",
+				m.getConfig().getBoolean("use-nicks-in-display-message") ? display.getDisplayName()
+						: display.getPlayer());
+		String[] parts = format.split("((?<=%item%)|(?=%item%))");
+		TextComponent whole = new TextComponent();
+		for (String part : parts) {
+			if (part.equalsIgnoreCase("%item%")) {
+				whole.addExtra(base);
+				continue;
+			}
+			whole.addExtra(part);
+		}
+		whole.setHoverEvent(base.getHoverEvent());
+		whole.setClickEvent(base.getClickEvent());
+		return whole;
+	}
+
+
+	@Override
 	public void cmdMsg() {
 
-		String format = new StringFormatter().format(m.getConfig().getString("messages.display-format"));
+		String format = new StringFormatter().format(m.getConfig().getString("display-messages.item-display-format"));
 		format = format.replaceAll("%player%",
 				m.getConfig().getBoolean("use-nicks-in-display-message") ? display.getDisplayName()
 						: display.getPlayer());
@@ -105,7 +128,7 @@ public class DisplayItemInfo implements DisplayInfo {
 		TextComponent PreMsg = format.indexOf("%item%") > 0 ? new TextComponent(sects[0]) : new TextComponent("");
 		TextComponent EndMsg = sects.length == 2 ? new TextComponent(sects[1])
 				: PreMsg.getText() == null ? new TextComponent(sects[0]) : new TextComponent("");
-		new DisplayableBroadcaster().broadcast(PreMsg, getHover(), EndMsg);
+		new DisplayableBroadcaster().broadcast(PreMsg, baseHover(), EndMsg);
 	}
 
 	public Inventory getInventory() {

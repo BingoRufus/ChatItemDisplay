@@ -30,7 +30,7 @@ public class DisplayInventory implements Displayable {
 	@Override
 	public String serialize() {
 		JsonObject json = new JsonObject();
-		json.addProperty("inventory", new InventorySerializer().serialize(inv));
+		json.addProperty("inventory", new InventorySerializer().serialize(inv, name));
 		json.addProperty("title", name);
 		json.addProperty("player", player);
 		json.addProperty("displayName", displayName);

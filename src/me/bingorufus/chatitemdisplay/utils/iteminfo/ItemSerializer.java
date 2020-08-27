@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -47,23 +46,26 @@ public class ItemSerializer {
 		JsonObject itemJson = new JsonObject();
 		itemJson.addProperty("id", item.getType().getKey().toString());
 		itemJson.addProperty("Count", item.getAmount());
-		itemJson.add("tag", (JsonElement) new JsonParser().parse(getNBT(item)));
+		itemJson.addProperty("tag", getNBT(item));
 		return itemJson.toString();
 	}
 
 	public ItemStack deserialize(String json) {
+		JsonObject itemJson = (JsonObject) new JsonParser().parse(json);
+		Material mat = Material.matchMaterial(itemJson.get("id").getAsString());
+		mat = mat == null ? Material.STONE : mat;
+
+		int count = itemJson.get("Count").getAsInt();
+
+		ItemStack item = new ItemStack(mat, count);
 		try {
-			JsonObject itemJson = (JsonObject) new JsonParser().parse(json);
-			Material mat = Material.matchMaterial(itemJson.get("id").getAsString());
-			mat = mat == null ? Material.STONE : mat;
 
-			int count = itemJson.get("Count").getAsInt();
-
-			ItemStack item = new ItemStack(mat, count);
 			Object nmsItem = nmsItem(item);
 
 			Method parseNBT = mojangsonParser.getMethod("parse", String.class);
-			Object nbtCompound = parseNBT.invoke(mojangsonParser, itemJson.get("tag").getAsString()); // Turns NBT
+
+			Object nbtCompound = parseNBT.invoke(mojangsonParser, itemJson.get("tag").getAsString()); // Turns
+																														// NBT
 																										// string into
 																										// NBTTagCompound
 
@@ -78,7 +80,7 @@ public class ItemSerializer {
 				| InvocationTargetException e) {
 			e.printStackTrace();
 		}
-		return new ItemStack(Material.AIR);
+		return item;
 
 	}
 

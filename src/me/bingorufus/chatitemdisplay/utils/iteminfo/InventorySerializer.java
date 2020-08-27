@@ -2,10 +2,13 @@ package me.bingorufus.chatitemdisplay.utils.iteminfo;
 
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import com.google.gson.JsonElement;
@@ -14,10 +17,16 @@ import com.google.gson.JsonParser;
 
 public class InventorySerializer {
 
-	public String serialize(Inventory inv, String name) {
+	public String serialize(Inventory inv, @Nullable String name) {
+		if (name == null)
+			return serialize(inv);
+
 		JsonObject invJson = new JsonObject();
-		invJson.addProperty("type", inv.getType().name());
-		invJson.addProperty("owner", inv.getHolder().toString());
+		if (inv.getType().getDefaultSize() == inv.getSize())
+			invJson.addProperty("type", inv.getType().name());
+		else
+			invJson.addProperty("size", inv.getSize());
+		invJson.addProperty("owner", ((Player) inv.getHolder()).getUniqueId().toString());
 
 		invJson.addProperty("title", name);
 
@@ -28,8 +37,12 @@ public class InventorySerializer {
 
 	public String serialize(Inventory inv) {
 		JsonObject invJson = new JsonObject();
-		invJson.addProperty("type", inv.getType().name());
-		invJson.addProperty("owner", inv.getHolder().toString());
+		if (inv.getType().getDefaultSize() == inv.getSize())
+			invJson.addProperty("type", inv.getType().name());
+		else
+			invJson.addProperty("size", inv.getSize());
+
+		invJson.addProperty("owner", ((Player) inv.getHolder()).getUniqueId().toString());
 		invJson.add("contents", getContents(inv));
 		return invJson.toString();
 
@@ -38,7 +51,7 @@ public class InventorySerializer {
 	private JsonElement getContents(Inventory inv) {
 		JsonObject con = new JsonObject();
 		ItemSerializer serializer = new ItemSerializer();
-		for (int i = 0; i < inv.getType().getDefaultSize(); i++) {
+		for (int i = 0; i < inv.getSize(); i++) {
 			ItemStack item = inv.getItem(i);
 			if (item == null || item.getItemMeta() == null)
 				continue;
@@ -49,19 +62,24 @@ public class InventorySerializer {
 
 	public Inventory deserialize(String json) {
 		JsonObject invJson = (JsonObject) new JsonParser().parse(json);
-
-		Inventory inv = Bukkit.createInventory(
-				(InventoryHolder) Bukkit.getOfflinePlayer(UUID.fromString(invJson.get("owner").getAsString())),
-				InventoryType.valueOf(invJson.get("type").getAsString()),
-				invJson.has("title") ? invJson.get("title").getAsString()
-						: InventoryType.valueOf(invJson.get("type").getAsString()).getDefaultTitle());
+		OfflinePlayer owner = Bukkit.getOfflinePlayer(UUID.fromString(invJson.get("owner").getAsString()));
+		String title = invJson.has("title") ? invJson.get("title").getAsString() : null;
+		Inventory inv = null;
+		if (invJson.has("type")) {
+			InventoryType type = InventoryType.valueOf(invJson.get("type").getAsString());
+			inv = Bukkit.createInventory(owner.getPlayer(), type, title == null ? type.getDefaultTitle() : title);
+		} else if (invJson.has("size")) {
+			inv = Bukkit.createInventory(owner.getPlayer(), invJson.get("size").getAsInt(),
+					title == null ? "Inventory" : title);
+		}
 
 		JsonObject items = invJson.get("contents").getAsJsonObject();
 		ItemSerializer serialzer = new ItemSerializer();
-		for(int i = 0; i < inv.getType().getDefaultSize(); i++) {
+		for (int i = 0; i < inv.getSize(); i++) {
 			if (!items.has(i + ""))
 				continue;
-			inv.setItem(i, serialzer.deserialize(invJson.get(i + "").getAsJsonObject().toString()));
+
+			inv.setItem(i, serialzer.deserialize(items.get(i + "").getAsString()));
 		}
 		return inv;
 		

@@ -1,11 +1,11 @@
 package me.bingorufus.chatitemdisplay.listeners;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 
 import com.comphenix.protocol.PacketType;
@@ -16,26 +16,25 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.displayables.DisplayInfo;
+import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
+import me.bingorufus.chatitemdisplay.displayables.DisplayInventoryInfo;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
-import me.bingorufus.chatitemdisplay.utils.DisplayableBroadcaster;
-import me.bingorufus.chatitemdisplay.utils.StringFormatter;
+import me.bingorufus.chatitemdisplay.displayables.Displayable;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
 public class ChatPacketListener extends PacketAdapter {
-	HashMap<String, Long> msgs = new HashMap<String, Long>(); // <JSONMessage,Time>
 
 	char bell = '\u0007';
 
 	ChatItemDisplay m;
-	World w;
 
 	public ChatPacketListener(Plugin plugin, ListenerPriority listenerPriority, PacketType... types) {
 		super(plugin, listenerPriority, types);
 		m = (ChatItemDisplay) plugin;
-		w = Bukkit.getWorlds().get(0);
 	}
 	@Override
 	public void onPacketReceiving(final PacketEvent e) {
@@ -48,10 +47,8 @@ public class ChatPacketListener extends PacketAdapter {
 	@Override
 	public void onPacketSending(final PacketEvent e) {
 
-		String json;
 		PacketContainer packet = e.getPacket();
 		WrappedChatComponent chat = packet.getChatComponents().read(0);
-		TextComponent tc = new TextComponent();
 		BaseComponent[] baseComps;
 		
 		if (chat == null) {
@@ -60,8 +57,6 @@ public class ChatPacketListener extends PacketAdapter {
 			try {
 				Field f = chatPacket.getClass().getDeclaredField("components");
 				baseComps = (BaseComponent[]) f.get(chatPacket);
-				tc = new TextComponent(baseComps);
-				json = ComponentSerializer.toString(tc);
 
 			} catch (SecurityException | NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
 				ex.printStackTrace();
@@ -69,52 +64,63 @@ public class ChatPacketListener extends PacketAdapter {
 			}
 
 		} else {
-			json = chat.getJson();
 			baseComps = ComponentSerializer.parse(chat.getJson());
-			tc = new TextComponent(baseComps);
 		}
 		
 
-		if (!json.contains("\\u0007cid"))
+		if (!ComponentSerializer.toString(baseComps).contains("\\u0007cid"))
 			return;
 
-		if (msgs.containsKey(json) && msgs.get(json) == w.getFullTime()) { // Check if
-																											// packet is
-																											// being
-																											// sent
-																											// another
-																											// time to
-																											// someone
-																											// else
-			e.setCancelled(true);
-			return;
+
+		try {
+			for (int i = 0; i < baseComps[0].getExtra().size(); i++) {
+				List<BaseComponent> extra = baseComps[0].getExtra();
+				TextComponent bc = (TextComponent) extra.get(i);
+				if (!bc.toLegacyText().contains("\u0007cid"))
+					continue;
+
+				String replace = null;
+
+				Pattern pattern = Pattern.compile("\u0007(.*?)\u0007"); // Searches for a string that starts and ends
+																		// with the bell charachter
+				Matcher matcher = pattern.matcher(bc.toLegacyText());
+				if (matcher.find()) {
+					replace = bell + matcher.group(1) + bell;
+				}
+				String legacyText = bc.toLegacyText().replace(replace, replace
+						+ ChatColor.getLastColors(bc.toLegacyText().substring(0, bc.toLegacyText().indexOf(replace))));
+
+
+
+				String displaying = replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell));
+				Displayable display = m.displayed.get(displaying.toUpperCase());
+				DisplayInfo disInfo = null;
+
+				if (display instanceof DisplayItem)
+					disInfo = new DisplayItemInfo(m, (DisplayItem) display);
+				if (display instanceof DisplayInventory)
+					disInfo = new DisplayInventoryInfo(m, (DisplayInventory) display);
+
+				String[] parts = legacyText.split("((?<=" + replace + ")|(?=" + replace + "))");
+				TextComponent hover = disInfo.getHover();
+				TextComponent component = new TextComponent();
+				for (String part : parts) {
+					if (part.equalsIgnoreCase(replace)) {
+						component.addExtra(hover);
+						continue;
+					}
+					component.addExtra(part);
+				}
+				extra.set(i, component);
+				baseComps[0].setExtra(extra);
+
+			}
+		} catch (NullPointerException npe) {
+			npe.printStackTrace();
 		}
 
 
-
-
-		String replace = tc.toLegacyText().substring(tc.toLegacyText().indexOf(bell),
-				tc.toLegacyText().lastIndexOf(bell) + 1);
-		String legacyText = tc.toLegacyText().replace(replace,
-				replace + ChatColor.getLastColors(tc.toLegacyText().substring(0, tc.toLegacyText().indexOf(replace))));
-		String[] legacy = legacyText.split(replace);
-
-		TextComponent pt1 = new TextComponent(TextComponent.fromLegacyText(legacy[0]));
-
-		TextComponent pt3 = legacy.length > 1 ? new TextComponent(TextComponent.fromLegacyText(legacy[1]))
-				: new TextComponent("");
-		String displaying = replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell));
-
-		String format = new StringFormatter().format(
-				m.getConfig().getString("messages.inchat-format"));
-		TextComponent pt2 = new TextComponent(format.substring(0, format.indexOf("%item%")));
-		pt2.addExtra(new DisplayItemInfo(m, (DisplayItem) m.displayed.get(displaying.toUpperCase())).getHover());
-		pt2.addExtra(format.substring(format.indexOf("%item%") + 6, format.length()));
-
-		new DisplayableBroadcaster().broadcast(
-				new TextComponent(pt1, pt2, pt3));
-		msgs.put(json, w.getFullTime());
-		e.setCancelled(true);
+		packet.getChatComponents().write(0, WrappedChatComponent.fromJson(ComponentSerializer.toString(baseComps)));
 		
 	}
 

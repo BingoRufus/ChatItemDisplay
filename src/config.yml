@@ -4,21 +4,32 @@ disable-update-checking: false
 
 auto-update: true # Automatically download updates
 
-triggers: #These will determine when the item is displayed, they are not case sensitive
-- "[i]"
-- "[item]"
-- "[itemdisplay]"
-- "[displayitem]"
+triggers: #These will determine when the objects are displayed, they are not case sensitive
+  item:
+  - "[i]"
+  - "[item]"
+  - "[itemdisplay]"
+  - "[displayitem]"
+  inventory:
+  - "[inv]"
+  - "[inventory]"
+  - "[invdisplay]"
+  - "[displayinv]"
+  enderchest:
+  - "[ec]"
+  - "[enderchest]"
+  - "[displaychest]"
+  - "[displayec]"
 
 
-disable-gui: false #Disable all the GUIs
+disable-gui: false #Disable all the GUIs3
   
 messages:
-  inchat-format: "&r[%item%&r]"
-  display-format: "&6%player%&6 is displaying their &f%item%"
   gui-format: "&a%player%&a's &cDisplayed Item"
   missing-permission: "&cYou do not have permission to do that"
-  missing-permission-to-display: "&cYou do not have permission to display items"
+  missing-permission-item: "&cYou do not have permission to display items"
+  missing-permission-inventory: "&cYou do not have permission to display your inventory"
+  missing-permission-enderchest: "&cYou do not have permission to display your Ender Chest"
   black-listed-item: "&cYou cannot display this at item as it is blacklisted"
   player-not-displaying-anything: "&cThat player isn't displaying anything" #when someone does /viewitem <player> and the <player> isn't displaying anything
   cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
@@ -26,6 +37,14 @@ messages:
   map-notification: "&eDrop or click on the map to receive your item back"
   not-holding-anything: "&cYou are not holding anything"
   remove-item-colors: false #Remove Item colors from the display message
+
+display-messages: 
+  inchat-item-format: "&r[%item%&r]"
+  inchat-inventory-format: "&r[%player%'s %type%]" #Type will either be "EnderChest" or "Inventory" depending on what is being displayed
+  item-display-format: "&6%player%&6 is displaying their &f%item%"
+  inventory-display-format: "&6%player%&6 is displaying their &f%type%"
+  displayed-inventory-title: "%player%'s Inventory"
+  displayed-enderchest-title: "%player%'s EnderChest"
   
 use-old-format: false #This will use the regular message format, disabling in chat formatting.    Note: This value will be null if the server does not have ProtocolLib
 
@@ -37,7 +56,7 @@ use-nicks-in-gui: true #Will also use any custom colors
 
 
 show-item-amount: true #Will add x2 if a player is displaying 2 items
-display-item-cooldown: 0 #Measured in seconds. Use 0 for no cooldown.
+display-cooldown: 0 #Measured in seconds. Use 0 for no cooldown.
 
 
 blacklisted-items: #for help visit https://minecraftitemids.com/

@@ -6,17 +6,29 @@ author: BingoRufus
 version: 1.5.0
 softdepend: [ProtocolLib]
 load: POSTWORLD
+
 commands:
-  viewitem:
+  viewdisplay:
     description: See what item a player is displaying
     usage: /<command> <player>
+    aliases: [viewitem,viewinv,viewinventory,viewec,viewenderchest,displayview]
   chatitemreload:
+    usage: /<command>
+    permission: chatitemdisplay.reload
     description: Reload the ChatItemDisplay config
   displayitem:
     usage: /<command>
-    permission: chatitemdisplay.display
     description: Display your items in chat
     aliases: [display]
+  displayinventory:
+    usage: /<command>
+    description: Display your inventory
+    aliases: [displayinv]
+  displayenderchest:
+    usage: /<command>
+    description: Display your ender chest
+    aliases: [displayec, displayendchest]
+    
 permissions:
   ChatItemDisplay.*:
     description: Parent node to all ChatItemDisplay permissions
@@ -25,9 +37,17 @@ permissions:
       ChatItemDisplay.reload:
         description: Reload the ChatItemDisplay config
         default: op
-      ChatItemDisplay.display:
-        description: Display Items using one of the Triggers in the config.yml
+      ChatItemDisplay.display.*:
+        description: Display Objects
         default: true
+        children:
+          chatitemdisplay.display.item:
+            description: Display items
+          chatitemdisplay.display.inventory:
+            description: Display player inventories
+          chatitemdisplay.display.enderchest:
+            description: Display Ender Chests
+            
       ChatItemDisplay.cooldownbypass:
         description: Bypass the display cooldown
         default: op

@@ -11,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
-import org.bukkit.block.EnderChest;
 import org.bukkit.block.Furnace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
@@ -39,15 +38,13 @@ public class InventoryClick implements Listener {
 	private ChatItemDisplay m;
 	ItemStackStuff ItemStackStuff;
 	List<PlayerInteractEvent> pies = new ArrayList<>();
+
 	public InventoryClick(ChatItemDisplay m, String ver) {
 		ItemStackStuff = new ItemStackStuff();
 		this.m = m;
 		version = ver;
 
 	}
-
-
-
 
 	@EventHandler
 	public void onClick(final InventoryClickEvent e) {
@@ -64,7 +61,7 @@ public class InventoryClick implements Listener {
 
 			if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
 				BlockStateMeta bsm = ((BlockStateMeta) e.getCurrentItem().getItemMeta());
-				if (bsm.getBlockState() instanceof Container || bsm.getBlockState() instanceof EnderChest) {
+				if (bsm.getBlockState() instanceof Container) {
 					container(e.getCurrentItem(), p, m.invs.get(e.getInventory()));
 					return;
 				}
@@ -111,8 +108,7 @@ public class InventoryClick implements Listener {
 	public void map(ItemStack item, Player p) {
 		m.viewingMap.put(p, p.getInventory().getItemInMainHand());
 
-		p.sendMessage(
-				new StringFormatter().format(m.getConfig().getString("messages.map-notification")));
+		p.sendMessage(new StringFormatter().format(m.getConfig().getString("messages.map-notification")));
 		p.closeInventory();
 		p.getInventory().setItemInMainHand(item);
 	}
@@ -125,16 +121,11 @@ public class InventoryClick implements Listener {
 
 		Player holder = Bukkit.getOfflinePlayer(owner).getPlayer();
 
-		if (bsm.getBlockState() instanceof EnderChest) {
-
-			container = holder.getEnderChest();
-		} else {
-			Container c = (Container) bsm.getBlockState();
-			if (c instanceof Furnace && !m.hasProtocollib) {
-				return;
-			}
-			container = c.getInventory();
+		Container c = (Container) bsm.getBlockState();
+		if (c instanceof Furnace && !m.hasProtocollib) {
+			return;
 		}
+		container = c.getInventory();
 
 		boolean isEmpty = Arrays.asList(container.getContents()).stream().allMatch(i -> {
 			return i == null;
