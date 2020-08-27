@@ -18,10 +18,10 @@ import me.bingorufus.chatitemdisplay.displayables.DisplayInventoryInfo;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
 import me.bingorufus.chatitemdisplay.displayables.Displayable;
-import me.bingorufus.chatitemdisplay.utils.DisplayPermissionChecker;
-import me.bingorufus.chatitemdisplay.utils.PlayerInventoryReplicator;
-import me.bingorufus.chatitemdisplay.utils.StringFormatter;
-import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordSender;
+import me.bingorufus.chatitemdisplay.util.DisplayPermissionChecker;
+import me.bingorufus.chatitemdisplay.util.PlayerInventoryReplicator;
+import me.bingorufus.chatitemdisplay.util.StringFormatter;
+import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
 
 public class ChatDisplayListener implements Listener {
 

@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.google.gson.JsonObject;
 
-import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemSerializer;
+import me.bingorufus.chatitemdisplay.util.iteminfo.ItemSerializer;
 
 public class DisplayItem implements Displayable {
 	private ItemStack item;

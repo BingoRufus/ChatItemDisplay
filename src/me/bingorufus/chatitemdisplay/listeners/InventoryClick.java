@@ -28,10 +28,10 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.utils.StringFormatter;
-import me.bingorufus.chatitemdisplay.utils.VersionComparer;
-import me.bingorufus.chatitemdisplay.utils.VersionComparer.Status;
-import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemStackStuff;
+import me.bingorufus.chatitemdisplay.util.StringFormatter;
+import me.bingorufus.chatitemdisplay.util.VersionComparer;
+import me.bingorufus.chatitemdisplay.util.VersionComparer.Status;
+import me.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff;
 
 public class InventoryClick implements Listener {
 	String version;

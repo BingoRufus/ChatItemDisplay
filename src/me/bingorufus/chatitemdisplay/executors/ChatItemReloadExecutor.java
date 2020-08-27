@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.utils.StringFormatter;
+import me.bingorufus.chatitemdisplay.util.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
 
 public class ChatItemReloadExecutor implements CommandExecutor {

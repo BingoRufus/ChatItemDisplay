@@ -1,4 +1,4 @@
-package me.bingorufus.chatitemdisplay.utils.iteminfo;
+package me.bingorufus.chatitemdisplay.util.iteminfo;
 
 import java.util.UUID;
 

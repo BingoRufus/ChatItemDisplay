@@ -11,8 +11,8 @@ import org.bukkit.inventory.Inventory;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
 import me.bingorufus.chatitemdisplay.displayables.DisplayInventoryInfo;
-import me.bingorufus.chatitemdisplay.utils.StringFormatter;
-import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordSender;
+import me.bingorufus.chatitemdisplay.util.StringFormatter;
+import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
 import net.md_5.bungee.api.ChatColor;
 
 public class DisplayEnderChestExecutor implements CommandExecutor {

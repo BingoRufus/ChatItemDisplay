@@ -25,13 +25,13 @@ import me.bingorufus.chatitemdisplay.executors.display.ViewItemExecutor;
 import me.bingorufus.chatitemdisplay.listeners.ChatDisplayListener;
 import me.bingorufus.chatitemdisplay.listeners.MapViewerListener;
 import me.bingorufus.chatitemdisplay.listeners.NewVersionDisplayer;
-import me.bingorufus.chatitemdisplay.utils.VersionComparer;
-import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordReceiver;
-import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordSender;
-import me.bingorufus.chatitemdisplay.utils.loaders.Metrics;
-import me.bingorufus.chatitemdisplay.utils.loaders.ProtocolLibRegister;
-import me.bingorufus.chatitemdisplay.utils.updater.UpdateChecker;
-import me.bingorufus.chatitemdisplay.utils.updater.UpdateDownloader;
+import me.bingorufus.chatitemdisplay.util.VersionComparer;
+import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordReceiver;
+import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
+import me.bingorufus.chatitemdisplay.util.loaders.Metrics;
+import me.bingorufus.chatitemdisplay.util.loaders.ProtocolLibRegister;
+import me.bingorufus.chatitemdisplay.util.updater.UpdateChecker;
+import me.bingorufus.chatitemdisplay.util.updater.UpdateDownloader;
 
 public class ChatItemDisplay extends JavaPlugin {
 	ChatDisplayListener DisplayListener;
@@ -57,8 +57,6 @@ public class ChatItemDisplay extends JavaPlugin {
 	 */
 	@Override
 	public void onEnable() {
-
-
 		this.saveDefaultConfig();
 		reloadConfigVars();
 		this.getCommand("viewitem").setExecutor(new ViewItemExecutor(this));
@@ -131,8 +129,8 @@ public class ChatItemDisplay extends JavaPlugin {
 		}
 		if (!getConfig().getBoolean("disable-update-checking")) {
 			String checkerError = new UpdateChecker(77177).getLatestVersion(version -> {
-
 				VersionComparer.Status s = new VersionComparer().isRecent(this.getDescription().getVersion(), version);
+
 				if (!s.equals(VersionComparer.Status.BEHIND)) {
 					this.getLogger().info("ChatItemDisplay is up to date");
 				} else {

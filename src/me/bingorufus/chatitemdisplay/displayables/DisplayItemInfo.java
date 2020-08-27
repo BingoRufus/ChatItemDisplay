@@ -8,12 +8,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.utils.DisplayableBroadcaster;
-import me.bingorufus.chatitemdisplay.utils.StringFormatter;
-import me.bingorufus.chatitemdisplay.utils.VersionComparer;
-import me.bingorufus.chatitemdisplay.utils.VersionComparer.Status;
-import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemStackStuff;
-import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemStackTranslator;
+import me.bingorufus.chatitemdisplay.util.DisplayableBroadcaster;
+import me.bingorufus.chatitemdisplay.util.StringFormatter;
+import me.bingorufus.chatitemdisplay.util.VersionComparer;
+import me.bingorufus.chatitemdisplay.util.VersionComparer.Status;
+import me.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff;
+import me.bingorufus.chatitemdisplay.util.iteminfo.ItemStackTranslator;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;

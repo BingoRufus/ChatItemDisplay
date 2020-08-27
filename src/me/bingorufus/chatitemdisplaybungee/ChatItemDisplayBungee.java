@@ -3,10 +3,10 @@ package me.bingorufus.chatitemdisplaybungee;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-import me.bingorufus.chatitemdisplay.utils.VersionComparer;
-import me.bingorufus.chatitemdisplay.utils.VersionComparer.Status;
-import me.bingorufus.chatitemdisplay.utils.updater.UpdateChecker;
-import me.bingorufus.chatitemdisplay.utils.updater.UpdateDownloader;
+import me.bingorufus.chatitemdisplay.util.VersionComparer;
+import me.bingorufus.chatitemdisplay.util.VersionComparer.Status;
+import me.bingorufus.chatitemdisplay.util.updater.UpdateChecker;
+import me.bingorufus.chatitemdisplay.util.updater.UpdateDownloader;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.plugin.Plugin;
 

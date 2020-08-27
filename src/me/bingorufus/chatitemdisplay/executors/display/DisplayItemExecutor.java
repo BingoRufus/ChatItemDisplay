@@ -8,9 +8,9 @@ import org.bukkit.entity.Player;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
-import me.bingorufus.chatitemdisplay.utils.DisplayPermissionChecker;
-import me.bingorufus.chatitemdisplay.utils.StringFormatter;
-import me.bingorufus.chatitemdisplay.utils.bungee.BungeeCordSender;
+import me.bingorufus.chatitemdisplay.util.DisplayPermissionChecker;
+import me.bingorufus.chatitemdisplay.util.StringFormatter;
+import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
 import net.md_5.bungee.api.ChatColor;
 
 public class DisplayItemExecutor implements CommandExecutor {

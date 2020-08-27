@@ -5,8 +5,8 @@ import java.util.UUID;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import me.bingorufus.chatitemdisplay.utils.iteminfo.InventorySerializer;
-import me.bingorufus.chatitemdisplay.utils.iteminfo.ItemSerializer;
+import me.bingorufus.chatitemdisplay.util.iteminfo.InventorySerializer;
+import me.bingorufus.chatitemdisplay.util.iteminfo.ItemSerializer;
 
 public interface Displayable {
 

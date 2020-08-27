@@ -6,7 +6,7 @@ import org.bukkit.inventory.Inventory;
 
 import com.google.gson.JsonObject;
 
-import me.bingorufus.chatitemdisplay.utils.iteminfo.InventorySerializer;
+import me.bingorufus.chatitemdisplay.util.iteminfo.InventorySerializer;
 
 public class DisplayInventory implements Displayable {
 

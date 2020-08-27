@@ -12,7 +12,7 @@ import me.bingorufus.chatitemdisplay.displayables.DisplayInventoryInfo;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
 import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
 import me.bingorufus.chatitemdisplay.displayables.Displayable;
-import me.bingorufus.chatitemdisplay.utils.StringFormatter;
+import me.bingorufus.chatitemdisplay.util.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
 
 public class ViewItemExecutor implements CommandExecutor {

@@ -1,4 +1,4 @@
-package me.bingorufus.chatitemdisplay.utils.loaders;
+package me.bingorufus.chatitemdisplay.util.loaders;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

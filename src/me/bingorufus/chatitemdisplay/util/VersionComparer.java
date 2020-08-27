@@ -1,4 +1,4 @@
-package me.bingorufus.chatitemdisplay.utils;
+package me.bingorufus.chatitemdisplay.util;
 
 public class VersionComparer {
 
@@ -18,7 +18,7 @@ public class VersionComparer {
 
 	private Status compare(int[] array1, int[] array2, int section) {
 
-		if (array1.length < section || array2.length < section) {
+		if (array1.length == section || array2.length == section) {
 			if (array1.length == array2.length)
 				return Status.SAME;
 			if (array1.length < array2.length)

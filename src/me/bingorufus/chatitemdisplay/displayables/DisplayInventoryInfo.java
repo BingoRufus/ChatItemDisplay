@@ -4,8 +4,8 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.utils.DisplayableBroadcaster;
-import me.bingorufus.chatitemdisplay.utils.StringFormatter;
+import me.bingorufus.chatitemdisplay.util.DisplayableBroadcaster;
+import me.bingorufus.chatitemdisplay.util.StringFormatter;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.TextComponent;
