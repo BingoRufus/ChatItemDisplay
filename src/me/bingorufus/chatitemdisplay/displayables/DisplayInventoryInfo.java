@@ -1,5 +1,6 @@
 package me.bingorufus.chatitemdisplay.displayables;
 
+import org.bukkit.ChatColor;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
@@ -31,7 +32,11 @@ public class DisplayInventoryInfo implements DisplayInfo {
 			type = new TranslatableComponent("container.inventory");
 		String format = new StringFormatter()
 				.format(m.getConfig().getString("display-messages.inventory-display-format"))
-				.replaceAll("%player%", m.getConfig().getBoolean("use-nicks-in-display-message") ? inv.getDisplayName()
+				.replaceAll("%player%",
+						m.getConfig().getBoolean("use-nicks-in-display-message")
+								? m.getConfig().getBoolean("strip-nick-colors-message")
+										? ChatColor.stripColor(inv.getDisplayName())
+										: inv.getDisplayName()
 						: inv.getPlayer());
 		String[] parts = format.split("((?<=%type%)|(?=%type%))");
 
@@ -62,7 +67,10 @@ public class DisplayInventoryInfo implements DisplayInfo {
 			type = new TranslatableComponent("container.inventory");
 		String format = new StringFormatter()
 				.format(m.getConfig().getString("display-messages.inchat-inventory-format"))
-				.replaceAll("%player%", m.getConfig().getBoolean("use-nicks-in-display-message") ? inv.getDisplayName()
+				.replaceAll("%player%", m.getConfig().getBoolean("use-nicks-in-display-message")
+						? m.getConfig().getBoolean("strip-nick-colors-message")
+								? ChatColor.stripColor(inv.getDisplayName())
+								: inv.getDisplayName()
 						: inv.getPlayer());
 		String[] parts = format.split("((?<=%type%)|(?=%type%))");
 

@@ -1,8 +1,8 @@
 package me.bingorufus.chatitemdisplay;
 
 
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -50,6 +50,9 @@ public class ChatItemDisplay extends JavaPlugin {
 
 	public boolean hasProtocollib = false;
 	public Boolean useOldFormat = false;
+	private boolean isBungee = false;
+
+	public Long pingTime;
 
 	/*
 	 * TODO: a /version command that shows java version server cversion etc auto
@@ -92,17 +95,34 @@ public class ChatItemDisplay extends JavaPlugin {
 		if (in != null) {
 			getServer().getMessenger().unregisterIncomingPluginChannel(this, "chatitemdisplay:in", in);
 		}
-
-		if (isBungee()) {
-
 			in = new BungeeCordReceiver(this);
 			getServer().getMessenger().registerIncomingPluginChannel(this, "chatitemdisplay:in", in);
 			getServer().getMessenger().registerOutgoingPluginChannel(this, "chatitemdisplay:out");
+		this.isBungee = false;
 
-		}
+		pingTime = System.currentTimeMillis();
+		new BungeeCordSender(this).pingBungee();
 
 		this.saveDefaultConfig();
 		this.reloadConfig();
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (invs.keySet().contains(p.getOpenInventory().getTopInventory())) {
+				p.closeInventory();
+			}
+
+		}
+		reloadListeners();
+
+		update();
+
+		Bukkit.getPluginManager().registerEvents(DisplayListener, this);
+	}
+
+	public boolean isBungee() {
+		return isBungee;
+	}
+
+	private void reloadListeners() {
 		Bukkit.getPluginManager().registerEvents(new MapViewerListener(this), this);
 
 		useOldFormat = this.getConfig().getBoolean("use-old-format")
@@ -121,12 +141,9 @@ public class ChatItemDisplay extends JavaPlugin {
 			HandlerList.unregisterAll(DisplayListener);
 		if (NewVer != null)
 			HandlerList.unregisterAll(NewVer);
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (invs.keySet().contains(p.getOpenInventory().getTopInventory())) {
-				p.closeInventory();
-			}
-
-		}
+		DisplayListener = new ChatDisplayListener(this);
+	}
+	private void update() {
 		if (!getConfig().getBoolean("disable-update-checking")) {
 			String checkerError = new UpdateChecker(77177).getLatestVersion(version -> {
 				VersionComparer.Status s = new VersionComparer().isRecent(this.getDescription().getVersion(), version);
@@ -142,7 +159,7 @@ public class ChatItemDisplay extends JavaPlugin {
 							try {
 								UpdateDownloader updater = new UpdateDownloader(version);
 								String downloadMsg = updater
-										.download(new FileOutputStream("plugins/ChatItemDisplay " + version + ".jar"));
+										.download(new File("plugins/ChatItemDisplay " + version + ".jar"));
 								if (downloadMsg != null) {
 									Bukkit.getLogger().severe(downloadMsg);
 									return;
@@ -171,22 +188,10 @@ public class ChatItemDisplay extends JavaPlugin {
 				Bukkit.getLogger().warning(checkerError);
 			}
 		}
-
-		DisplayListener = new ChatDisplayListener(this);
-		Bukkit.getPluginManager().registerEvents(DisplayListener, this);
 	}
 
-
-
-	public boolean isBungee() {
-		// we check if the server is Spigot/Paper (because of the spigot.yml file)
-		if (!getServer().getVersion().contains("Spigot") && !getServer().getVersion().contains("Paper"))
-			return false;
-
-		if (getServer().spigot().getConfig().getConfigurationSection("settings").getBoolean("settings.bungeecord"))
-			return false;
-		return true;
-
+	public void bungeePing() {
+		this.isBungee = true;
 	}
 
 }

@@ -29,39 +29,63 @@ public class BungeeCordSender {
 	}
 
 	private void sendItem(DisplayItem dis, boolean isCmd) {
-
+String data = null;
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(b);
 
 		try {
 			out.writeUTF("ItemSender");
-
-			out.writeUTF(dis.serialize());
+			data = dis.serialize();
+			out.writeUTF(data);
 
 			out.writeBoolean(isCmd);
 
 
 		} catch (IOException e) {
 		}
+		if (m.getConfig().getBoolean("debug-mode"))
+			Bukkit.getLogger().info("Sent data: " + data);
+
 		Bukkit.getServer().sendPluginMessage(m, "chatitemdisplay:out", b.toByteArray());
 
 	}
 
 	private void sendInv(DisplayInventory dis, boolean isCmd) {
-
+		String data = null;
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(b);
 
 		try {
 			out.writeUTF("InventorySender");
 
-			out.writeUTF(dis.serialize());
+			data = dis.serialize();
+			out.writeUTF(data);
 
 			out.writeBoolean(isCmd);
 
 		} catch (IOException e) {
 		}
+		if (m.getConfig().getBoolean("debug-mode"))
+			Bukkit.getLogger().info("Sent data: " + data);
+		Bukkit.getServer().sendPluginMessage(m, "chatitemdisplay:out", b.toByteArray());
+
+
+	}
+
+	public void pingBungee() {
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+		DataOutputStream out = new DataOutputStream(b);
+		try {
+			out.writeUTF("BungeePing");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (m.getConfig().getBoolean("debug-mode")) {
+			Bukkit.getLogger().info("Sent a ping to Bungee");
+		}
+
 		Bukkit.getServer().sendPluginMessage(m, "chatitemdisplay:out", b.toByteArray());
 
 	}
+
 }

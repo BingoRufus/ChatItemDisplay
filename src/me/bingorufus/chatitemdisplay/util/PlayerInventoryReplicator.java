@@ -1,6 +1,7 @@
 package me.bingorufus.chatitemdisplay.util;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +18,9 @@ public class PlayerInventoryReplicator {
 	public InventoryData replicateInventory(Player p) {
 		String invTitle = new StringFormatter()
 				.format(m.getConfig().getString("display-messages.displayed-inventory-title").replaceAll("%player%",
-						m.getConfig().getBoolean("use-nicks-in-gui") ? p.getDisplayName() : p.getName()));
+						m.getConfig().getBoolean("use-nicks-in-gui") ? m.getConfig().getBoolean("strip-nick-colors-gui")
+								? ChatColor.stripColor(p.getDisplayName())
+								: p.getDisplayName() : p.getName()));
 		Inventory inv = Bukkit.createInventory(Bukkit.getOfflinePlayer(p.getUniqueId()).getPlayer(), 45, invTitle);
 		PlayerInventory i = p.getInventory();
 		inv.setItem(0, i.getHelmet());

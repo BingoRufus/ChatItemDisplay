@@ -38,7 +38,9 @@ public class DisplayEnderChestExecutor implements CommandExecutor {
 		}
 		String title = new StringFormatter()
 				.format(m.getConfig().getString("display-messages.displayed-enderchest-title").replaceAll("%player%",
-						m.getConfig().getBoolean("use-nicks-in-gui") ? p.getDisplayName() : p.getName()));
+						m.getConfig().getBoolean("use-nicks-in-gui") ? m.getConfig().getBoolean("strip-nick-colors-gui")
+								? ChatColor.stripColor(p.getDisplayName())
+								: p.getDisplayName() : p.getName()));
 		Inventory inv = Bukkit.createInventory(p, InventoryType.ENDER_CHEST, title);
 		inv.setContents(p.getEnderChest().getContents());
 

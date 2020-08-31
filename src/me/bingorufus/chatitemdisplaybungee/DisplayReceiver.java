@@ -24,6 +24,10 @@ public class DisplayReceiver implements Listener {
 
 		UserConnection rec = (UserConnection) e.getReceiver();
 		String subChannel = in.readUTF();
+		if (subChannel.equalsIgnoreCase("BungeePing")) {
+			new DisplaySender().ping((Server) rec.getServer());
+			return;
+		}
 		Server receiver = (Server) rec.getServer();
 		String item = in.readUTF();
 

@@ -1,4 +1,4 @@
-debug-mode: false #Can possibly determine why players arent able to display-items. Will send console messages.
+debug-mode: false #Can possibly determine why players aren't able to display items. Will send console messages.
 
 disable-update-checking: false
 
@@ -22,7 +22,7 @@ triggers: #These will determine when the objects are displayed, they are not cas
   - "[displayec]"
 
 
-disable-gui: false #Disable all the GUIs3
+disable-gui: false #Disable all the GUIs
   
 messages:
   gui-format: "&a%player%&a's &cDisplayed Item"
@@ -37,6 +37,7 @@ messages:
   map-notification: "&eDrop or click on the map to receive your item back"
   not-holding-anything: "&cYou are not holding anything"
   remove-item-colors: false #Remove Item colors from the display message
+  item-color: "" #The item's color will be set to this if item colors are removed or the item has no color to begin with
 
 display-messages: 
   inchat-item-format: "&r[%item%&r]"
@@ -46,13 +47,15 @@ display-messages:
   displayed-inventory-title: "%player%'s Inventory"
   displayed-enderchest-title: "%player%'s EnderChest"
   
-use-old-format: false #This will use the regular message format, disabling in chat formatting.    Note: This value will be null if the server does not have ProtocolLib
+use-old-format: false #This will use the regular message format, disabling in chat formatting.    Note: This value will be false if the server does not have ProtocolLib
 
 use-nicks-in-display-message: true #Will also use any custom colors. This is used in the command message
 
+strip-nick-colors-message: false #Removes the nick colors in the display message
 
 use-nicks-in-gui: true #Will also use any custom colors
 
+strip-nick-colors-gui: false #Removes the nick colors from the gui
 
 
 show-item-amount: true #Will add x2 if a player is displaying 2 items

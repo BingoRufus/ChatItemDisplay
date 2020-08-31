@@ -1,8 +1,12 @@
 package me.bingorufus.chatitemdisplay.listeners;
 
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -66,13 +70,16 @@ public class ChatDisplayListener implements Listener {
 					chatItemDisplay.displayed.put(p.getName().toUpperCase(),
 							new DisplayItem(p.getInventory().getItemInMainHand(), p.getName(), p.getDisplayName(),
 									p.getUniqueId(), false));
-
+					if (chatItemDisplay.isBungee())
+					new BungeeCordSender(chatItemDisplay).send(chatItemDisplay.displayed.get(p.getName().toUpperCase()),
+							false);
 					if (chatItemDisplay.useOldFormat) {
 
 						e.setCancelled(true);
 						Bukkit.getScheduler().runTask(chatItemDisplay, () -> {
 							String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),
 									bell + "split");
+
 							String[] parts = newmsg.split(bell + "split");
 							String first = newmsg.indexOf(bell + "split") > 0 ? parts[0] : "";
 							String last = parts.length == 0 ? ""
@@ -90,17 +97,11 @@ public class ChatDisplayListener implements Listener {
 
 						});
 
-						if (chatItemDisplay.isBungee()) {
-							new BungeeCordSender(chatItemDisplay)
-									.send(chatItemDisplay.displayed.get(p.getName().toUpperCase()), true);
-						}
 						return;
 
 					}
-					if (chatItemDisplay.isBungee()) {
-						new BungeeCordSender(chatItemDisplay)
-								.send(chatItemDisplay.displayed.get(p.getName().toUpperCase()), false);
-					}
+
+
 
 					String newmsg = e.getMessage().replaceAll("(?i)" + Pattern.quote(Trigger),
 
@@ -138,13 +139,17 @@ public class ChatDisplayListener implements Listener {
 
 			}
 		}
-
-		for (String Trigger : chatItemDisplay.getConfig().getStringList("triggers.inventory")) {
+		List<String> invTriggers = chatItemDisplay.getConfig().getStringList("triggers.inventory");
+		List<String> ecTriggers = chatItemDisplay.getConfig().getStringList("triggers.enderchest");
+		for (String Trigger : Stream.concat(invTriggers.stream(), ecTriggers.stream()).collect(Collectors.toList())) {
 			if (e.getMessage().toUpperCase().contains(Trigger.toUpperCase())) {
 				p = e.getPlayer();
-				if (debug)
-					Bukkit.getLogger()
-							.info(p.getName() + "'s message contains an inventory display trigger");
+
+				invTriggers.replaceAll(String::toUpperCase); // Turns all the triggers to UPPERCASE
+				if (invTriggers.contains(Trigger.toUpperCase())) {
+					if (debug)
+						Bukkit.getLogger()
+								.info(p.getName() + "'s message contains an inventory / enderchest display trigger");
 				if (!p.hasPermission("chatitemdisplay.display.inventory")) {
 					p.sendMessage(new StringFormatter()
 							.format(chatItemDisplay.getConfig().getString("messages.missing-permission-inventory")));
@@ -153,16 +158,44 @@ public class ChatDisplayListener implements Listener {
 					Bukkit.getLogger().info(p.getName() + "does not have permission to display their inventory");
 					return;
 
+
+				}
+					PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator(chatItemDisplay)
+							.replicateInventory(p);
+
+					chatItemDisplay.displayed.put(p.getName().toUpperCase(), new DisplayInventory(data.getInventory(),
+							data.getTitle(), p.getName(), p.getDisplayName(), p.getUniqueId(), false));
+				} else {
+					if (debug)
+						Bukkit.getLogger().info(p.getName() + "'s message contains an enderchest display trigger");
+					if (!p.hasPermission("chatitemdisplay.display.enderchest")) {
+						p.sendMessage(new StringFormatter().format(
+								chatItemDisplay.getConfig().getString("messages.missing-permission-enderchest")));
+						e.setCancelled(true);
+
+						Bukkit.getLogger().info(p.getName() + "does not have permission to display their Ender Chest");
+						return;
+				}
+					String title = new StringFormatter().format(chatItemDisplay.getConfig()
+							.getString("display-messages.displayed-enderchest-title").replaceAll("%player%",
+									chatItemDisplay.getConfig().getBoolean("use-nicks-in-gui")
+											? chatItemDisplay.getConfig().getBoolean("strip-nick-colors-gui")
+													? ChatColor.stripColor(p.getDisplayName())
+													: p.getDisplayName()
+											: p.getName()));
+					Inventory inv = Bukkit.createInventory(p, InventoryType.ENDER_CHEST, title);
+
+					inv.setContents(p.getEnderChest().getContents());
+
+					chatItemDisplay.displayed.put(p.getName().toUpperCase(),
+							new DisplayInventory(inv, title, p.getName(), p.getDisplayName(), p.getUniqueId(), false));
+
 				}
 
-				PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator(chatItemDisplay)
-						.replicateInventory(p);
 
-
-				chatItemDisplay.displayed.put(p.getName().toUpperCase(), new DisplayInventory(data.getInventory(),
-						data.getTitle(), p.getName(), p.getDisplayName(), p.getUniqueId(), false));
-
-
+				if (chatItemDisplay.isBungee())
+					new BungeeCordSender(chatItemDisplay)
+				.send(chatItemDisplay.displayed.get(p.getName().toUpperCase()), true);
 
 					if (chatItemDisplay.useOldFormat) {
 
@@ -186,18 +219,11 @@ public class ChatDisplayListener implements Listener {
 							displayed = true;
 
 						});
-
-						if (chatItemDisplay.isBungee()) {
-							new BungeeCordSender(chatItemDisplay)
-								.send(chatItemDisplay.displayed.get(p.getName().toUpperCase()), true);
-						}
 						return;
 
 					}
-					if (chatItemDisplay.isBungee()) {
-						new BungeeCordSender(chatItemDisplay)
-							.send(chatItemDisplay.displayed.get(p.getName().toUpperCase()), false);
-					}
+						
+					
 
 					String newmsg = e.getMessage().replaceAll("(?i)" + Pattern.quote(Trigger),
 
@@ -209,75 +235,7 @@ public class ChatDisplayListener implements Listener {
 		}
 
 		}
-		for (String Trigger : chatItemDisplay.getConfig().getStringList("triggers.enderchest")) {
-			if (e.getMessage().toUpperCase().contains(Trigger.toUpperCase())) {
 
-				if (debug)
-					Bukkit.getLogger().info(p.getName() + "'s message contains an enderchest display trigger");
-				if (!p.hasPermission("chatitemdisplay.display.enderchest")) {
-					p.sendMessage(new StringFormatter()
-							.format(chatItemDisplay.getConfig().getString("messages.missing-permission-enderchest")));
-					e.setCancelled(true);
-
-					Bukkit.getLogger().info(p.getName() + "does not have permission to display their Ender Chest");
-					return;
-
-				}
-
-				String title = new StringFormatter()
-						.format(chatItemDisplay.getConfig().getString("display-messages.displayed-enderchest-title")
-								.replaceAll("%player%",
-								chatItemDisplay.getConfig().getBoolean("use-nicks-in-gui") ? p.getDisplayName() : p.getName()));
-				Inventory inv = Bukkit.createInventory(p, InventoryType.ENDER_CHEST, title);
-
-				inv.setContents(p.getEnderChest().getContents());
-
-				chatItemDisplay.displayed.put(p.getName().toUpperCase(),
-						new DisplayInventory(inv, title, p.getName(), p.getDisplayName(), p.getUniqueId(), false));
-
-				if (chatItemDisplay.useOldFormat) {
-
-					e.setCancelled(true);
-					Bukkit.getScheduler().runTask(chatItemDisplay, () -> {
-						String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger), bell + "split");
-						String[] parts = newmsg.split(bell + "split");
-						String first = newmsg.indexOf(bell + "split") > 0 ? parts[0] : "";
-						String last = parts.length == 0 ? ""
-								: parts.length == 2 ? parts[1] : first.equals("") ? parts[0] : "";
-						e.getPlayer().chat(first.trim());
-						DisplayInfo di = null;
-						Displayable d = chatItemDisplay.displayed.get(e.getPlayer().getName().toUpperCase());
-						if (d instanceof DisplayItem)
-							di = new DisplayItemInfo(chatItemDisplay, (DisplayItem) d);
-						if (d instanceof DisplayInventory)
-							di = new DisplayInventoryInfo(chatItemDisplay, (DisplayInventory) d);
-						di.cmdMsg();
-						e.getPlayer().chat(last.trim());
-						displayed = true;
-
-					});
-
-					if (chatItemDisplay.isBungee()) {
-						new BungeeCordSender(chatItemDisplay)
-								.send(chatItemDisplay.displayed.get(p.getName().toUpperCase()), true);
-					}
-					return;
-
-				}
-				if (chatItemDisplay.isBungee()) {
-					new BungeeCordSender(chatItemDisplay).send(chatItemDisplay.displayed.get(p.getName().toUpperCase()),
-							false);
-				}
-
-				String newmsg = e.getMessage().replaceAll("(?i)" + Pattern.quote(Trigger),
-
-						bell + "cid" + p.getName() + bell);
-
-				e.setMessage(newmsg);
-				displayed = true;
-
-			}
-		}
 		if (displayed && !p.hasPermission("chatitemdisplay.cooldownbypass")) {
 			chatItemDisplay.DisplayCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
 		}

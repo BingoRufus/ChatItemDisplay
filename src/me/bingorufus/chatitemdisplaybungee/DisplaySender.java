@@ -7,14 +7,17 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.connection.Server;
 
 public class DisplaySender {
-
+	public void ping(Server from) {
+		ByteArrayDataOutput out = ByteStreams.newDataOutput();
+		out.writeUTF("BungeePing");
+		from.sendData("chatitemdisplay:in", out.toByteArray());
+	}
 
 
 	public void sendMessage(Server from, String subchannel, String item, boolean isCmd) {
 
 
-		ByteArrayDataOutput out = ByteStreams.newDataOutput(); // Subchannel, Material Name, Item ammount, ItemStack
-																// nbtdata, Player name,
+		ByteArrayDataOutput out = ByteStreams.newDataOutput(); // Subchannel, Serialized display, Is command
 		// Display name, Is command
 		out.writeUTF(subchannel.equalsIgnoreCase("ItemSender") ? "ItemReceiver"
 				: subchannel.equalsIgnoreCase("InventorySender") ? "InventoryReceiver" : subchannel); // Sub Channel

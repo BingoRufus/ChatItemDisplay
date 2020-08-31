@@ -1,7 +1,7 @@
 package me.bingorufus.chatitemdisplaybungee;
 
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 
 import me.bingorufus.chatitemdisplay.util.VersionComparer;
 import me.bingorufus.chatitemdisplay.util.VersionComparer.Status;
@@ -33,7 +33,8 @@ public class ChatItemDisplayBungee extends Plugin {
 					try {
 						UpdateDownloader downloader = new UpdateDownloader(ver);
 						String downloadError = downloader
-								.download(new FileOutputStream(this.getDataFolder().getParent()));
+								.download(new File(
+										"plugins/ChatItemDisplay " + ver + ".jar"));
 						if (downloadError != null) {
 							getLogger().warning(
 									"Could not download the newest version of ChatItemDisplay (" + downloadError + ")");
@@ -46,8 +47,8 @@ public class ChatItemDisplayBungee extends Plugin {
 						e.printStackTrace();
 						getLogger().warning(
 								"Could not download the newest version of ChatItemDisplay (" + e.getMessage() + ")");
-						return;
 
+						return;
 					}
 				}
 				getLogger().info("ChatItemDisplay is up to date");
@@ -59,4 +60,7 @@ public class ChatItemDisplayBungee extends Plugin {
 		});
 
 	}
+
 }
+
+

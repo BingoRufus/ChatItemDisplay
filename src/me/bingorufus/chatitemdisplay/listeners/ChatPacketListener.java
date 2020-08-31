@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 
@@ -93,16 +94,34 @@ public class ChatPacketListener extends PacketAdapter {
 
 
 				String displaying = replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell));
+				if (m.getConfig().getBoolean("debug-mode")) {
+					Bukkit.getLogger().info(displaying + " is displaying their item");
+				}
+
 				Displayable display = m.displayed.get(displaying.toUpperCase());
+				if (m.getConfig().getBoolean("debug-mode") && display == null) {
+					Bukkit.getLogger().info("Displayed does not contain " + displaying);
+					m.displayed.keySet().forEach(key -> {
+						Bukkit.getLogger().info(key);
+
+					});
+				}
+
 				DisplayInfo disInfo = null;
 
 				if (display instanceof DisplayItem)
 					disInfo = new DisplayItemInfo(m, (DisplayItem) display);
 				if (display instanceof DisplayInventory)
 					disInfo = new DisplayInventoryInfo(m, (DisplayInventory) display);
+				if (m.getConfig().getBoolean("debug-mode")) {
+					Bukkit.getLogger().info("Displayable is a " + display.getClass().getCanonicalName());
+					Bukkit.getLogger().info("Display info is a " + disInfo.getClass().getCanonicalName());
+
+				}
 
 				String[] parts = legacyText.split("((?<=" + replace + ")|(?=" + replace + "))");
 				TextComponent hover = disInfo.getHover();
+
 				TextComponent component = new TextComponent();
 				for (String part : parts) {
 					if (part.equalsIgnoreCase(replace)) {
@@ -117,6 +136,7 @@ public class ChatPacketListener extends PacketAdapter {
 			}
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
+
 		}
 
 

@@ -2,22 +2,28 @@ package me.bingorufus.chatitemdisplay.util.updater;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+import net.md_5.bungee.BungeeCord;
+
 public class UpdateDownloader {
 	String version;
+	String newFileName;
 
 	public UpdateDownloader(String ver) {
 		version = ver;
 	}
 
-	public String download(FileOutputStream downloadPath) {
-
+	public String download(File newFile) throws FileNotFoundException {
+		FileOutputStream downloadPath = new FileOutputStream(newFile);
 		try (BufferedReader inputStream = new BufferedReader(new InputStreamReader(
 				new URL("https://gist.githubusercontent.com/BingoRufus/a3714f3e6afb400122ec5ffefe6c430c/raw/?version="
 						+ Math.random()).openStream()));
@@ -32,7 +38,9 @@ public class UpdateDownloader {
 					downloadPath.write(dataBuffer, 0, bytesRead);
 
 				}
+				newFileName = newFile.getName();
 
+				BungeeCord.getInstance().getLogger().info(newFileName);
 				downloadPath.close();
 				return null;
 
@@ -45,8 +53,15 @@ public class UpdateDownloader {
 	}
 
 	public void deletePlugin(Object plugin) {
-		Paths.get((plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getFile().replaceAll("%20",
-				" "))).toFile().delete();
+		try {
+			File f = Paths.get((plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI()))
+					.toFile();
+			if (f.getName().equals(newFileName))
+				return;
+			f.delete();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -6,6 +6,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
@@ -41,7 +42,7 @@ public class ItemStackStuff {
 
 	public String ItemName(ItemStack item) {
 
-		String out = "§r";
+		String out = "";
 		if (item.getType().equals(Material.DRAGON_EGG) || item.getType().equals(Material.ENCHANTED_GOLDEN_APPLE))
 			out = "§d";
 
@@ -57,9 +58,12 @@ public class ItemStackStuff {
 
 	}
 
-	public TextComponent NameFromItem(ItemStack item) {
+	public BaseComponent NameFromItem(ItemStack item, String... color) {
 
-		String out = "§r";
+		String out = "";
+		if (color.length > 0) {
+			out = color[0];
+		}
 		if (item.getType().equals(Material.DRAGON_EGG) || item.getType().equals(Material.ENCHANTED_GOLDEN_APPLE)
 				|| item.getType().equals(Material.COMMAND_BLOCK))
 			out = "§d";
@@ -74,23 +78,38 @@ public class ItemStackStuff {
 
 		}
 		if (item.getItemMeta() instanceof SkullMeta) {
+			out += "§e";
 			SkullMeta sm = (SkullMeta) item.getItemMeta();
 			if (sm.hasOwner()) {
 			TranslatableComponent translatable = new TranslatableComponent("block.minecraft.player_head.named");
 				translatable.addWith(new TextComponent(sm.getOwningPlayer().getName()));
 
-			return new TextComponent(new TextComponent("§e"), translatable);
+				if (color.length > 0) {
+					out = color[0];
+				}
+				BaseComponent col = TextComponent.fromLegacyText(out)[0];
+				translatable.setColor(col.getColor());
+				return translatable;
 			}
+		}
+		if (item.getType().equals(Material.ENCHANTED_BOOK) || item.getType().equals(Material.TOTEM_OF_UNDYING))
+			out += "§e";
+		if (color.length > 0) {
+			out = color[0];
 		}
 		if (item.getType().equals(Material.WRITTEN_BOOK)) {
 
 			BookMeta book = (BookMeta) item.getItemMeta();
 			if (book.hasTitle()) {
-				return new TextComponent(book.getTitle());
+				return new TextComponent(out + book.getTitle());
 			}
 
 		}
-		return new TextComponent(new TextComponent(out), new ItemStackTranslator().translateItemStack(item));
+		BaseComponent col = TextComponent.fromLegacyText(out)[0];
+		TranslatableComponent tr = new TranslatableComponent(new ItemStackReflection().translateItemStack(item));
+		tr.setColor(col.getColor());
+
+		return tr;
 
 	}
 
