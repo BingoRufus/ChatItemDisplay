@@ -121,7 +121,6 @@ public class ChatPacketListener extends PacketAdapter {
 
 				String[] parts = legacyText.split("((?<=" + replace + ")|(?=" + replace + "))");
 				TextComponent hover = disInfo.getHover();
-
 				TextComponent component = new TextComponent();
 				for (String part : parts) {
 					if (part.equalsIgnoreCase(replace)) {

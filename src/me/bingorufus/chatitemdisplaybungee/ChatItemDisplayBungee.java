@@ -16,12 +16,13 @@ public class ChatItemDisplayBungee extends Plugin {
 		downloadUpdate();
 		getProxy().registerChannel("chatitemdisplay:out");
 		getProxy().registerChannel("chatitemdisplay:in");
-
 		BungeeCord.getInstance().getPluginManager().registerListener(this, new DisplayReceiver());
 	}
 
 	@Override
 	public void onDisable() {
+		getProxy().getPluginManager().unregisterCommands(this);
+		getProxy().getPluginManager().unregisterListeners(this);
 	}
 
 	public void downloadUpdate() {

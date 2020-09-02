@@ -36,13 +36,15 @@ messages:
   gui-disabled: "&cThis feature has been disabled"
   map-notification: "&eDrop or click on the map to receive your item back"
   not-holding-anything: "&cYou are not holding anything"
-  remove-item-colors: false #Remove Item colors from the display message
+  force-item-colors: false #Will set items with already existing colors to the item-color
   item-color: "" #The item's color will be set to this if item colors are removed or the item has no color to begin with
 
 display-messages: 
   inchat-item-format: "&r[%item%&r]"
-  inchat-inventory-format: "&r[%player%'s %type%]" #Type will either be "EnderChest" or "Inventory" depending on what is being displayed
+  inchat-item-format-multiple: "&r[%item% x%amount%&r]" #Used when there are 1 or more items
+  inchat-inventory-format: "&r[%player%'s %type%&r]" #Type will either be "EnderChest" or "Inventory" depending on what is being displayed
   item-display-format: "&6%player%&6 is displaying their &f%item%"
+  item-display-format-multiple: "&6%player%&6 is displaying their &f%item% x%amount%"
   inventory-display-format: "&6%player%&6 is displaying their &f%type%"
   displayed-inventory-title: "%player%'s Inventory"
   displayed-enderchest-title: "%player%'s EnderChest"

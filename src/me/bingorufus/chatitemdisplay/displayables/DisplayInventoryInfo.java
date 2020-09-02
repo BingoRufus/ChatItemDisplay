@@ -1,12 +1,12 @@
 package me.bingorufus.chatitemdisplay.displayables;
 
-import org.bukkit.ChatColor;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.util.DisplayableBroadcaster;
 import me.bingorufus.chatitemdisplay.util.StringFormatter;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -25,11 +25,11 @@ public class DisplayInventoryInfo implements DisplayInfo {
 
 	@Override
 	public void cmdMsg() {
-		TranslatableComponent type = null;
+		String key;
 		if (getInventory().getType() == InventoryType.ENDER_CHEST)
-			type = new TranslatableComponent("container.enderchest");
+			key = "container.enderchest";
 		else
-			type = new TranslatableComponent("container.inventory");
+			key = "container.inventory";
 		String format = new StringFormatter()
 				.format(m.getConfig().getString("display-messages.inventory-display-format"))
 				.replaceAll("%player%",
@@ -38,19 +38,8 @@ public class DisplayInventoryInfo implements DisplayInfo {
 										? ChatColor.stripColor(inv.getDisplayName())
 										: inv.getDisplayName()
 						: inv.getPlayer());
-		String[] parts = format.split("((?<=%type%)|(?=%type%))");
 
-		TextComponent whole = new TextComponent();
-		for (String part : parts) {
-			if (part.equalsIgnoreCase("%type%")) {
-				whole.addExtra(type);
-				continue;
-			}
-			whole.addExtra(part);
-		}
-		whole.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/viewitem " + inv.getPlayer()));
-
-		new DisplayableBroadcaster().broadcast(whole);
+		new DisplayableBroadcaster().broadcast(format(format, key));
 	}
 
 	@Override
@@ -58,13 +47,50 @@ public class DisplayInventoryInfo implements DisplayInfo {
 		return inv.getInventory();
 	}
 
+	private TextComponent format(String format, String key) {
+		String[] parts = format.split("((?<=%type%)|(?=%type%))");
+		TextComponent whole = new TextComponent();
+
+		for (int i = 0; i < parts.length; i++) {
+			String part = parts[i];
+			if (part.equalsIgnoreCase("%type%")) {
+				TranslatableComponent type = new TranslatableComponent(key);
+				if (i > 0) {
+					ChatColor color = whole.getExtra().get(i - 1).getColor();
+					if (color == ChatColor.WHITE) {
+						color = TextComponent.fromLegacyText(
+								org.bukkit.ChatColor.getLastColors(whole.getExtra().get(i - 1).toLegacyText()))[0]
+										.getColor();
+					}
+					type.setColor(color);
+				}
+				whole.addExtra(type);
+				continue;
+			}
+
+			TextComponent tc = new TextComponent();
+			if (i > 0 && parts[i - 1].contains("%type%") && !part.matches("(?s)(.)*(§)(.)*")) // Checks if the previous
+				// object was an item
+				// and that it doesn't
+				// have a §
+				tc.setColor(TextComponent.fromLegacyText(
+						org.bukkit.ChatColor.getLastColors(whole.getExtra().get(i - 1).toLegacyText()))[0].getColor());
+			tc.setText(part);
+			whole.addExtra(tc);
+		}
+
+		whole.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/viewitem " + inv.getPlayer()));
+
+		return whole;
+	}
+
 	@Override
 	public TextComponent getHover() {
-		TranslatableComponent type = null;
+		String key;
 		if (getInventory().getType() == InventoryType.ENDER_CHEST)
-			type = new TranslatableComponent("container.enderchest");
+			key = "container.enderchest";
 		else
-			type = new TranslatableComponent("container.inventory");
+			key = "container.inventory";
 		String format = new StringFormatter()
 				.format(m.getConfig().getString("display-messages.inchat-inventory-format"))
 				.replaceAll("%player%", m.getConfig().getBoolean("use-nicks-in-display-message")
@@ -72,19 +98,7 @@ public class DisplayInventoryInfo implements DisplayInfo {
 								? ChatColor.stripColor(inv.getDisplayName())
 								: inv.getDisplayName()
 						: inv.getPlayer());
-		String[] parts = format.split("((?<=%type%)|(?=%type%))");
-
-		TextComponent whole = new TextComponent();
-		for (String part : parts) {
-			if (part.equalsIgnoreCase("%type%")) {
-				whole.addExtra(type);
-				continue;
-			}
-			whole.addExtra(part);
-		}
-		whole.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/viewitem " + inv.getPlayer()));
-
-		return whole;
+		return format(format, key);
 	}
 
 }

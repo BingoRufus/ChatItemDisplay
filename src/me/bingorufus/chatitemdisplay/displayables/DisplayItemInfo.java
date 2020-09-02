@@ -51,7 +51,8 @@ public class DisplayItemInfo implements DisplayInfo {
 	}
 
 	public TextComponent getName() {
-		TextComponent ItemName = new TextComponent(itemStuff.NameFromItem(display.getItem()));
+
+		TextComponent ItemName = new TextComponent(itemStuff.getName(display.getItem(), "", false));
 
 		if (m.getConfig().getBoolean("show-item-amount") && display.getItem().getAmount() > 1)
 			ItemName.addExtra(" x" + display.getItem().getAmount());
@@ -61,17 +62,13 @@ public class DisplayItemInfo implements DisplayInfo {
 	@SuppressWarnings("deprecation")
 	public TextComponent baseHover() {
 		String color = "";
-		BaseComponent bc;
-		if (m.getConfig().getBoolean("messages.remove-item-colors")) {
-			color = new StringFormatter().format(m.getConfig().getString("messages.item-color"));
-			bc = itemStuff.NameFromItem(display.getItem(), color);
-		} else {
-			bc = itemStuff.NameFromItem(display.getItem());
-		}
-		TextComponent Hover = new TextComponent(bc);
 
-		if (m.getConfig().getBoolean("show-item-amount") && display.getItem().getAmount() > 1)
-			Hover.addExtra(bc.getColor() + " x" + display.getItem().getAmount());
+			color = new StringFormatter().format(m.getConfig().getString("messages.item-color"));
+		BaseComponent bc = itemStuff.getName(display.getItem(), color,
+				m.getConfig().getBoolean("messages.force-item-colors"));
+
+
+		TextComponent Hover = new TextComponent(bc);
 
 
 
@@ -136,48 +133,76 @@ public class DisplayItemInfo implements DisplayInfo {
 	@Override
 	public TextComponent getHover() {
 
-		TextComponent base= baseHover();
 		
+		String format = (display.getItem().getAmount() > 1
+				? m.getConfig().getString("display-messages.inchat-item-format-multiple")
+				: m.getConfig().getString("display-messages.inchat-item-format"));
 
-		String format = m.getConfig().getString("display-messages.inchat-item-format").replaceAll("%player%",
-				m.getConfig().getBoolean("use-nicks-in-display-message")
-						? m.getConfig().getBoolean("strip-nick-colors-message")
-								? ChatColor.stripColor(display.getDisplayName())
-								: display.getDisplayName()
-						: display.getPlayer());
-		format = new StringFormatter().format(format);
-
-		String[] parts = format.split("((?<=%item%)|(?=%item%))");
-		TextComponent whole = new TextComponent();
-		for (String part : parts) {
-			if (part.equalsIgnoreCase("%item%")) {
-				whole.addExtra(base);
-				continue;
-			}
-			whole.addExtra(part);
-		}
-		whole.setHoverEvent(base.getHoverEvent());
-		whole.setClickEvent(base.getClickEvent());
-		return whole;
+		return format(format);
 	}
 
 
 	@Override
 	public void cmdMsg() {
 
-		String format = new StringFormatter().format(m.getConfig().getString("display-messages.item-display-format"));
-		format = format.replaceAll("%player%",
+		String format = new StringFormatter().format(display.getItem().getAmount() > 1
+				? m.getConfig().getString("display-messages.item-display-format-multiple")
+				: m.getConfig().getString("display-messages.item-display-format"));
+
+		new DisplayableBroadcaster().broadcast(format(format));
+	}
+
+	private TextComponent format(String s) {
+		s = s.replaceAll("%player%",
 				m.getConfig().getBoolean("use-nicks-in-display-message")
 						? m.getConfig().getBoolean("strip-nick-colors-message")
 								? ChatColor.stripColor(display.getDisplayName())
 								: display.getDisplayName()
 						: display.getPlayer());
-		format = new StringFormatter().format(format);
-		String[] sects = format.split("%item%", 2);
-		TextComponent PreMsg = format.indexOf("%item%") > 0 ? new TextComponent(sects[0]) : new TextComponent("");
-		TextComponent EndMsg = sects.length == 2 ? new TextComponent(sects[1])
-				: PreMsg.getText() == null ? new TextComponent(sects[0]) : new TextComponent("");
-		new DisplayableBroadcaster().broadcast(PreMsg, baseHover(), EndMsg);
+
+		s = new StringFormatter().format(s);
+
+		String[] parts = s.split("((?<=%item%)|(?=%item%)|(?<=%amount%)|(?=%amount%))");
+		TextComponent whole = new TextComponent();
+		TextComponent base = baseHover();
+
+		ChatColor color = base.getExtra().get(0).getColorRaw();
+		if (color == null) {
+			color = TextComponent.fromLegacyText(base.toLegacyText())[0].getColor();
+		}
+		for (int i = 0; i < parts.length; i++) {
+			String part = parts[i];
+
+			if (part.contains("%item%")) {
+				whole.addExtra(base);
+				continue;
+			}
+			if (part.contains("%amount%")) {
+				TextComponent tc = new TextComponent();
+				if (i > 0) {
+					tc.setColor(TextComponent.fromLegacyText(
+							org.bukkit.ChatColor.getLastColors(whole.getExtra().get(i - 1).toLegacyText()))[0]
+									.getColor());
+				if (parts[i - 1].contains("%item%"))
+						tc.setColor(color);
+				}
+				tc.setText(display.getItem().getAmount() + "");
+				whole.addExtra(tc);
+				continue;
+			}
+			TextComponent tc = new TextComponent();
+			if (i > 0 && parts[i - 1].contains("%item%") && !part.matches("(?s)(.)*(§)(.)*")) // Checks if the previous
+																								// object was an item
+																								// and that it doesnt
+																								// have a §
+					tc.setColor(color);
+
+			tc.setText(part);
+			whole.addExtra(tc);
+		}
+		whole.setHoverEvent(base.getHoverEvent());
+		whole.setClickEvent(base.getClickEvent());
+		return whole;
 	}
 
 	public Inventory getInventory() {
