@@ -7,6 +7,7 @@ import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.util.DisplayableBroadcaster;
 import me.bingorufus.chatitemdisplay.util.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -50,32 +51,25 @@ public class DisplayInventoryInfo implements DisplayInfo {
 	private TextComponent format(String format, String key) {
 		String[] parts = format.split("((?<=%type%)|(?=%type%))");
 		TextComponent whole = new TextComponent();
-
+		BaseComponent prev = null;
 		for (int i = 0; i < parts.length; i++) {
+			if (i > 0)
+				prev = TextComponent.fromLegacyText(
+						org.bukkit.ChatColor.getLastColors(whole.getExtra().get(i - 1).toLegacyText()))[0];
 			String part = parts[i];
 			if (part.equalsIgnoreCase("%type%")) {
 				TranslatableComponent type = new TranslatableComponent(key);
 				if (i > 0) {
-					ChatColor color = whole.getExtra().get(i - 1).getColor();
-					if (color == ChatColor.WHITE) {
-						color = TextComponent.fromLegacyText(
-								org.bukkit.ChatColor.getLastColors(whole.getExtra().get(i - 1).toLegacyText()))[0]
-										.getColor();
-					}
-					type.setColor(color);
+					type.copyFormatting(prev);
 				}
 				whole.addExtra(type);
 				continue;
 			}
 
-			TextComponent tc = new TextComponent();
-			if (i > 0 && parts[i - 1].contains("%type%") && !part.matches("(?s)(.)*(§)(.)*")) // Checks if the previous
-				// object was an item
-				// and that it doesn't
-				// have a §
-				tc.setColor(TextComponent.fromLegacyText(
-						org.bukkit.ChatColor.getLastColors(whole.getExtra().get(i - 1).toLegacyText()))[0].getColor());
-			tc.setText(part);
+			TextComponent tc = new TextComponent(part);
+			if (i > 0 && !part.startsWith("§r"))
+				tc.copyFormatting(prev);
+
 			whole.addExtra(tc);
 		}
 
@@ -99,6 +93,26 @@ public class DisplayInventoryInfo implements DisplayInfo {
 								: inv.getDisplayName()
 						: inv.getPlayer());
 		return format(format, key);
+	}
+
+	@Override
+	public String loggerMessage() {
+		String type;
+		if (getInventory().getType() == InventoryType.ENDER_CHEST)
+			type = "EnderChest";
+		else
+			type = "Inventory";
+
+		String format = m.getConfig().getString("display-messages.inchat-inventory-format")
+				.replaceAll("%player%", m.getConfig().getBoolean("use-nicks-in-display-message")
+						? m.getConfig().getBoolean("strip-nick-colors-message")
+								? ChatColor.stripColor(inv.getDisplayName())
+								: inv.getDisplayName()
+						: inv.getPlayer());
+		format = format.replaceAll("%type%", type);
+		
+
+		return ChatColor.stripColor(new StringFormatter().format(format));
 	}
 
 }

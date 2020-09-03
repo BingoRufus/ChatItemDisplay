@@ -136,7 +136,7 @@ public class InventoryClick implements Listener {
 		Inventory containerInv = Bukkit.createInventory(holder, type, type.getDefaultTitle());
 
 		if (item.getItemMeta().hasDisplayName())
-			containerInv = Bukkit.createInventory(holder, container.getType(), ItemStackStuff.ItemName(item));
+			containerInv = Bukkit.createInventory(holder, container.getType(), ItemStackStuff.itemName(item));
 		containerInv.setContents(container.getContents());
 
 		m.invs.put(containerInv, owner);

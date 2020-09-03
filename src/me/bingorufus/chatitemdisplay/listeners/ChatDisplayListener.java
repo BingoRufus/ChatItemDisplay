@@ -198,7 +198,6 @@ public class ChatDisplayListener implements Listener {
 				.send(chatItemDisplay.displayed.get(p.getName().toUpperCase()), true);
 
 					if (chatItemDisplay.useOldFormat) {
-
 						e.setCancelled(true);
 						Bukkit.getScheduler().runTask(chatItemDisplay, () -> {
 							String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),

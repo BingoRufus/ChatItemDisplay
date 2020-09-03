@@ -27,6 +27,7 @@ public class DisplaySender {
 		out.writeBoolean(isCmd);// Is a command
 
 
+
 		BungeeCord.getInstance().getServers().values().forEach(server -> {
 			if (server.equals(from.getInfo()))
 				return;

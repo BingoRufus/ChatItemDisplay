@@ -165,39 +165,33 @@ public class DisplayItemInfo implements DisplayInfo {
 		String[] parts = s.split("((?<=%item%)|(?=%item%)|(?<=%amount%)|(?=%amount%))");
 		TextComponent whole = new TextComponent();
 		TextComponent base = baseHover();
+		BaseComponent prev = null;
 
-		ChatColor color = base.getExtra().get(0).getColorRaw();
-		if (color == null) {
-			color = TextComponent.fromLegacyText(base.toLegacyText())[0].getColor();
-		}
 		for (int i = 0; i < parts.length; i++) {
 			String part = parts[i];
+			if (i > 0)
+				prev = TextComponent.fromLegacyText(
+						org.bukkit.ChatColor.getLastColors(whole.getExtra().get(i - 1).toLegacyText()))[0];
 
 			if (part.contains("%item%")) {
 				whole.addExtra(base);
 				continue;
 			}
 			if (part.contains("%amount%")) {
-				TextComponent tc = new TextComponent();
-				if (i > 0) {
-					tc.setColor(TextComponent.fromLegacyText(
-							org.bukkit.ChatColor.getLastColors(whole.getExtra().get(i - 1).toLegacyText()))[0]
-									.getColor());
-				if (parts[i - 1].contains("%item%"))
-						tc.setColor(color);
-				}
-				tc.setText(display.getItem().getAmount() + "");
+				TextComponent tc = new TextComponent(display.getItem().getAmount() + "");
+				if (i > 0)
+					tc.copyFormatting(prev);
+				
 				whole.addExtra(tc);
 				continue;
 			}
-			TextComponent tc = new TextComponent();
-			if (i > 0 && parts[i - 1].contains("%item%") && !part.matches("(?s)(.)*(§)(.)*")) // Checks if the previous
+			
+			TextComponent tc = new TextComponent(part);
+			if (i > 0 && !part.startsWith("§r"))
+				tc.copyFormatting(prev); // Checks if the previous
 																								// object was an item
-																								// and that it doesnt
+											// and that it doesnt
 																								// have a §
-					tc.setColor(color);
-
-			tc.setText(part);
 			whole.addExtra(tc);
 		}
 		whole.setHoverEvent(base.getHoverEvent());
@@ -209,6 +203,16 @@ public class DisplayItemInfo implements DisplayInfo {
 		return inventory;
 	}
 
+	@Override
+	public String loggerMessage() {
+		String format = (display.getItem().getAmount() > 1
+				? m.getConfig().getString("display-messages.inchat-item-format-multiple")
+				: m.getConfig().getString("display-messages.inchat-item-format"));
+		format = format.replaceAll("%amount%", display.getItem().getAmount() + "");
+		format = format.replaceAll("%item%", new ItemStackStuff().itemName(display.getItem()));
+
+		return ChatColor.stripColor(new StringFormatter().format(format));
+	}
 
 
 

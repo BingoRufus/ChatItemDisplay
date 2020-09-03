@@ -71,7 +71,8 @@ public class ChatPacketListener extends PacketAdapter {
 
 		if (!ComponentSerializer.toString(baseComps).contains("\\u0007cid"))
 			return;
-
+		if (baseComps[0].getExtra() == null)
+			return;
 
 		try {
 			for (int i = 0; i < baseComps[0].getExtra().size(); i++) {
@@ -88,12 +89,13 @@ public class ChatPacketListener extends PacketAdapter {
 				if (matcher.find()) {
 					replace = bell + matcher.group(1) + bell;
 				}
+				String displaying = replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell));
+
 				String legacyText = bc.toLegacyText().replace(replace, replace
 						+ ChatColor.getLastColors(bc.toLegacyText().substring(0, bc.toLegacyText().indexOf(replace))));
 
 
 
-				String displaying = replace.substring(replace.indexOf("cid") + 3, replace.lastIndexOf(bell));
 				if (m.getConfig().getBoolean("debug-mode")) {
 					Bukkit.getLogger().info(displaying + " is displaying their item");
 				}

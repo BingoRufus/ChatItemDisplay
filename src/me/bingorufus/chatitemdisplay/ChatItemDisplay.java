@@ -4,10 +4,14 @@ package me.bingorufus.chatitemdisplay;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -25,9 +29,11 @@ import me.bingorufus.chatitemdisplay.executors.display.ViewItemExecutor;
 import me.bingorufus.chatitemdisplay.listeners.ChatDisplayListener;
 import me.bingorufus.chatitemdisplay.listeners.MapViewerListener;
 import me.bingorufus.chatitemdisplay.listeners.NewVersionDisplayer;
+import me.bingorufus.chatitemdisplay.util.LoggerFilter;
 import me.bingorufus.chatitemdisplay.util.VersionComparer;
 import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordReceiver;
 import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
+import me.bingorufus.chatitemdisplay.util.loaders.DiscordSRVRegister;
 import me.bingorufus.chatitemdisplay.util.loaders.Metrics;
 import me.bingorufus.chatitemdisplay.util.loaders.ProtocolLibRegister;
 import me.bingorufus.chatitemdisplay.util.updater.UpdateChecker;
@@ -37,9 +43,9 @@ public class ChatItemDisplay extends JavaPlugin {
 	ChatDisplayListener DisplayListener;
 	NewVersionDisplayer NewVer;
 	ProtocolLibRegister pl;
-
 	BungeeCordReceiver in;
 	BungeeCordSender out;
+	DiscordSRVRegister discordReg;
 	public Map<UUID, Long> DisplayCooldowns = new HashMap<UUID, Long>();
 
 	public HashMap<String, Displayable> displayed = new HashMap<String, Displayable>(); // Player, Displayable
@@ -61,6 +67,8 @@ public class ChatItemDisplay extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		this.saveDefaultConfig();
+
+
 		reloadConfigVars();
 		this.getCommand("viewitem").setExecutor(new ViewItemExecutor(this));
 		this.getCommand("chatitemreload").setExecutor(new ChatItemReloadExecutor(this));
@@ -75,11 +83,29 @@ public class ChatItemDisplay extends JavaPlugin {
 				return getConfig().getString("use-old-format");
 			}
 		}));
+		Logger logger = (Logger) LogManager.getRootLogger();
+		Iterator<Filter> filters = logger.getFilters();
+		while (filters.hasNext()) { // Prevents duplicate loggers
+			Filter f = filters.next();
+			if (!f.isStopped() && f.getClass().getCanonicalName().equals(LoggerFilter.class.getCanonicalName())) {// Checks
+																													// if
+																													// the
+																													// filter
+																								// is the same type as
+																								// the logger filter
+				f.stop();
+			}
+
+		}
+		logger.addFilter(new LoggerFilter(this));
 
 	}
 
 	@Override
 	public void onDisable() {
+		if (discordReg != null) {
+			discordReg.unregister();
+		}
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (viewingMap.containsKey(p)) {
 				p.getInventory().setItemInMainHand(viewingMap.get(p));
@@ -137,10 +163,19 @@ public class ChatItemDisplay extends JavaPlugin {
 					+ "[ChatItemDisplay] In Chat Item Displaying has Been Disabled Because This Server Does Not Have ProtocolLib Or Has Been Disabled in The config.yml");
 			hasProtocollib = false;
 		}
+
 		if (DisplayListener != null)
 			HandlerList.unregisterAll(DisplayListener);
 		if (NewVer != null)
 			HandlerList.unregisterAll(NewVer);
+		if (discordReg != null)
+			discordReg.unregister();
+		if (Bukkit.getPluginManager().getPlugin("DiscordSRV") != null) {
+			if (discordReg == null) {
+				discordReg = new DiscordSRVRegister(this);
+			}
+			discordReg.register();
+		}
 		DisplayListener = new ChatDisplayListener(this);
 	}
 	private void update() {
@@ -174,7 +209,6 @@ public class ChatItemDisplay extends JavaPlugin {
 
 						});
 						return;
-
 					}
 					this.getLogger().warning(
 							"Download the newest version at: //https://www.spigotmc.org/resources/chat-item-display.77177/");

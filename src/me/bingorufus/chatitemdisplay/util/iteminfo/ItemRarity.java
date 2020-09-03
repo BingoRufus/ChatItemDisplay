@@ -27,7 +27,6 @@ public enum ItemRarity {
 	private static ItemRarity itemRarity(ItemStack item) { // This info came from here
 															// https://minecraft.gamepedia.com/Rarity
 		Material m = item.getType();
-
 		if (m.isRecord())
 			return RARE;
 

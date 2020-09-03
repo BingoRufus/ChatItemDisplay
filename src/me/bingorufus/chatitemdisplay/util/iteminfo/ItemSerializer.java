@@ -38,6 +38,7 @@ public class ItemSerializer {
 		Method asNms = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
 		asNms.setAccessible(true);
 		Object nmsItem = asNms.invoke(craftItemStack, item);
+
 		return nmsItem;
 
 	}
@@ -53,7 +54,7 @@ public class ItemSerializer {
 	public ItemStack deserialize(String json) {
 		JsonObject itemJson = (JsonObject) new JsonParser().parse(json);
 		Material mat = Material.matchMaterial(itemJson.get("id").getAsString());
-		mat = mat == null ? Material.STONE : mat;
+		mat = mat == null ? Material.STONE : mat; // If the item type does not exist (If the version changed)
 
 		int count = itemJson.get("Count").getAsInt();
 
@@ -89,7 +90,7 @@ public class ItemSerializer {
 		try {
 			Object nmsItem = nmsItem(item);
 			if (nmsItem == null) {
-				throw new IllegalArgumentException(item.getType().name() + " could not be queried!");
+				throw new IllegalArgumentException(item.getType().name() + " could not be converted to NMS");
 			}
 			Method hasTag = nmsItem.getClass().getMethod("hasTag");
 

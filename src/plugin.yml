@@ -3,8 +3,8 @@ main: me.bingorufus.chatitemdisplay.ChatItemDisplay
 description: Display items in chat
 api-version: 1.13
 author: BingoRufus
-version: 1.5.4
-softdepend: [ProtocolLib]
+version: 1.5.5
+softdepend: [ProtocolLib,DiscordSRV]
 load: POSTWORLD
 
 commands:
