@@ -15,11 +15,11 @@ import net.md_5.bungee.api.ChatColor;
 
 public class DisplayItemExecutor implements CommandExecutor {
 	Boolean debug;
-	ChatItemDisplay chatItemDisplay;
+	ChatItemDisplay m;
 
 	public DisplayItemExecutor(ChatItemDisplay m) {
 		debug = m.getConfig().getBoolean("debug-mode");
-		chatItemDisplay = m;
+		this.m = m;
 	}
 
 	@Override
@@ -30,34 +30,34 @@ public class DisplayItemExecutor implements CommandExecutor {
 			}
 
 			Player p = (Player) sender;
-			switch (new DisplayPermissionChecker(chatItemDisplay, p).displayItem()) {
+		switch (new DisplayPermissionChecker(m, p).displayItem()) {
 			case DISPLAY:
 				DisplayItem d = new DisplayItem(p.getInventory().getItemInMainHand(), p.getName(), p.getDisplayName(),
 						p.getUniqueId(),
 						false);
-				chatItemDisplay.displayed.put(p.getName().toUpperCase(), d);
-				new BungeeCordSender(chatItemDisplay).send(d, true);
-				new DisplayItemInfo(chatItemDisplay, d).cmdMsg();
+			m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
+			new BungeeCordSender(m).send(d, true);
+			new DisplayItemInfo(m, d).cmdMsg();
 				break;
 			case BLACKLISTED:
 				p.sendMessage(new StringFormatter()
-						.format(chatItemDisplay.getConfig().getString("messages.black-listed-item")));
+					.format(m.getConfig().getString("messages.black-listed-item")));
 				break;
 			case COOLDOWN:
-				Long CooldownRemaining = (chatItemDisplay.getConfig().getLong("display-cooldown") * 1000)
+			Long CooldownRemaining = (m.getConfig().getLong("display-cooldown") * 1000)
 						- (System.currentTimeMillis()
-								- chatItemDisplay.DisplayCooldowns.get(p.getUniqueId()));
+							- m.DisplayCooldowns.get(p.getUniqueId()));
 				Double SecondsRemaining = (double) (Math.round(CooldownRemaining.doubleValue() / 100)) / 10;
-				p.sendMessage(new StringFormatter().format(chatItemDisplay.getConfig()
+			p.sendMessage(new StringFormatter().format(m.getConfig()
 						.getString("messages.cooldown").replaceAll("%seconds%", "" + SecondsRemaining)));
 				break;
 			case NO_PERMISSON:
 				p.sendMessage(new StringFormatter()
-						.format(chatItemDisplay.getConfig().getString("messages.missing-permission-to-display")));
+					.format(m.getConfig().getString("messages.missing-permission-to-display")));
 				break;
 			case NULL_ITEM:
 				p.sendMessage(new StringFormatter()
-						.format(chatItemDisplay.getConfig().getString("messages.not-holding-anything")));
+					.format(m.getConfig().getString("messages.not-holding-anything")));
 				break;
 			}
 

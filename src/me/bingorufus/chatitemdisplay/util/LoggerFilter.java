@@ -13,13 +13,11 @@ import org.apache.logging.log4j.core.filter.AbstractFilter;
 import org.apache.logging.log4j.message.Message;
 import org.bukkit.Bukkit;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.displayables.DisplayInfo;
-import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
-import me.bingorufus.chatitemdisplay.displayables.DisplayInventoryInfo;
-import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
-import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
-import me.bingorufus.chatitemdisplay.displayables.Displayable;
+import me.bingorufus.chatitemdisplay.Display;
 
 public class LoggerFilter extends AbstractFilter { // This just makes it so that "cidPlayer" isn't sent to console, but
 													// rather it includes the appropriate text
@@ -36,17 +34,10 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 		if (event == null)
 			return Result.NEUTRAL;
 		Result res = isLoggable(event.getMessage().getFormattedMessage());
-		String message = event.getMessage().getFormattedMessage();
+
 		if (res.equals(Result.DENY)) {
-			String displaying = getDisplaying(message);
-			Displayable dis = m.displayed.get(displaying.toUpperCase());
-			DisplayInfo di = null;
-			if (dis instanceof DisplayItem)
-				di = new DisplayItemInfo(m, (DisplayItem) dis);
-			if (dis instanceof DisplayInventory)
-				di = new DisplayInventoryInfo(m, (DisplayInventory) dis);
-			String loggermsg = message.replaceAll("\u0007cid(.*?)\u0007", di.loggerMessage());
-			Bukkit.getLogger().log(new LogRecord(java.util.logging.Level.parse(event.getLevel().name()), loggermsg));
+			Bukkit.getLogger().log(new LogRecord(java.util.logging.Level.parse(event.getLevel().name()),
+					newMessage(event.getMessage().getFormattedMessage())));
 		}
 		return res;
 
@@ -55,17 +46,9 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 	@Override
 	public Result filter(Logger logger, Level level, Marker marker, Message msg, Throwable t) {
 		Result res = isLoggable(msg.getFormattedMessage());
-		String message = msg.getFormattedMessage();
 		if (res.equals(Result.DENY)) {
-			String displaying = getDisplaying(message);
-			Displayable dis = m.displayed.get(displaying.toUpperCase());
-			DisplayInfo di = null;
-			if (dis instanceof DisplayItem)
-				di = new DisplayItemInfo(m, (DisplayItem) dis);
-			if (dis instanceof DisplayInventory)
-				di = new DisplayInventoryInfo(m, (DisplayInventory) dis);
-			String loggermsg = message.replaceAll("\u0007cid(.*?)\u0007", di.loggerMessage());
-			Bukkit.getLogger().log(java.util.logging.Level.parse(level.name()), loggermsg, marker);
+			Bukkit.getLogger().log(java.util.logging.Level.parse(level.name()), newMessage(msg.getFormattedMessage()),
+					marker);
 		}
 		return isLoggable(msg.getFormattedMessage());
 	}
@@ -73,17 +56,8 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 	@Override
 	public Result filter(Logger logger, Level level, Marker marker, String msg, Object... params) {
 		Result res = isLoggable(msg);
-		String message = msg;
 		if (res.equals(Result.DENY)) {
-			String displaying = getDisplaying(message);
-			Displayable dis = m.displayed.get(displaying.toUpperCase());
-			DisplayInfo di = null;
-			if (dis instanceof DisplayItem)
-				di = new DisplayItemInfo(m, (DisplayItem) dis);
-			if (dis instanceof DisplayInventory)
-				di = new DisplayInventoryInfo(m, (DisplayInventory) dis);
-			String loggermsg = message.replaceAll("\u0007cid(.*?)\u0007", di.loggerMessage());
-			Bukkit.getLogger().log(java.util.logging.Level.parse(level.name()), loggermsg, params);
+			Bukkit.getLogger().log(java.util.logging.Level.parse(level.name()), newMessage(msg), params);
 		}
 		return res;
 	}
@@ -94,17 +68,9 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 			return Result.NEUTRAL;
 
 		Result res = isLoggable(msg.toString());
-		String message = msg.toString();
 		if (res.equals(Result.DENY)) {
-			String displaying = getDisplaying(message);
-			Displayable dis = m.displayed.get(displaying.toUpperCase());
-			DisplayInfo di = null;
-			if (dis instanceof DisplayItem)
-				di = new DisplayItemInfo(m, (DisplayItem) dis);
-			if (dis instanceof DisplayInventory)
-				di = new DisplayInventoryInfo(m, (DisplayInventory) dis);
-			String loggermsg = message.replaceAll("\u0007cid(.*?)\u0007", di.loggerMessage());
-			Bukkit.getLogger().log(java.util.logging.Level.parse(level.name()), loggermsg, marker);
+
+			Bukkit.getLogger().log(java.util.logging.Level.parse(level.name()), newMessage(msg.toString()), marker);
 		}
 
 		// Bukkit.getPlayer("BingoRufus").sendMessage(message.replaceAll("\u0007cid(.*?)\u0007",
@@ -124,18 +90,29 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 		return Result.NEUTRAL;
 	}
 
-	private String getDisplaying(String s) {
-		String player = null;
+	private String newMessage(String msg) {
 
-		Pattern pattern = Pattern.compile("\u0007cid(.*?)\u0007"); // Searches for a string that starts and ends
-																	// with the bell character
-		Matcher matcher = pattern.matcher(s);
+		Pattern pattern = Pattern.compile("\u0007cid(.*?)\u0007");
 
-		if (matcher.find()) {
-			player = matcher.group(1);
+		Matcher matcher = pattern.matcher(msg);
+
+		while (matcher.find()) {
+
+			String json = matcher.group(1);
+
+			JsonObject jo = (JsonObject) new JsonParser().parse(json);
+
+			Display dis = m.getDisplayedManager().getDisplayed(jo.get("id").getAsLong());
+
+			msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
+					dis.getDisplayable().getInfo(m).loggerMessage());
+			matcher = pattern.matcher(msg);
+
 		}
+		return msg;
 
-		return player == null ? "" : player;
 	}
+
+
 
 }

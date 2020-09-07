@@ -38,7 +38,7 @@ public class DisplayInventoryExecutor implements CommandExecutor {
 		DisplayInventory d = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(),
 					p.getDisplayName(), p.getUniqueId(), false);
 
-			m.displayed.put(p.getName().toUpperCase(), d);
+		m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
 			new BungeeCordSender(m).send(d, true);
 			new DisplayInventoryInfo(m, d).cmdMsg();
 

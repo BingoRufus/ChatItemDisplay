@@ -3,14 +3,14 @@ main: me.bingorufus.chatitemdisplay.ChatItemDisplay
 description: Display items in chat
 api-version: 1.13
 author: BingoRufus
-version: 1.5.5
+version: 1.5.6
 softdepend: [ProtocolLib,DiscordSRV]
 load: POSTWORLD
 
 commands:
   viewdisplay:
     description: See what item a player is displaying
-    usage: /<command> <player>
+    usage: /<command> <player/id>
     aliases: [viewitem,viewinv,viewinventory,viewec,viewenderchest,displayview]
   chatitemreload:
     usage: /<command>

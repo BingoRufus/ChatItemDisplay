@@ -18,11 +18,10 @@ public class DisplaySender {
 
 
 		ByteArrayDataOutput out = ByteStreams.newDataOutput(); // Subchannel, Serialized display, Is command
-		// Display name, Is command
-		out.writeUTF(subchannel.equalsIgnoreCase("ItemSender") ? "ItemReceiver"
-				: subchannel.equalsIgnoreCase("InventorySender") ? "InventoryReceiver" : subchannel); // Sub Channel
 
-		out.writeUTF(item); // Serialized ItemStack
+		out.writeUTF(subchannel.equalsIgnoreCase("DisplaySender") ? "DisplayReceiver" : subchannel); // Sub Channel
+
+		out.writeUTF(item); // Serialized Display
 
 		out.writeBoolean(isCmd);// Is a command
 

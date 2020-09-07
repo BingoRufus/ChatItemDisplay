@@ -124,8 +124,9 @@ public class DisplayItemInfo implements DisplayInfo {
 					new HoverEvent(Action.SHOW_ITEM, new Item(display.getItem().getType().getKey().toString(),
 							display.getItem().getAmount(), ItemTag.ofNbt(itemRetriever.getNBT(display.getItem())))));
 		}
-
-		Hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + display.getPlayer()));
+		Long id = m.getDisplayedManager().getDisplay(display).getId();
+		Hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+				"/viewitem " + (id)));
 
 		return Hover;
 	}
@@ -212,6 +213,11 @@ public class DisplayItemInfo implements DisplayInfo {
 		format = format.replaceAll("%item%", new ItemStackStuff().itemName(display.getItem()));
 
 		return ChatColor.stripColor(new StringFormatter().format(format));
+	}
+
+	@Override
+	public Displayable getDisplayable() {
+		return display;
 	}
 
 

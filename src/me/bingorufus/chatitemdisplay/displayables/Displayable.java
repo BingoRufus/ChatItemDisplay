@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.util.iteminfo.InventorySerializer;
 import me.bingorufus.chatitemdisplay.util.iteminfo.ItemSerializer;
 
@@ -19,6 +20,24 @@ public interface Displayable {
 	public String serialize();
 
 	public String getDisplayName();
+
+
+
+	default DisplayInfo getInfo(ChatItemDisplay m) {
+		if (this instanceof DisplayInventory) {
+			return new DisplayInventoryInfo(m, (DisplayInventory) this);
+		}
+		return new DisplayItemInfo(m, (DisplayItem) this);
+
+	}
+
+	default DisplayType getType() {
+		if (this instanceof DisplayInventory) {
+			return ((DisplayInventory) this).getType();
+		}
+		return DisplayType.ITEM;
+	}
+
 
 	public static Displayable deserialize(String json) {
 		JsonObject displayJson = (JsonObject) new JsonParser().parse(json);

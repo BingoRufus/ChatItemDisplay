@@ -46,7 +46,7 @@ public class DisplayEnderChestExecutor implements CommandExecutor {
 
 		DisplayInventory d = new DisplayInventory(inv, title, p.getName(), p.getDisplayName(), p.getUniqueId(), false);
 
-		m.displayed.put(p.getName().toUpperCase(), d);
+		m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
 		new BungeeCordSender(m).send(d, true);
 		new DisplayInventoryInfo(m, d).cmdMsg();
 

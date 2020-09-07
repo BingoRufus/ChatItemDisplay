@@ -23,7 +23,10 @@ triggers: #These will determine when the objects are displayed, they are not cas
 
 
 disable-gui: false #Disable all the GUIs
-  
+message-command:  # This allows players to display items in private messages
+ - "/msg"
+ - "/t"
+ - "/w"
 messages:
   gui-format: "&a%player%&a's &cDisplayed Item"
   missing-permission: "&cYou do not have permission to do that"
@@ -32,6 +35,7 @@ messages:
   missing-permission-enderchest: "&cYou do not have permission to display your Ender Chest"
   black-listed-item: "&cYou cannot display this at item as it is blacklisted"
   player-not-displaying-anything: "&cThat player isn't displaying anything" #when someone does /viewitem <player> and the <player> isn't displaying anything
+  invalid-id: "&cThere is nothing displayed with that id" #When someone does /viewitem <id> and the id does not exist
   cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
   gui-disabled: "&cThis feature has been disabled"
   map-notification: "&eDrop or click on the map to receive your item back"

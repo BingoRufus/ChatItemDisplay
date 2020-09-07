@@ -4,17 +4,15 @@ package me.bingorufus.chatitemdisplay.listeners;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import github.scarsz.discordsrv.api.ListenerPriority;
 import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.DiscordGuildMessageSentEvent;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Message;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.displayables.DisplayInfo;
-import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
-import me.bingorufus.chatitemdisplay.displayables.DisplayInventoryInfo;
-import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
-import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
-import me.bingorufus.chatitemdisplay.displayables.Displayable;
+import me.bingorufus.chatitemdisplay.Display;
 
 public class DiscordSRVModifier {
 	ChatItemDisplay m;
@@ -30,33 +28,36 @@ public class DiscordSRVModifier {
 
 		if (!e.getMessage().getContentDisplay().matches(displayRegex))
 			return;
-		String message = e.getMessage().getContentRaw();
 
-		String displaying = getDisplaying(message);
-		Displayable dis = m.displayed.get(displaying.toUpperCase());
-		DisplayInfo di = null;
-		if (dis instanceof DisplayItem)
-			di = new DisplayItemInfo(m, (DisplayItem) dis);
-		if (dis instanceof DisplayInventory)
-			di = new DisplayInventoryInfo(m, (DisplayInventory) dis);
-		String out = message.replaceAll("\u0007cid(.*?)\u0007", di.loggerMessage());
+		String message = newMessage(e.getMessage().getContentRaw());
+
 		Message msg = e.getMessage();
-		msg.editMessage(out).queue();
+		msg.editMessage(message).queue();
 
 	}
 
-	private String getDisplaying(String s) {
-		String player = null;
 
-		Pattern pattern = Pattern.compile("\u0007cid(.*?)\u0007"); // Searches for a string that starts and ends
-																	// with the bell character
-		Matcher matcher = pattern.matcher(s);
+	private String newMessage(String msg) {
 
-		if (matcher.find()) {
-			player = matcher.group(1);
+		Pattern pattern = Pattern.compile("\u0007cid(.*?)\u0007");
+
+		Matcher matcher = pattern.matcher(msg);
+
+		while (matcher.find()) {
+
+			String json = matcher.group(1);
+
+			JsonObject jo = (JsonObject) new JsonParser().parse(json);
+
+			Display dis = m.getDisplayedManager().getDisplayed(jo.get("id").getAsLong());
+
+			msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
+					dis.getDisplayable().getInfo(m).loggerMessage());
+			matcher = pattern.matcher(msg);
+
 		}
+		return msg;
 
-		return player == null ? "" : player;
 	}
 
 }

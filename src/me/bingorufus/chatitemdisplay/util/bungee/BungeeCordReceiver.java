@@ -9,11 +9,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
-import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
-import me.bingorufus.chatitemdisplay.displayables.DisplayInventoryInfo;
-import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
-import me.bingorufus.chatitemdisplay.displayables.DisplayItemInfo;
-import me.bingorufus.chatitemdisplay.displayables.Displayable;
+import me.bingorufus.chatitemdisplay.Display;
 
 
 public class BungeeCordReceiver implements PluginMessageListener {
@@ -39,7 +35,7 @@ public class BungeeCordReceiver implements PluginMessageListener {
 				Bukkit.getLogger().info(
 						"Received a ping from bungee ({t}ms)".replace("{t}", System.currentTimeMillis() - m.pingTime + ""));
 			}
-			m.bungeePing();
+			m.setBungee(true);
 			return;
 
 		}
@@ -47,12 +43,8 @@ public class BungeeCordReceiver implements PluginMessageListener {
 		if (m.getConfig().getBoolean("debug-mode")) {
 			Bukkit.getLogger().info("Received info: " + data);
 		}
-		if (subchannel.equalsIgnoreCase("ItemReceiver")) {
-			receiveItem(data, in);
-			return;
-		}
-		if (subchannel.equalsIgnoreCase("InventoryReceiver")) {
-			receiveInventory(data, in);
+		if (subchannel.equalsIgnoreCase("DisplayReceiver")) {
+			receiveDisplay(data, in);
 			return;
 		}
 
@@ -61,20 +53,14 @@ public class BungeeCordReceiver implements PluginMessageListener {
 
 	}
 
-	public void receiveItem(String data, ByteArrayDataInput in) {
-		DisplayItem item = (DisplayItem) Displayable.deserialize(data);
-		m.displayed.put(item.getPlayer().toUpperCase(), item);
-		if (in.readBoolean() == true) {
-			new DisplayItemInfo(m, item).cmdMsg();
+	public void receiveDisplay(String data, ByteArrayDataInput in) {
+		Display display = Display.deserialize(data);
+		m.getDisplayedManager().addDisplay(display);
+
+		if (in.readBoolean()) {
+			display.getDisplayable().getInfo(m).cmdMsg();
 		}
 	}
 
-	public void receiveInventory(String data, ByteArrayDataInput in) {
-		DisplayInventory inv = (DisplayInventory) Displayable.deserialize(data);
-		m.displayed.put(inv.getPlayer().toUpperCase(), inv);
-		if (in.readBoolean() == true) {
-			new DisplayInventoryInfo(m, inv).cmdMsg();
-		}
-	}
 
 }

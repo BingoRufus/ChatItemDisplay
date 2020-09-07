@@ -8,10 +8,12 @@ import com.comphenix.protocol.events.ListenerPriority;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.listeners.ChatPacketListener;
+import me.bingorufus.chatitemdisplay.listeners.PrivateMessageListener;
 
 public class ProtocolLibRegister {
 	ChatItemDisplay m;
 	ChatPacketListener packetListener;
+	PrivateMessageListener pmListener;
 
 	ProtocolManager pm;
 
@@ -24,10 +26,15 @@ public class ProtocolLibRegister {
 		if (packetListener != null) {
 			pm.removePacketListener(packetListener);
 		}
+		if (pmListener != null) {
+			pm.removePacketListener(pmListener);
+		}
 		packetListener = new ChatPacketListener(m, ListenerPriority.LOWEST, PacketType.Play.Server.CHAT,
 				PacketType.Play.Client.AUTO_RECIPE);
+		pmListener = new PrivateMessageListener(m, ListenerPriority.HIGHEST, PacketType.Play.Client.CHAT);
 
 		pm.addPacketListener(packetListener);
+		pm.addPacketListener(pmListener);
 	}
 
 }

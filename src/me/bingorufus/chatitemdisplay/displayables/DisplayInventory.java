@@ -2,6 +2,7 @@ package me.bingorufus.chatitemdisplay.displayables;
 
 import java.util.UUID;
 
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
 import com.google.gson.JsonObject;
@@ -16,15 +17,23 @@ public class DisplayInventory implements Displayable {
 	private String displayName;
 	private UUID uuid;
 	private boolean fromBungee;
+	private DisplayType type;
 
-	public DisplayInventory(Inventory inv, String inventoryName, String player, String displayName, UUID uuid,
+	public DisplayInventory(Inventory inv, String inventoryName, String player, String displayName,
+			UUID uuid,
 			boolean fromBungee) {
+
+
 		this.inv = inv;
 		this.name = inventoryName;
 		this.player = player;
 		this.displayName = displayName;
 		this.uuid = uuid;
 		this.fromBungee = fromBungee;
+		if (inv.getType() == InventoryType.ENDER_CHEST)
+			type = DisplayType.ENDERCHEST;
+		else
+			type = DisplayType.INVENTORY;
 	}
 
 	@Override
@@ -36,7 +45,6 @@ public class DisplayInventory implements Displayable {
 		json.addProperty("displayName", displayName);
 		json.addProperty("uuid", uuid.toString());
 		json.addProperty("bungee", true);
-
 		return json.toString();
 	}
 
@@ -65,4 +73,11 @@ public class DisplayInventory implements Displayable {
 	public String getDisplayName() {
 		return displayName;
 	}
+
+	@Override
+	public DisplayType getType() {
+		return type;
+	}
+
+
 }

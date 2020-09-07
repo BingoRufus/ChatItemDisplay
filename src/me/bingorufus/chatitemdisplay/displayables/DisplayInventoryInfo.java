@@ -9,7 +9,6 @@ import me.bingorufus.chatitemdisplay.util.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
@@ -72,8 +71,8 @@ public class DisplayInventoryInfo implements DisplayInfo {
 
 			whole.addExtra(tc);
 		}
-
-		whole.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/viewitem " + inv.getPlayer()));
+		Long id = m.getDisplayedManager().getDisplay(inv).getId();
+		whole.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + (id)));
 
 		return whole;
 	}
@@ -113,6 +112,11 @@ public class DisplayInventoryInfo implements DisplayInfo {
 		
 
 		return ChatColor.stripColor(new StringFormatter().format(format));
+	}
+
+	@Override
+	public Displayable getDisplayable() {
+		return inv;
 	}
 
 }
