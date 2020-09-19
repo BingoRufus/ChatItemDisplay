@@ -1,12 +1,18 @@
 package me.bingorufus.chatitemdisplay.displayables;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.UUID;
+
+import javax.imageio.ImageIO;
 
 import org.bukkit.inventory.ItemStack;
 
 import com.google.gson.JsonObject;
 
 import me.bingorufus.chatitemdisplay.util.iteminfo.ItemSerializer;
+import me.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff;
 
 public class DisplayItem implements Displayable {
 	private ItemStack item;
@@ -64,5 +70,21 @@ public class DisplayItem implements Displayable {
 		return displayName;
 	}
 
+	@Override
+	public File getImage() {
+
+		File f = new File("image.png");
+		try {
+			if (!f.exists())
+				f.createNewFile();
+			FileOutputStream fo = new FileOutputStream(f);
+			ImageIO.write(new ItemStackStuff().getImage(item, 100, 100), "png", fo);
+			fo.close();
+			return f;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }

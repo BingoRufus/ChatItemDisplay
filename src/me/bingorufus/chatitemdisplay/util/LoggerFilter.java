@@ -36,7 +36,7 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 		Result res = isLoggable(event.getMessage().getFormattedMessage());
 
 		if (res.equals(Result.DENY)) {
-			Bukkit.getLogger().log(new LogRecord(java.util.logging.Level.parse(event.getLevel().name()),
+			Bukkit.getLogger().log(new LogRecord(getJavaLevel(event.getLevel()),
 					newMessage(event.getMessage().getFormattedMessage())));
 		}
 		return res;
@@ -47,7 +47,7 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 	public Result filter(Logger logger, Level level, Marker marker, Message msg, Throwable t) {
 		Result res = isLoggable(msg.getFormattedMessage());
 		if (res.equals(Result.DENY)) {
-			Bukkit.getLogger().log(java.util.logging.Level.parse(level.name()), newMessage(msg.getFormattedMessage()),
+			Bukkit.getLogger().log(getJavaLevel(level), newMessage(msg.getFormattedMessage()),
 					marker);
 		}
 		return isLoggable(msg.getFormattedMessage());
@@ -57,7 +57,7 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 	public Result filter(Logger logger, Level level, Marker marker, String msg, Object... params) {
 		Result res = isLoggable(msg);
 		if (res.equals(Result.DENY)) {
-			Bukkit.getLogger().log(java.util.logging.Level.parse(level.name()), newMessage(msg), params);
+			Bukkit.getLogger().log(getJavaLevel(level), newMessage(msg), params);
 		}
 		return res;
 	}
@@ -70,7 +70,7 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 		Result res = isLoggable(msg.toString());
 		if (res.equals(Result.DENY)) {
 
-			Bukkit.getLogger().log(java.util.logging.Level.parse(level.name()), newMessage(msg.toString()), marker);
+			Bukkit.getLogger().log(getJavaLevel(level), newMessage(msg.toString()), marker);
 		}
 
 		// Bukkit.getPlayer("BingoRufus").sendMessage(message.replaceAll("\u0007cid(.*?)\u0007",
@@ -105,7 +105,7 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 			Display dis = m.getDisplayedManager().getDisplayed(jo.get("id").getAsLong());
 
 			msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
-					dis.getDisplayable().getInfo(m).loggerMessage());
+					dis.getDisplayable().getInfo().loggerMessage());
 			matcher = pattern.matcher(msg);
 
 		}
@@ -113,6 +113,11 @@ public class LoggerFilter extends AbstractFilter { // This just makes it so that
 
 	}
 
+	public java.util.logging.Level getJavaLevel(Level l) {
+
+		return JULConverter.fromLog4j(l).toJUL();
+
+	}
 
 
 }

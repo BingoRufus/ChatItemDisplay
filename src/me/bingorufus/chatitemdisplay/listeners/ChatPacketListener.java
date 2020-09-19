@@ -51,30 +51,31 @@ public class ChatPacketListener extends PacketAdapter {
 		WrappedChatComponent chat = packet.getChatComponents().read(0);
 		BaseComponent[] baseComps = null;
 		BaseComponent[] originalComps;
-		
+		int field = 0;
 		if (chat == null) {
 			Object chatPacket = packet.getHandle();
-			
 			try {
 				Field f = chatPacket.getClass().getDeclaredField("components");
 				originalComps = (BaseComponent[]) f.get(chatPacket);
-
+				field = 1;
 			} catch (SecurityException | NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
 				ex.printStackTrace();
 				return;
 			}
-
 		} else {
 			originalComps = ComponentSerializer.parse(chat.getJson());
 		}
-		
+
+		if (originalComps.length != 1) {
+			TextComponent comp = new TextComponent(originalComps);
+			originalComps = new BaseComponent[] { comp };
+		}
 
 		if (!ComponentSerializer.toString(originalComps).contains("\\u0007cid"))
 			return;
 		if (originalComps[0].getExtra() == null)
 			return;
 		List<BaseComponent> editedExtra = new ArrayList<BaseComponent>();
-
 		for (int i = 0; i < originalComps[0].getExtra().size(); i++) {
 			List<BaseComponent> extra = originalComps[0].getExtra();
 
@@ -122,7 +123,6 @@ public class ChatPacketListener extends PacketAdapter {
 			}
 
 
-
 		}
 		BaseComponent org = originalComps[0];
 		org.setExtra(editedExtra);
@@ -141,7 +141,7 @@ public class ChatPacketListener extends PacketAdapter {
 
 				String displaying = null;
 				Pattern pattern = Pattern.compile("\u0007cid(.*?)\u0007"); // Searches for a string that starts and ends
-																		// with the bell character
+																			// with the bell character
 				Matcher matcher = pattern.matcher(bc.toLegacyText());
 
 				while (matcher.find()) {
@@ -149,38 +149,37 @@ public class ChatPacketListener extends PacketAdapter {
 					replace = bell + "cid" + matcher.group(1) + bell;
 
 
-				String legacyText = bc.toLegacyText().replace(replace, replace
-						+ ChatColor.getLastColors(bc.toLegacyText().substring(0, bc.toLegacyText().indexOf(replace))));
+					String legacyText = bc.toLegacyText().replace(replace, replace + ChatColor
+							.getLastColors(bc.toLegacyText().substring(0, bc.toLegacyText().indexOf(replace))));
 
-
-
-				if (m.getConfig().getBoolean("debug-mode")) {
-					Bukkit.getLogger().info(displaying + " is displaying their item");
-				}
-				JsonObject jo = (JsonObject) new JsonParser().parse(displaying);
-				Displayable display = m.getDisplayedManager().getDisplayed(jo.get("id").getAsLong()).getDisplayable();
-				
-
-
-				DisplayInfo disInfo = display.getInfo(m);
-
-
-				String[] parts = legacyText
-						.split("((?<=" + Pattern.quote(replace) + ")|(?=" + Pattern.quote(replace) + "))");
-				TextComponent hover = disInfo.getHover();
-				TextComponent component = new TextComponent();
-				for (String part : parts) {
-					if (part.equalsIgnoreCase(replace)) {
-						component.addExtra(hover);
-						continue;
+					if (m.getConfig().getBoolean("debug-mode")) {
+						Bukkit.getLogger().info(displaying + " is displaying their item");
 					}
+
+					JsonObject jo = (JsonObject) new JsonParser().parse(displaying);
+					Displayable display = m.getDisplayedManager().getDisplayed(jo.get("id").getAsLong())
+							.getDisplayable();
+
+					DisplayInfo disInfo = display.getInfo();
+
+
+					String[] parts = legacyText
+							.split("((?<=" + Pattern.quote(replace) + ")|(?=" + Pattern.quote(replace) + "))");
+					TextComponent hover = disInfo.getHover();
+					TextComponent component = new TextComponent();
+					for (String part : parts) {
+						if (part.equalsIgnoreCase(replace)) {
+							component.addExtra(hover);
+							continue;
+						}
 						TextComponent tc = new TextComponent(part);
 						component.addExtra(tc);
-				}
-				extra.set(i, component);
-				baseComps[0].setExtra(extra);
+					}
+					extra.set(i, component);
+					baseComps[0].setExtra(extra);
 					extra = baseComps[0].getExtra();
 					bc = (TextComponent) extra.get(i);
+
 					if (!bc.toLegacyText().contains("\u0007cid"))
 						break;
 					matcher = pattern.matcher(bc.toLegacyText());
@@ -190,10 +189,13 @@ public class ChatPacketListener extends PacketAdapter {
 			npe.printStackTrace();
 
 		}
+		if(field == 0) {
+			packet.getChatComponents().write(0, WrappedChatComponent.fromJson(ComponentSerializer.toString(baseComps)));
+			return;
+		}
+		packet.getModifier().write(1,
+				baseComps);
 
-
-		packet.getChatComponents().write(0, WrappedChatComponent.fromJson(ComponentSerializer.toString(baseComps)));
-		
 	}
 
 

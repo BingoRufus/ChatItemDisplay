@@ -1,5 +1,6 @@
 package me.bingorufus.chatitemdisplay.displayables;
 
+import java.io.File;
 import java.util.UUID;
 
 import org.bukkit.event.inventory.InventoryType;
@@ -79,5 +80,10 @@ public class DisplayInventory implements Displayable {
 		return type;
 	}
 
+	@Override
+	public File getImage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

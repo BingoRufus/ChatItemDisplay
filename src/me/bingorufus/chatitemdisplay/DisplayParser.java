@@ -39,6 +39,9 @@ public class DisplayParser {
 		return cancel;
 	}
 
+	public boolean containsDisplay() {
+		return this.displayed;
+	}
 	public String parse() {
 		for (String Trigger : m.getConfig().getStringList("triggers.item")) {
 			if (s.toUpperCase().contains(Trigger.toUpperCase())) {
@@ -54,10 +57,6 @@ public class DisplayParser {
 
 					if (m.isBungee())
 						new BungeeCordSender(m).send(dis, false);
-
-
-
-
 					s = s.replaceAll("(?i)" + Pattern.quote(Trigger),
 
 							m.getDisplayedManager().getDisplay(dis).getInsertion());
@@ -87,7 +86,6 @@ public class DisplayParser {
 					// Do not cancel
 					break;
 				}
-
 			}
 		}
 		List<String> invTriggers = m.getConfig().getStringList("triggers.inventory");
@@ -165,8 +163,5 @@ public class DisplayParser {
 
 	}
 
-	public String getPlayer() {
-		return null;
-	}
 
 }

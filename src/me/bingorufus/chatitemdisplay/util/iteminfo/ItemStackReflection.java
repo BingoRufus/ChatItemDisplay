@@ -121,7 +121,6 @@ public class ItemStackReflection {
 			getItem.setAccessible(true);
 			Object newItem = getItem.invoke(item);
 			Method getName = newItem.getClass().getMethod("getName");
-			getName.setAccessible(true);
 			String key = (String) getName.invoke(newItem);
 			if (holding.getItemMeta() instanceof PotionMeta) {
 				PotionMeta pm = (PotionMeta) holding.getItemMeta();

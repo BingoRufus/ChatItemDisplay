@@ -30,15 +30,6 @@ public class BungeeCordReceiver implements PluginMessageListener {
 		ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
 		String subchannel = in.readUTF();
 
-		if (subchannel.equalsIgnoreCase("BungeePing")) {
-			if (m.getConfig().getBoolean("debug-mode")) {
-				Bukkit.getLogger().info(
-						"Received a ping from bungee ({t}ms)".replace("{t}", System.currentTimeMillis() - m.pingTime + ""));
-			}
-			m.setBungee(true);
-			return;
-
-		}
 		String data = in.readUTF();
 		if (m.getConfig().getBoolean("debug-mode")) {
 			Bukkit.getLogger().info("Received info: " + data);
@@ -58,7 +49,7 @@ public class BungeeCordReceiver implements PluginMessageListener {
 		m.getDisplayedManager().addDisplay(display);
 
 		if (in.readBoolean()) {
-			display.getDisplayable().getInfo(m).cmdMsg();
+			display.getDisplayable().getInfo().cmdMsg();
 		}
 	}
 

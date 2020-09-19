@@ -23,6 +23,7 @@ triggers: #These will determine when the objects are displayed, they are not cas
 
 
 disable-gui: false #Disable all the GUIs
+display-in-msg-command: true #It is recommended to disable this if you do not have a private message plugin
 message-command:  # This allows players to display items in private messages
  - "/msg"
  - "/t"
@@ -62,6 +63,8 @@ strip-nick-colors-message: false #Removes the nick colors in the display message
 use-nicks-in-gui: true #Will also use any custom colors
 
 strip-nick-colors-gui: false #Removes the nick colors from the gui
+
+send-to-bungee: true # send displayed items/inventories to bungee
 
 
 show-item-amount: true #Will add x2 if a player is displaying 2 items

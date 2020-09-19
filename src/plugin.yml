@@ -1,9 +1,9 @@
 name: ChatItemDisplay
 main: me.bingorufus.chatitemdisplay.ChatItemDisplay
-description: Display items in chat
+description: Display items, inventories, and ender chests in chat
 api-version: 1.13
 author: BingoRufus
-version: 1.5.6
+version: 1.5.8
 softdepend: [ProtocolLib,DiscordSRV]
 load: POSTWORLD
 

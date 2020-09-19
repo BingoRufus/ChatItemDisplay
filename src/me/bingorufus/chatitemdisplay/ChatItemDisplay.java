@@ -23,10 +23,11 @@ import me.bingorufus.chatitemdisplay.executors.display.DisplayEnderChestExecutor
 import me.bingorufus.chatitemdisplay.executors.display.DisplayInventoryExecutor;
 import me.bingorufus.chatitemdisplay.executors.display.DisplayItemExecutor;
 import me.bingorufus.chatitemdisplay.executors.display.ViewItemExecutor;
-import me.bingorufus.chatitemdisplay.listeners.BungeePingListener;
 import me.bingorufus.chatitemdisplay.listeners.ChatDisplayListener;
 import me.bingorufus.chatitemdisplay.listeners.MapViewerListener;
+import me.bingorufus.chatitemdisplay.listeners.MessageCommandListener;
 import me.bingorufus.chatitemdisplay.listeners.NewVersionDisplayer;
+import me.bingorufus.chatitemdisplay.util.ConfigReloader;
 import me.bingorufus.chatitemdisplay.util.LoggerFilter;
 import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordReceiver;
 import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
@@ -43,7 +44,6 @@ public class ChatItemDisplay extends JavaPlugin {
 	DiscordSRVRegister discordReg;
 	private DisplayedManager dm;
 
-	BungeePingListener bpl;
 
 	public Map<UUID, Long> DisplayCooldowns = new HashMap<UUID, Long>();
 
@@ -55,8 +55,6 @@ public class ChatItemDisplay extends JavaPlugin {
 
 	public boolean hasProtocollib = false;
 	public Boolean useOldFormat = false;
-	@SuppressWarnings("unused")
-	private boolean isBungee = false;
 
 	public Long pingTime;
 
@@ -74,12 +72,10 @@ public class ChatItemDisplay extends JavaPlugin {
 		this.getCommand("displayitem").setExecutor(new DisplayItemExecutor(this));
 		this.getCommand("displayinv").setExecutor(new DisplayInventoryExecutor(this));
 		this.getCommand("displayenderchest").setExecutor(new DisplayEnderChestExecutor(this));
-
+		Bukkit.getPluginManager().registerEvents(new MessageCommandListener(this), this);
 		reloadFilters();
 		reloadListeners();
-		Bukkit.getScheduler().scheduleSyncDelayedTask(this, () -> {
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "chatitemreload");
-		}, 3L);
+		new ConfigReloader(this).reload();
 		metrics.addCustomChart(new Metrics.SimplePie("old_display_messages", new Callable<String>() {
 			@Override
 			public String call() throws Exception {
@@ -144,18 +140,14 @@ public class ChatItemDisplay extends JavaPlugin {
 			HandlerList.unregisterAll(DisplayListener);
 		if (NewVer != null)
 			HandlerList.unregisterAll(NewVer);
-		if (bpl != null)
-			bpl.reload();
-		else {
-			bpl = new BungeePingListener(this);
-			Bukkit.getPluginManager().registerEvents(bpl, this);
-		}
+
 		if (discordReg != null)
 			discordReg.unregister();
 		if (Bukkit.getPluginManager().getPlugin("DiscordSRV") != null) {
 			if (discordReg == null) {
 				discordReg = new DiscordSRVRegister(this);
 			}
+
 			discordReg.register();
 		}
 		DisplayListener = new ChatDisplayListener(this);
@@ -165,11 +157,9 @@ public class ChatItemDisplay extends JavaPlugin {
 
 
 	public boolean isBungee() {
-		return true;
+		return getConfig().getBoolean("send-to-bungee");
 	}
 
-	public void setBungee(boolean b) {
-		this.isBungee = b;
-	}
+
 
 }

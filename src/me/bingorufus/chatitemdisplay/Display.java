@@ -1,5 +1,7 @@
 package me.bingorufus.chatitemdisplay;
 
+import java.io.File;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -27,6 +29,10 @@ public class Display {
 
 	public Long getId() {
 		return id;
+	}
+
+	public File getImage() {
+		return dis.getImage();
 	}
 
 	public String getInsertion() {

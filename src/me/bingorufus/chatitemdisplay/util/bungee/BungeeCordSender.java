@@ -43,22 +43,6 @@ public class BungeeCordSender {
 
 
 
-	public void pingBungee() {
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(b);
-		m.setBungee(false);
-		m.pingTime = System.currentTimeMillis();
-		try {
-			out.writeUTF("BungeePing");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if (m.getConfig().getBoolean("debug-mode")) {
-			Bukkit.getLogger().info("Sent a ping to Bungee");
-		}
 
-		Bukkit.getServer().sendPluginMessage(m, "chatitemdisplay:out", b.toByteArray());
-
-	}
 
 }

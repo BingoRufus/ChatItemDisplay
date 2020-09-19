@@ -21,6 +21,7 @@ public class DisplayedManager {
 
 
 	public DisplayedManager() {
+
 	}
 
 	public Displayable addDisplayable(String player, Displayable display) {

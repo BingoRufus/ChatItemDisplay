@@ -81,7 +81,7 @@ public class ViewItemExecutor implements CommandExecutor {
 		}
 
 			Displayable d = dis.getDisplayable();
-		p.openInventory(d.getInfo(m).getInventory());
+		p.openInventory(d.getInfo().getInventory());
 				return true;
 
 

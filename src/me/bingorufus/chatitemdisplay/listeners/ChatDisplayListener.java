@@ -88,7 +88,7 @@ public class ChatDisplayListener implements Listener {
 									: parts.length == 2 ? parts[1] : first.equals("") ? parts[0] : "";
 							e.getPlayer().chat(first.trim());
 
-							DisplayInfo di = dis.getInfo(m);
+						DisplayInfo di = dis.getInfo();
 
 							di.cmdMsg();
 							e.getPlayer().chat(last.trim());
@@ -198,7 +198,7 @@ public class ChatDisplayListener implements Listener {
 							String last = parts.length == 0 ? ""
 									: parts.length == 2 ? parts[1] : first.equals("") ? parts[0] : "";
 						e.getPlayer().chat(first.trim());
-						DisplayInfo di = dis.getInfo(m);
+					DisplayInfo di = dis.getInfo();
 
 							di.cmdMsg();
 						e.getPlayer().chat(last.trim());

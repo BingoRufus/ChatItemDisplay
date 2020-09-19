@@ -1,6 +1,9 @@
 package me.bingorufus.chatitemdisplay.displayables;
 
+import java.io.File;
 import java.util.UUID;
+
+import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -21,13 +24,14 @@ public interface Displayable {
 
 	public String getDisplayName();
 
+	public File getImage();
 
 
-	default DisplayInfo getInfo(ChatItemDisplay m) {
+	default DisplayInfo getInfo() {
 		if (this instanceof DisplayInventory) {
-			return new DisplayInventoryInfo(m, (DisplayInventory) this);
+			return new DisplayInventoryInfo(JavaPlugin.getPlugin(ChatItemDisplay.class), (DisplayInventory) this);
 		}
-		return new DisplayItemInfo(m, (DisplayItem) this);
+		return new DisplayItemInfo(JavaPlugin.getPlugin(ChatItemDisplay.class), (DisplayItem) this);
 
 	}
 

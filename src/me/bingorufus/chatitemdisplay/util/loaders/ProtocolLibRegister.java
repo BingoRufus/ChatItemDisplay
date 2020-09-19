@@ -29,12 +29,14 @@ public class ProtocolLibRegister {
 		if (pmListener != null) {
 			pm.removePacketListener(pmListener);
 		}
+
 		packetListener = new ChatPacketListener(m, ListenerPriority.LOWEST, PacketType.Play.Server.CHAT,
 				PacketType.Play.Client.AUTO_RECIPE);
+		if (m.getConfig().getBoolean("display-in-msg-command")) {
 		pmListener = new PrivateMessageListener(m, ListenerPriority.HIGHEST, PacketType.Play.Client.CHAT);
-
+			// pm.addPacketListener(pmListener);
+		}
 		pm.addPacketListener(packetListener);
-		pm.addPacketListener(pmListener);
 	}
 
 }
