@@ -16,6 +16,8 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 
+import java.util.regex.Matcher;
+
 public class DisplayItemInfo implements DisplayInfo {
     final DisplayItem display;
     final ChatItemDisplay m = ChatItemDisplay.getInstance();
@@ -201,7 +203,7 @@ public class DisplayItemInfo implements DisplayInfo {
                 : m.getConfig().getString("display-messages.inchat-item-format"));
         if (format == null) return "";
         format = format.replaceAll("%amount%", display.getItem().getAmount() + "");
-        format = format.replaceAll("%item%", new ItemStackStuff().getLangName(display.getItem()));
+        format = format.replaceAll("%item%", Matcher.quoteReplacement(new ItemStackStuff().getLangName(display.getItem())));
 
         return ChatColor.stripColor(new StringFormatter().format(format));
     }
