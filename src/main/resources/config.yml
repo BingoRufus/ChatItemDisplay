@@ -1,0 +1,77 @@
+debug-mode: false #Can possibly determine why players aren't able to display items. Will send console messages.
+
+disable-update-checking: false
+
+auto-update: true # Automatically download updates
+
+triggers: #These will determine when the objects are displayed, they are not case sensitive
+  item:
+    - "[i]"
+    - "[item]"
+    - "[itemdisplay]"
+    - "[displayitem]"
+  inventory:
+    - "[inv]"
+    - "[inventory]"
+    - "[invdisplay]"
+    - "[displayinv]"
+  enderchest:
+    - "[ec]"
+    - "[enderchest]"
+    - "[displaychest]"
+    - "[displayec]"
+
+
+disable-gui: false #Disable all the GUIs
+display-in-msg-command: true #It is recommended to disable this if you do not have a private message plugin
+message-command: # This allows players to display items in private messages
+  - "/msg"
+  - "/t"
+  - "/w"
+messages:
+  gui-format: "&a%player%&a's &cDisplayed Item"
+  missing-permission: "&cYou do not have permission to do that"
+  missing-permission-item: "&cYou do not have permission to display items"
+  missing-permission-inventory: "&cYou do not have permission to display your inventory"
+  missing-permission-enderchest: "&cYou do not have permission to display your Ender Chest"
+  black-listed-item: "&cYou cannot display this at item as it is blacklisted"
+  player-not-displaying-anything: "&cThat player isn't displaying anything" #when someone does /viewitem <player> and the <player> isn't displaying anything
+  invalid-id: "&cThere is nothing displayed with that id" #When someone does /viewitem <id> and the id does not exist
+  cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
+  gui-disabled: "&cThis feature has been disabled"
+  map-notification: "&eDrop or click on the map to receive your item back"
+  not-holding-anything: "&cYou are not holding anything"
+  force-item-colors: false #Will set items with already existing colors to the item-color
+  item-color: "" #The item's color will be set to this if item colors are removed or the item has no color to begin with
+  logger-lang: "en" #The language key that the logger will be using, view the spigot page for more details.
+
+display-messages:
+  inchat-item-format: "&r[%item%&r]"
+  inchat-item-format-multiple: "&r[%item% x%amount%&r]" #Used when there are 1 or more items
+  inchat-inventory-format: "&r[%player%'s %type%&r]" #Type will either be "EnderChest" or "Inventory" depending on what is being displayed
+  item-display-format: "&6%player%&6 is displaying their &f%item%"
+  item-display-format-multiple: "&6%player%&6 is displaying their &f%item% x%amount%"
+  inventory-display-format: "&6%player%&6 is displaying their &f%type%"
+  displayed-inventory-title: "%player%'s Inventory"
+  displayed-enderchest-title: "%player%'s EnderChest"
+
+
+use-old-format: false #This will use the regular message format, disabling in chat formatting.    Note: This value will be true if the server does not have ProtocolLib
+
+use-nicks-in-display-message: true #Will also use any custom colors. This is used in the command message
+
+strip-nick-colors-message: false #Removes the nick colors in the display message
+
+use-nicks-in-gui: true #Will also use any custom colors
+
+strip-nick-colors-gui: false #Removes the nick colors from the gui
+
+send-to-bungee: true # send displayed items/inventories to bungee
+
+
+show-item-amount: true #Will add x2 if a player is displaying 2 items
+display-cooldown: 0 #Measured in seconds. Use 0 for no cooldown.
+
+
+blacklisted-items: #for help visit https://minecraftitemids.com/
+#- "minecraft:bedrock"
