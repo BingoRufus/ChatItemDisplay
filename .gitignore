@@ -112,4 +112,5 @@ buildNumber.properties
 # Common working directory
 run/
 
-.DS_STORE
+.DS_Store.DS_Store
+.DS_Store
