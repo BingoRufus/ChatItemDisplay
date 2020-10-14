@@ -1,7 +1,5 @@
 package me.bingorufus.chatitemdisplay.util.updater;
 
-import net.md_5.bungee.BungeeCord;
-
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -33,8 +31,6 @@ public class UpdateDownloader {
 
                 }
                 newFileName = newFile.getName();
-
-                BungeeCord.getInstance().getLogger().info(newFileName);
                 downloadPath.close();
                 return null;
 

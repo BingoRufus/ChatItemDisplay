@@ -48,6 +48,7 @@ public class ChatItemDisplay extends JavaPlugin {
     private DisplayedManager dm;
     private JsonObject lang;
     private InventoryClick ic;
+    private Boolean isBungee;
 
     public static ChatItemDisplay getInstance() {
         return main;
@@ -152,7 +153,13 @@ public class ChatItemDisplay extends JavaPlugin {
     }
 
     public boolean isBungee() {
-        return getConfig().getBoolean("send-to-bungee");
+        if (isBungee == null) checkBungee();
+        return isBungee;
+
+    }
+
+    public void checkBungee() {
+        this.isBungee = getConfig().getBoolean("send-to-bungee");
     }
 
     public void loadLang() {

@@ -21,15 +21,22 @@ public class ConfigReloader {
 
 
     public void reload() {
+        m.saveDefaultConfig();
+        m.reloadConfig();
+
+        m.checkBungee();
+
         if (m.in != null) {
             Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(m, "chatitemdisplay:in", m.in);
         }
-        m.in = new BungeeCordReceiver(m);
-        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(m, "chatitemdisplay:in", m.in);
-        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(m, "chatitemdisplay:out");
 
-        m.saveDefaultConfig();
-        m.reloadConfig();
+        if (m.isBungee()) {
+            m.in = new BungeeCordReceiver(m);
+            Bukkit.getServer().getMessenger().registerIncomingPluginChannel(m, "chatitemdisplay:in", m.in);
+            Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(m, "chatitemdisplay:out");
+
+        }
+
         m.loadLang();
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (m.invs.containsKey(p.getOpenInventory().getTopInventory())) {
