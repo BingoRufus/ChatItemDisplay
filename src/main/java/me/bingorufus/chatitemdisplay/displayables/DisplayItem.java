@@ -19,7 +19,7 @@ public class DisplayItem implements Displayable {
     private final boolean fromBungee;
 
     public DisplayItem(ItemStack item, String player, String displayName, UUID uuid, boolean fromBungee) {
-        this.item = item;
+        this.item = item.clone();
         this.player = player;
         this.displayName = displayName;
         this.uuid = uuid;

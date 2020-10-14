@@ -27,10 +27,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class InventoryClick implements Listener {
     final ItemStackStuff ItemStackStuff;
@@ -60,7 +57,7 @@ public class InventoryClick implements Listener {
             if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
                 BlockStateMeta bsm = ((BlockStateMeta) e.getCurrentItem().getItemMeta());
                 if (bsm.getBlockState() instanceof Container) {
-                    container(e.getCurrentItem(), p, m.invs.get(e.getInventory()));
+                    container(e.getCurrentItem().clone(), p, m.invs.get(e.getInventory()));
                     return;
                 }
 
@@ -123,9 +120,7 @@ public class InventoryClick implements Listener {
             return;
         }
         container = c.getInventory();
-
-        boolean isEmpty = Arrays.stream(container.getContents()).noneMatch(ItemStack::hasItemMeta);
-        if (isEmpty)
+        if (Arrays.stream(container.getContents()).noneMatch(Objects::nonNull))
             return;
         InventoryType type = container.getType();
         Inventory containerInv = Bukkit.createInventory(holder, type, type.getDefaultTitle());

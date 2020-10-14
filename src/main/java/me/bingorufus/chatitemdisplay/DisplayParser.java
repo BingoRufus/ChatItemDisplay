@@ -42,6 +42,7 @@ public class DisplayParser {
     }
 
     public String parse() {
+
         for (String Trigger : m.getConfig().getStringList("triggers.item")) {
             if (s.toUpperCase().contains(Trigger.toUpperCase())) {
 
@@ -91,7 +92,6 @@ public class DisplayParser {
         for (String trigger : Stream.concat(invTriggers.stream(), ecTriggers.stream()).collect(Collectors.toList())) {
             if (s.toUpperCase().contains(trigger.toUpperCase())) {
                 DisplayInventory dis;
-
                 invTriggers.replaceAll(String::toUpperCase); // Turns all the triggers to UPPERCASE
                 if (invTriggers.contains(trigger.toUpperCase())) {
                     if (debug)
@@ -106,12 +106,13 @@ public class DisplayParser {
                         return s;
 
                     }
+
                     PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator(m)
                             .replicateInventory(p);
                     dis = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(), p.getDisplayName(),
                             p.getUniqueId(), false);
                     m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), dis);
-
+                    displayed = true;
                 } else {
                     if (debug)
                         Bukkit.getLogger().info(p.getName() + "'s message contains an enderchest display trigger");
