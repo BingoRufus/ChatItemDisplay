@@ -35,7 +35,8 @@ public class DisplayInventoryExecutor implements CommandExecutor {
                 p.getDisplayName(), p.getUniqueId(), false);
 
         m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
-        new BungeeCordSender(m).send(d, true);
+        if (ChatItemDisplay.getInstance().isBungee())
+            new BungeeCordSender(m).send(d, true);
         d.getInfo().cmdMsg();
 
         return true;

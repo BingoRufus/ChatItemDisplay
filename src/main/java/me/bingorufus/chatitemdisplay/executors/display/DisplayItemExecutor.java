@@ -30,7 +30,8 @@ public class DisplayItemExecutor implements CommandExecutor {
                         p.getUniqueId(),
                         false);
                 m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
-                new BungeeCordSender(m).send(d, true);
+                if (ChatItemDisplay.getInstance().isBungee())
+                    new BungeeCordSender(m).send(d, true);
                 d.getInfo().cmdMsg();
                 break;
             case BLACKLISTED:

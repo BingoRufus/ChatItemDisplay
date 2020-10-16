@@ -43,7 +43,8 @@ public class DisplayEnderChestExecutor implements CommandExecutor {
         DisplayInventory d = new DisplayInventory(inv, title, p.getName(), p.getDisplayName(), p.getUniqueId(), false);
 
         m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
-        new BungeeCordSender(m).send(d, true);
+        if (ChatItemDisplay.getInstance().isBungee())
+            new BungeeCordSender(m).send(d, true);
         d.getInfo().cmdMsg();
 
         return true;
