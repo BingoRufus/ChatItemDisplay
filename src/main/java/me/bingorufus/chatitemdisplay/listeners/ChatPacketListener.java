@@ -185,7 +185,6 @@ public class ChatPacketListener extends PacketAdapter {
             npe.printStackTrace();
 
         }
-        System.out.println("sending " + baseComps[0].toLegacyText());
         if (field == 0) {
             packet.getChatComponents().write(0, WrappedChatComponent.fromJson(ComponentSerializer.toString(baseComps)));
             return;
