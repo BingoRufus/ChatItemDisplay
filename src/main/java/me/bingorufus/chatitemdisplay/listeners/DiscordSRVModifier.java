@@ -3,19 +3,14 @@ package me.bingorufus.chatitemdisplay.listeners;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.ListenerPriority;
 import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.GameChatMessagePostProcessEvent;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageChannel;
-import github.scarsz.discordsrv.util.DiscordUtil;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.Display;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,6 +47,7 @@ public class DiscordSRVModifier {
         }
 
         e.setProcessedMessage(msg);
+        /*
         displays.forEach(display -> {
             MessageChannel m = DiscordUtil.getTextChannelById(e.getChannel());
             if (e.getChannel() == null)
@@ -63,7 +59,7 @@ public class DiscordSRVModifier {
             m.sendFile(f, "item.png").queueAfter(1L, TimeUnit.MILLISECONDS);
 
         });
-
+*/
 
     }
 
