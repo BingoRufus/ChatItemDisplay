@@ -35,14 +35,14 @@ commands:
     aliases: [ generatedebuglogs ]
 
 permissions:
-  ChatItemDisplay.*:
+  chatitemdisplay.*:
     description: Parent node to all ChatItemDisplay permissions
     default: op
     children:
-      ChatItemDisplay.reload:
+      chatitemdisplay.reload:
         description: Reload the ChatItemDisplay config
         default: op
-      ChatItemDisplay.display.*:
+      chatitemdisplay.display.*:
         description: Display Objects
         default: true
         children:
@@ -52,9 +52,9 @@ permissions:
             description: Display player inventories
           chatitemdisplay.display.enderchest:
             description: Display Ender Chests
-      ChatItemDisplay.cooldownbypass:
+      chatitemdisplay.cooldownbypass:
         description: Bypass the display cooldown
         default: op
-      ChatItemDisplay.blacklistbypass:
+      chatitemdisplay.blacklistbypass:
         description: Display blacklisted items
         default: op

@@ -3,6 +3,7 @@ package me.bingorufus.chatitemdisplay.executors.display;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
 import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
+import me.bingorufus.chatitemdisplay.util.display.DisplayPermissionChecker;
 import me.bingorufus.chatitemdisplay.util.iteminfo.PlayerInventoryReplicator;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
@@ -14,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class DisplayInventoryExecutor implements CommandExecutor {
     final ChatItemDisplay m = ChatItemDisplay.getInstance();
-
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
 
@@ -29,6 +29,16 @@ public class DisplayInventoryExecutor implements CommandExecutor {
                     new StringFormatter().format(m.getConfig().getString("messages.missing-permission-inventory")));
             return true;
         }
+
+        if (new DisplayPermissionChecker(m, p).isOnCooldown()) {
+            long CooldownRemaining = (m.getConfig().getLong("display-cooldown") * 1000)
+                    - (System.currentTimeMillis()
+                    - m.displayCooldowns.get(p.getUniqueId()));
+            double SecondsRemaining = (double) (Math.round((double) CooldownRemaining / 100)) / 10;
+            p.sendMessage(new StringFormatter().format(m.getConfig()
+                    .getString("messages.cooldown").replace("%seconds%", "" + SecondsRemaining)));
+            return true;
+        }
         PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator(m).replicateInventory(p);
 
         DisplayInventory d = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(),
@@ -38,6 +48,8 @@ public class DisplayInventoryExecutor implements CommandExecutor {
         if (ChatItemDisplay.getInstance().isBungee())
             new BungeeCordSender(m).send(d, true);
         d.getInfo().cmdMsg();
+        if (!p.hasPermission("chatitemdisplay.cooldownbypass"))
+            m.displayCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
 
         return true;
 

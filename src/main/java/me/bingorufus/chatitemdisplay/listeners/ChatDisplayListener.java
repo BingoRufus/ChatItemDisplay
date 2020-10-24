@@ -47,8 +47,19 @@ public class ChatDisplayListener implements Listener {
         if (debug)
             Bukkit.getLogger().info(p.getName() + " sent a message");
         if (!m.useOldFormat) {
+            if (new DisplayPermissionChecker(m, p).isOnCooldown()) {
+                long CooldownRemaining = (m.getConfig().getLong("display-cooldown") * 1000)
+                        - (System.currentTimeMillis()
+                        - m.displayCooldowns.get(p.getUniqueId()));
+                double SecondsRemaining = (double) (Math.round((double) CooldownRemaining / 100)) / 10;
+                p.sendMessage(new StringFormatter().format(m.getConfig()
+                        .getString("messages.cooldown").replace("%seconds%", "" + SecondsRemaining)));
+                return;
+            }
             DisplayParser dp = new DisplayParser(e.getMessage(), p, false);
             e.setMessage(dp.parse());
+            if (!p.hasPermission("ChatItemDisplay.cooldownbypass"))
+                m.displayCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
             if (dp.cancelMessage())
                 e.setCancelled(true);
             return;
@@ -88,10 +99,7 @@ public class ChatDisplayListener implements Listener {
                             displayed = true;
 
                         });
-
-                        return;
-
-
+                        break;
                     case BLACKLISTED:
                         p.sendMessage(new StringFormatter()
                                 .format(m.getConfig().getString("messages.black-listed-item")));
@@ -103,7 +111,7 @@ public class ChatDisplayListener implements Listener {
                                 - m.displayCooldowns.get(p.getUniqueId()));
                         double SecondsRemaining = (double) (Math.round((double) CooldownRemaining / 100)) / 10;
                         p.sendMessage(new StringFormatter().format(m.getConfig()
-                                .getString("messages.cooldown").replaceAll("%seconds%", "" + SecondsRemaining)));
+                                .getString("messages.cooldown").replace("%seconds%", "" + SecondsRemaining)));
                         e.setCancelled(true);
                         break;
                     case NO_PERMISSON:
@@ -160,7 +168,7 @@ public class ChatDisplayListener implements Listener {
                         return;
                     }
                     String title = new StringFormatter().format(m.getConfig()
-                            .getString("display-messages.displayed-enderchest-title").replaceAll("%player%",
+                            .getString("display-messages.displayed-enderchest-title").replace("%player%",
                                     m.getConfig().getBoolean("use-nicks-in-gui")
                                             ? m.getConfig().getBoolean("strip-nick-colors-gui")
                                             ? ChatColor.stripColor(p.getDisplayName())

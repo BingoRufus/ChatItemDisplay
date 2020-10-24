@@ -53,7 +53,6 @@ public class DisplayPermissionChecker {
         if (m.displayCooldowns.containsKey(p.getUniqueId())) {
             long CooldownRemaining = (m.getConfig().getLong("display-cooldown") * 1000)
                     - (System.currentTimeMillis() - m.displayCooldowns.get(p.getUniqueId()));
-
             return CooldownRemaining > 0;
         }
 

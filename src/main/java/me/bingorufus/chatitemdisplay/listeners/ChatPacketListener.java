@@ -64,6 +64,8 @@ public class ChatPacketListener extends PacketAdapter {
             originalComps = ComponentSerializer.parse(chat.getJson());
         }
 
+        if (originalComps == null) return;
+
         if (originalComps.length != 1) {
             TextComponent comp = new TextComponent(originalComps);
             originalComps = new BaseComponent[]{comp};

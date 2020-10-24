@@ -14,8 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class DisplayItemExecutor implements CommandExecutor {
     final ChatItemDisplay m = ChatItemDisplay.getInstance();
-
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (!(sender instanceof Player)) {
@@ -33,6 +31,8 @@ public class DisplayItemExecutor implements CommandExecutor {
                 if (ChatItemDisplay.getInstance().isBungee())
                     new BungeeCordSender(m).send(d, true);
                 d.getInfo().cmdMsg();
+                if (!p.hasPermission("ChatItemDisplay.cooldownbypass"))
+                    m.displayCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
                 break;
             case BLACKLISTED:
                 p.sendMessage(new StringFormatter()
@@ -44,7 +44,7 @@ public class DisplayItemExecutor implements CommandExecutor {
                         - m.displayCooldowns.get(p.getUniqueId()));
                 double SecondsRemaining = (double) (Math.round((double) CooldownRemaining / 100)) / 10;
                 p.sendMessage(new StringFormatter().format(m.getConfig()
-                        .getString("messages.cooldown").replaceAll("%seconds%", "" + SecondsRemaining)));
+                        .getString("messages.cooldown").replace("%seconds%", "" + SecondsRemaining)));
                 break;
             case NO_PERMISSON:
                 p.sendMessage(new StringFormatter()
