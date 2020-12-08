@@ -23,13 +23,13 @@ public class MessageCommandListener implements Listener {
 
     @EventHandler
     public void onCmd(PlayerCommandPreprocessEvent e) {
-        if (m.useOldFormat || !e.getMessage().startsWith("/") || msgCmds.stream().noneMatch(e.getMessage()::startsWith))
+        if (!e.getMessage().startsWith("/") || msgCmds.stream().noneMatch(e.getMessage()::startsWith))
             return;
-        DisplayParser dp = new DisplayParser(e.getMessage(), e.getPlayer(), true);
-        String out = dp.parse();
-        if (!dp.containsDisplay() || dp.cancelMessage())
+        DisplayParser dp = new DisplayParser(e.getMessage());
+
+        if (!dp.containsDisplay())
             return;
-        e.setMessage(out);
+        e.setMessage(dp.format(e.getPlayer()));
     }
 
 }

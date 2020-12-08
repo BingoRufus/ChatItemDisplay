@@ -45,18 +45,9 @@ public class DisplayPermissionChecker {
         return DisplayReason.DISPLAY;
     }
 
-    public boolean hasItemPermission() {
-        return false;
-    }
 
     public boolean isOnCooldown() {
-        if (m.displayCooldowns.containsKey(p.getUniqueId())) {
-            long CooldownRemaining = (m.getConfig().getLong("display-cooldown") * 1000)
-                    - (System.currentTimeMillis() - m.displayCooldowns.get(p.getUniqueId()));
-            return CooldownRemaining > 0;
-        }
-
-        return false;
+        return ChatItemDisplay.getInstance().getDisplayCooldown().isOnCooldown(p);
 
     }
 

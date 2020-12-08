@@ -2,6 +2,8 @@ package me.bingorufus.chatitemdisplay.executors.display;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
+import me.bingorufus.chatitemdisplay.util.Cooldown;
 import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
 import me.bingorufus.chatitemdisplay.util.display.DisplayPermissionChecker;
 import me.bingorufus.chatitemdisplay.util.iteminfo.PlayerInventoryReplicator;
@@ -31,25 +33,22 @@ public class DisplayInventoryExecutor implements CommandExecutor {
         }
 
         if (new DisplayPermissionChecker(m, p).isOnCooldown()) {
-            long CooldownRemaining = (m.getConfig().getLong("display-cooldown") * 1000)
-                    - (System.currentTimeMillis()
-                    - m.displayCooldowns.get(p.getUniqueId()));
-            double SecondsRemaining = (double) (Math.round((double) CooldownRemaining / 100)) / 10;
-            p.sendMessage(new StringFormatter().format(m.getConfig()
-                    .getString("messages.cooldown").replace("%seconds%", "" + SecondsRemaining)));
+            Cooldown<Player> cooldown = ChatItemDisplay.getInstance().getDisplayCooldown();
+            double secondsRemaining = (double) (Math.round((double) cooldown.getTimeRemaining(p) / 100)) / 10;
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.COOLDOWN.replace("%seconds%", "" + secondsRemaining)));
             return true;
         }
-        PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator(m).replicateInventory(p);
+        PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator().replicateInventory(p);
 
         DisplayInventory d = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(),
                 p.getDisplayName(), p.getUniqueId(), false);
 
         m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
-        if (ChatItemDisplay.getInstance().isBungee())
-            new BungeeCordSender(m).send(d, true);
+        if (ChatItemConfig.BUNGEE)
+            new BungeeCordSender().send(d, true);
         d.getInfo().cmdMsg();
         if (!p.hasPermission("chatitemdisplay.cooldownbypass"))
-            m.displayCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+            ChatItemDisplay.getInstance().getDisplayCooldown().addToCooldown(p);
 
         return true;
 

@@ -12,10 +12,10 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class BungeeCordReceiver implements PluginMessageListener {
-    final ChatItemDisplay m;
+    private final ChatItemDisplay m;
 
-    public BungeeCordReceiver(ChatItemDisplay m) {
-        this.m = m;
+    public BungeeCordReceiver() {
+        m = ChatItemDisplay.getInstance();
     }
 
 

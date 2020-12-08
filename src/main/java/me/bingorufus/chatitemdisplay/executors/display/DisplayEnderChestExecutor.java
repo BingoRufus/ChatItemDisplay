@@ -2,6 +2,8 @@ package me.bingorufus.chatitemdisplay.executors.display;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
+import me.bingorufus.chatitemdisplay.util.Cooldown;
 import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
 import me.bingorufus.chatitemdisplay.util.display.DisplayPermissionChecker;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
@@ -30,20 +32,18 @@ public class DisplayEnderChestExecutor implements CommandExecutor {
         Player p = (Player) sender;
         if (!p.hasPermission("chatitemdisplay.display.enderchest")) {
             p.sendMessage(
-                    new StringFormatter().format(m.getConfig().getString("messages.missing-permission-enderchest")));
+                    new StringFormatter().format(ChatItemConfig.MISSING_PERMISSION_ENDERCHEST));
             return true;
         }
         if (new DisplayPermissionChecker(m, p).isOnCooldown()) {
-            long CooldownRemaining = (m.getConfig().getLong("display-cooldown") * 1000)
-                    - (System.currentTimeMillis()
-                    - m.displayCooldowns.get(p.getUniqueId()));
-            double SecondsRemaining = (double) (Math.round((double) CooldownRemaining / 100)) / 10;
-            p.sendMessage(new StringFormatter().format(m.getConfig()
-                    .getString("messages.cooldown").replace("%seconds%", "" + SecondsRemaining)));
-            return true;
+            Cooldown<Player> cooldown = ChatItemDisplay.getInstance().getDisplayCooldown();
+            double secondsRemaining = (double) (Math.round((double) cooldown.getTimeRemaining(p) / 100)) / 10;
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.COOLDOWN.replace("%seconds%", "" + secondsRemaining)));
+            return true; // Is on cooldown
+
         }
         String title = new StringFormatter()
-                .format(m.getConfig().getString("display-messages.displayed-enderchest-title").replace("%player%",
+                .format(m.getConfig().getString(ChatItemConfig.ENDERCHEST_TITLE).replace("%player%",
                         m.getConfig().getBoolean("use-nicks-in-gui") ? m.getConfig().getBoolean("strip-nick-colors-gui")
                                 ? ChatColor.stripColor(p.getDisplayName())
                                 : p.getDisplayName() : p.getName()));
@@ -53,11 +53,11 @@ public class DisplayEnderChestExecutor implements CommandExecutor {
         DisplayInventory d = new DisplayInventory(inv, title, p.getName(), p.getDisplayName(), p.getUniqueId(), false);
 
         m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
-        if (ChatItemDisplay.getInstance().isBungee())
-            new BungeeCordSender(m).send(d, true);
+        if (ChatItemConfig.BUNGEE)
+            new BungeeCordSender().send(d, true);
         d.getInfo().cmdMsg();
         if (!p.hasPermission("ChatItemDisplay.cooldownbypass"))
-            m.displayCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
+            ChatItemDisplay.getInstance().getDisplayCooldown().addToCooldown(p);
         return true;
 
     }

@@ -2,21 +2,25 @@ package me.bingorufus.chatitemdisplay.util.display;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.listeners.NewVersionDisplayer;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordReceiver;
 import me.bingorufus.chatitemdisplay.util.string.VersionComparator;
 import me.bingorufus.chatitemdisplay.util.updater.UpdateChecker;
 import me.bingorufus.chatitemdisplay.util.updater.UpdateDownloader;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
 public class ConfigReloader {
     private final ChatItemDisplay m;
+    private static PluginMessageListener bungeeIn;
+    private static NewVersionDisplayer newVer;
 
-    public ConfigReloader(ChatItemDisplay m) {
-        this.m = m;
+    public ConfigReloader() {
+        this.m = ChatItemDisplay.getInstance();
     }
 
 
@@ -24,15 +28,15 @@ public class ConfigReloader {
         m.saveDefaultConfig();
         m.reloadConfig();
 
-        m.checkBungee();
+        ChatItemConfig.reloadMessages();
 
-        if (m.in != null) {
-            Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(m, "chatitemdisplay:in", m.in);
+        if (bungeeIn != null) {
+            Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(m, "chatitemdisplay:in", bungeeIn);
         }
 
-        if (m.isBungee()) {
-            m.in = new BungeeCordReceiver(m);
-            Bukkit.getServer().getMessenger().registerIncomingPluginChannel(m, "chatitemdisplay:in", m.in);
+        if (ChatItemConfig.BUNGEE) {
+            bungeeIn = new BungeeCordReceiver();
+            Bukkit.getServer().getMessenger().registerIncomingPluginChannel(m, "chatitemdisplay:in", bungeeIn);
             Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(m, "chatitemdisplay:out");
 
         }
@@ -87,8 +91,8 @@ public class ConfigReloader {
                             "Download the newest version at: //https://www.spigotmc.org/resources/chat-item-display.77177/");
                     m.getLogger().warning("or enable auto-update in your config.yml");
 
-                    m.NewVer = new NewVersionDisplayer(m, m.getDescription().getVersion(), version);
-                    Bukkit.getPluginManager().registerEvents(m.NewVer, m);
+                    newVer = new NewVersionDisplayer(m, m.getDescription().getVersion(), version);
+                    Bukkit.getPluginManager().registerEvents(newVer, m);
                 }
             });
             if (checkerError != null) {

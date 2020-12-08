@@ -14,8 +14,8 @@ public class BungeeCordSender {
 
     final ChatItemDisplay m;
 
-    public BungeeCordSender(ChatItemDisplay m) {
-        this.m = m;
+    public BungeeCordSender() {
+        this.m = ChatItemDisplay.getInstance();
     }
 
     public void send(Displayable displayable, boolean isCmd) {

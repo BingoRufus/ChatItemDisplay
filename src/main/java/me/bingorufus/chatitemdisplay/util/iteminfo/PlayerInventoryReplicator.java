@@ -12,8 +12,8 @@ import org.bukkit.inventory.PlayerInventory;
 public class PlayerInventoryReplicator {
     final ChatItemDisplay m;
 
-    public PlayerInventoryReplicator(ChatItemDisplay m) {
-        this.m = m;
+    public PlayerInventoryReplicator() {
+        m = ChatItemDisplay.getInstance();
     }
 
     public InventoryData replicateInventory(Player p) {

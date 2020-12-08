@@ -17,7 +17,7 @@ public class ChatItemReloadExecutor implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, Command cmd, @NotNull String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("chatitemreload")) {
             if (sender.hasPermission("ChatItemDisplay.reload") || sender instanceof ConsoleCommandSender) {
-                new ConfigReloader(chatItemDisplay).reload();
+                new ConfigReloader().reload();
                 sender.sendMessage(ChatColor.GREEN + "ChatItemDisplay Reloaded");
                 return true;
             }

@@ -24,7 +24,7 @@ public class DisplayedManager {
     }
 
     public void addDisplayable(String player, Displayable display) {
-        Display dis = new Display(display, player, nextId);
+        Display dis = new Display(display, player.toUpperCase(), nextId);
         displayId.put(nextId, dis);
         mostRecent.put(player.toUpperCase(), nextId);
         nextId++;

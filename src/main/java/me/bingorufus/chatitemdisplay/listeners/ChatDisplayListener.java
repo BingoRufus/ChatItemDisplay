@@ -2,221 +2,153 @@ package me.bingorufus.chatitemdisplay.listeners;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.DisplayParser;
-import me.bingorufus.chatitemdisplay.displayables.DisplayInfo;
-import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
-import me.bingorufus.chatitemdisplay.displayables.DisplayItem;
-import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
-import me.bingorufus.chatitemdisplay.util.display.DisplayPermissionChecker;
-import me.bingorufus.chatitemdisplay.util.iteminfo.PlayerInventoryReplicator;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
+import me.bingorufus.chatitemdisplay.util.Cooldown;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.Inventory;
-
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class ChatDisplayListener implements Listener {
 
     final char bell = '\u0007';
 
-
     final ChatItemDisplay m;
-    final boolean debug;
     boolean displayed;
 
-    public ChatDisplayListener(ChatItemDisplay m) {
-        m.reloadConfig();
-        this.m = m;
-        debug = m.getConfig().getBoolean("debug-mode");
+    public ChatDisplayListener() {
+        this.m = ChatItemDisplay.getInstance();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
-
         displayed = false;
-        if (debug)
+        if (ChatItemConfig.DEBUG_MODE)
             Bukkit.getLogger().info(p.getName() + " sent a message");
-        if (!m.useOldFormat) {
-            if (new DisplayPermissionChecker(m, p).isOnCooldown()) {
-                long CooldownRemaining = (m.getConfig().getLong("display-cooldown") * 1000)
-                        - (System.currentTimeMillis()
-                        - m.displayCooldowns.get(p.getUniqueId()));
-                double SecondsRemaining = (double) (Math.round((double) CooldownRemaining / 100)) / 10;
-                p.sendMessage(new StringFormatter().format(m.getConfig()
-                        .getString("messages.cooldown").replace("%seconds%", "" + SecondsRemaining)));
-                return;
-            }
-            DisplayParser dp = new DisplayParser(e.getMessage(), p, false);
-            e.setMessage(dp.parse());
-            if (!p.hasPermission("ChatItemDisplay.cooldownbypass"))
-                m.displayCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
-            if (dp.cancelMessage())
+
+        // Check for permission/cooldown
+        //Send permission message
+        //Do stuff regarding format
+        DisplayParser dp = new DisplayParser(e.getMessage());
+        if (!dp.containsDisplay()) return; //Trying to display something
+
+        if (!p.hasPermission("chatitemdisplay.cooldownbypass")) {
+            Cooldown<Player> cooldown = ChatItemDisplay.getInstance().getDisplayCooldown();
+            if (cooldown.isOnCooldown(p)) {
+                double secondsRemaining = (double) (Math.round((double) cooldown.getTimeRemaining(p) / 100)) / 10;
+                p.sendMessage(new StringFormatter().format(ChatItemConfig.COOLDOWN.replace("%seconds%", "" + secondsRemaining)));
                 e.setCancelled(true);
-            return;
+                return; // Is on cooldown
+            }
         }
 
-        for (String Trigger : m.getConfig().getStringList("triggers.item")) {
-            if (e.getMessage().toUpperCase().contains(Trigger.toUpperCase())) {
+        if (dp.containsItem() && !p.hasPermission("chatitemdisplay.display.item")) {
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.MISSING_PERMISSION_ITEM));
+            e.setCancelled(true);
+            return; //Does not have permission to display items
+        }
 
-                if (debug)
-                    Bukkit.getLogger().info(p.getName() + "'s message contains an item display trigger");
+        if (dp.containsInventory() && !p.hasPermission("chatitemdisplay.display.inventory")) {
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.MISSING_PERMISSION_INVENTORY));
+            e.setCancelled(true);
+            return; // Does not have permission to display inventories
+        }
 
-                DisplayPermissionChecker dpc = new DisplayPermissionChecker(m, p);
-                switch (dpc.displayItem()) {
-                    case DISPLAY:
-                        DisplayItem dis = new DisplayItem(p.getInventory().getItemInMainHand(), p.getName(),
-                                p.getDisplayName(), p.getUniqueId(), false);
-                        m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), dis);
+        if (dp.containsEnderChest() && !p.hasPermission("chatitemdisplay.display.enderchest")) {
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.MISSING_PERMISSION_ENDERCHEST));
+            e.setCancelled(true);
+            return; // Does not have permission to display enderchests
+        }
 
-                        if (m.isBungee())
-                            new BungeeCordSender(m).send(dis, false);
+        if (dp.containsItem()) {
+            ItemStack item = p.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                p.sendMessage(new StringFormatter().format(ChatItemConfig.EMPTY_HAND));
+                return; // Player's item is nothing
+            }
 
-                        e.setCancelled(true);
-                        Bukkit.getScheduler().runTask(m, () -> {
-                            String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),
-                                    bell + "split");
-
-                            String[] parts = newmsg.split(bell + "split");
-                            String first = newmsg.indexOf(bell + "split") > 0 ? parts[0] : "";
-                            String last = parts.length == 0 ? ""
-                                    : parts.length == 2 ? parts[1] : first.equals("") ? parts[0] : "";
-                            e.getPlayer().chat(first.trim());
-
-                            DisplayInfo di = dis.getInfo();
-
-                            di.cmdMsg();
-                            e.getPlayer().chat(last.trim());
-                            displayed = true;
-
-                        });
-                        break;
-                    case BLACKLISTED:
-                        p.sendMessage(new StringFormatter()
-                                .format(m.getConfig().getString("messages.black-listed-item")));
-                        e.setCancelled(true);
-                        break;
-                    case COOLDOWN:
-                        long CooldownRemaining = (m.getConfig().getLong("display-cooldown") * 1000)
-                                - (System.currentTimeMillis()
-                                - m.displayCooldowns.get(p.getUniqueId()));
-                        double SecondsRemaining = (double) (Math.round((double) CooldownRemaining / 100)) / 10;
-                        p.sendMessage(new StringFormatter().format(m.getConfig()
-                                .getString("messages.cooldown").replace("%seconds%", "" + SecondsRemaining)));
-                        e.setCancelled(true);
-                        break;
-                    case NO_PERMISSON:
-                        p.sendMessage(new StringFormatter()
-                                .format(m.getConfig().getString("messages.missing-permission-item")));
-
-                        e.setCancelled(true);
-                        break;
-                    case NULL_ITEM:
-                        p.sendMessage(new StringFormatter()
-                                .format(m.getConfig().getString("messages.not-holding-anything")));
-                        // Do not cancel
-                        break;
+            if (!p.hasPermission("chatitemdisplay.blacklistbypass")) {
+                if (isBlackListed(item)) {
+                    p.sendMessage(new StringFormatter().format(ChatItemConfig.BLACKLISTED_ITEM));
+                    e.setCancelled(true);
+                    return; // Item is blacklisted
                 }
 
             }
+
         }
-        List<String> invTriggers = m.getConfig().getStringList("triggers.inventory");
-        List<String> ecTriggers = m.getConfig().getStringList("triggers.enderchest");
-        for (String Trigger : Stream.concat(invTriggers.stream(), ecTriggers.stream()).collect(Collectors.toList())) {
-            if (e.getMessage().toUpperCase().contains(Trigger.toUpperCase())) {
-                DisplayInventory dis;
-                p = e.getPlayer();
 
-                invTriggers.replaceAll(String::toUpperCase); // Turns all the triggers to UPPERCASE
-                if (invTriggers.contains(Trigger.toUpperCase())) {
-                    if (debug)
-                        Bukkit.getLogger()
-                                .info(p.getName() + "'s message contains an inventory / enderchest display trigger");
-                    if (!p.hasPermission("chatitemdisplay.display.inventory")) {
-                        p.sendMessage(new StringFormatter()
-                                .format(m.getConfig().getString("messages.missing-permission-inventory")));
-                        e.setCancelled(true);
+        boolean containsBlacklisted = false;
 
-                        Bukkit.getLogger().info(p.getName() + "does not have permission to display their inventory");
-                        return;
-
-
-                    }
-                    PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator(m)
-                            .replicateInventory(p);
-                    dis = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(),
-                            p.getDisplayName(), p.getUniqueId(), false);
-
-                } else {
-                    if (debug)
-                        Bukkit.getLogger().info(p.getName() + "'s message contains an enderchest display trigger");
-                    if (!p.hasPermission("chatitemdisplay.display.enderchest")) {
-                        p.sendMessage(new StringFormatter().format(
-                                m.getConfig().getString("messages.missing-permission-enderchest")));
-                        e.setCancelled(true);
-
-                        Bukkit.getLogger().info(p.getName() + "does not have permission to display their Ender Chest");
-                        return;
-                    }
-                    String title = new StringFormatter().format(m.getConfig()
-                            .getString("display-messages.displayed-enderchest-title").replace("%player%",
-                                    m.getConfig().getBoolean("use-nicks-in-gui")
-                                            ? m.getConfig().getBoolean("strip-nick-colors-gui")
-                                            ? ChatColor.stripColor(p.getDisplayName())
-                                            : p.getDisplayName()
-                                            : p.getName()));
-                    Inventory inv = Bukkit.createInventory(p, InventoryType.ENDER_CHEST, title);
-
-                    inv.setContents(p.getEnderChest().getContents());
-                    dis = new DisplayInventory(inv, title, p.getName(), p.getDisplayName(),
-                            p.getUniqueId(), false);
-
-
+        if (dp.containsItem()) { // Item is an inventory with blacklisted item
+            ItemStack item = p.getInventory().getItemInMainHand();
+            ItemMeta meta = item.getItemMeta();
+            if (meta instanceof BlockStateMeta) {
+                BlockStateMeta bsm = (BlockStateMeta) meta;
+                if (bsm.getBlockState() instanceof Container) {
+                    Container c = (Container) bsm.getBlockState();
+                    containsBlacklisted = containsBlacklist(c.getInventory());
                 }
-                m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), dis);
+            }
+        }
 
 
-                if (m.isBungee())
-                    new BungeeCordSender(m)
-                            .send(dis, true);
+        if (dp.containsInventory() && !containsBlacklisted) { //Inventory contains a blacklisted item
+            containsBlacklisted = containsBlacklist(e.getPlayer().getInventory());
+        }
+        if (dp.containsEnderChest() && !containsBlacklisted) {//Enderchest contains a blacklisted item
+            containsBlacklisted = containsBlacklist(e.getPlayer().getEnderChest());
+        }
 
+        if (!p.hasPermission("chatitemdisplay.blacklistbypass")) {
+            if (containsBlacklisted) {
+                p.sendMessage(new StringFormatter().format(ChatItemConfig.CONTAINS_BLACKLIST));
                 e.setCancelled(true);
-                Bukkit.getScheduler().runTask(m, () -> {
-                    String newmsg = e.getMessage().replaceFirst("(?i)" + Pattern.quote(Trigger),
-                            bell + "split");
-                    String[] parts = newmsg.split(bell + "split");
-                    String first = newmsg.indexOf(bell + "split") > 0 ? parts[0] : "";
-                    String last = parts.length == 0 ? ""
-                            : parts.length == 2 ? parts[1] : first.equals("") ? parts[0] : "";
-                    e.getPlayer().chat(first.trim());
-                    DisplayInfo di = dis.getInfo();
-
-                    di.cmdMsg();
-                    e.getPlayer().chat(last.trim());
-                    displayed = true;
-
-                });
-                return;
+                return; //Inventory, Item, or Enderchest contains a blacklisted item
+            }
+        }
 
 
+        // At this point, all checks should be passed, and the user should be able to display their item/inventory
+        ChatItemDisplay.getInstance().getDisplayCooldown().addToCooldown(p);
+        e.setMessage(dp.format(p));
+
+    }
+
+
+    private boolean containsBlacklist(Inventory inv) {
+        for (ItemStack item : inv.getStorageContents()) {
+            if (item == null) continue;
+            if (isBlackListed(item)) return true;
+
+            ItemMeta meta = item.getItemMeta();
+            if (meta instanceof BlockStateMeta) {
+
+                BlockStateMeta bsm = (BlockStateMeta) meta;
+                if (bsm.getBlockState() instanceof Container) {
+
+                    Container c = (Container) bsm.getBlockState();
+
+                    if (containsBlacklist(c.getInventory())) return true;
+                }
             }
 
         }
+        return false;
+    }
 
-        if (displayed && !p.hasPermission("chatitemdisplay.cooldownbypass")) {
-            m.displayCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
-        }
-
-
+    private boolean isBlackListed(ItemStack item) {
+        return ChatItemConfig.BLACKLISTED_ITEMS.contains(item.getType());
     }
 
 

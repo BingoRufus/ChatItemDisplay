@@ -11,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
-import org.bukkit.block.Furnace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
@@ -116,9 +115,6 @@ public class InventoryClick implements Listener {
         Inventory container;
         Player holder = Bukkit.getOfflinePlayer(owner).getPlayer();
         Container c = (Container) bsm.getBlockState();
-        if (c instanceof Furnace && !m.hasProtocollib) {
-            return;
-        }
         container = c.getInventory();
         if (Arrays.stream(container.getContents()).noneMatch(Objects::nonNull))
             return;
