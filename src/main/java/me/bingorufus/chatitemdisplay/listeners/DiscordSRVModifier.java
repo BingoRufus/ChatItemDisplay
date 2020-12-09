@@ -9,8 +9,6 @@ import github.scarsz.discordsrv.api.events.GameChatMessagePostProcessEvent;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.Display;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +30,7 @@ public class DiscordSRVModifier {
         Pattern pattern = Pattern.compile("\u0007cid(.*?)\u0007");
 
         Matcher matcher = pattern.matcher(msg);
-        List<Display> displays = new ArrayList<>();
+      //  List<Display> displays = new ArrayList<>();
         while (matcher.find()) {
 
             String json = matcher.group(1);
@@ -40,7 +38,7 @@ public class DiscordSRVModifier {
             JsonObject jo = (JsonObject) new JsonParser().parse(json);
 
             Display dis = m.getDisplayedManager().getDisplayed(jo.get("id").getAsLong());
-            displays.add(dis);
+            //   displays.add(dis);
             msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
                     dis.getDisplayable().getInfo().loggerMessage());
             matcher = pattern.matcher(msg);

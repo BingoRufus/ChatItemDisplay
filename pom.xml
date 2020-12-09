@@ -6,7 +6,7 @@
 
     <groupId>com.github</groupId>
     <artifactId>ChatItemDisplay</artifactId>
-    <version>1.5.14</version>
+    <version>1.5.14.1</version>
     <packaging>jar</packaging>
 
     <name>ChatItemDisplay</name>

@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LoggerListener implements Listener {
-    char bell = '\u0007';
+    final char bell = '\u0007';
 
     @EventHandler
     public void onLog(ConsoleLogEvent e) {

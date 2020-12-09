@@ -33,7 +33,7 @@ public class ChatItemDisplayBungee extends Plugin {
 
                 if (s.equals(Status.BEHIND)) {
                     try {
-                        UpdateDownloader downloader = new UpdateDownloader(ver);
+                        UpdateDownloader downloader = new UpdateDownloader();
                         String downloadError = downloader
                                 .download(new File(
                                         "plugins/ChatItemDisplay " + ver + ".jar"));

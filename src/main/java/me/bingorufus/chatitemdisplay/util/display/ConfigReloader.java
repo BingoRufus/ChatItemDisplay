@@ -69,7 +69,7 @@ public class ConfigReloader {
                     if (m.getConfig().getBoolean("auto-update")) {
                         Bukkit.getScheduler().runTaskAsynchronously(m, () -> {
                             try {
-                                UpdateDownloader updater = new UpdateDownloader(version);
+                                UpdateDownloader updater = new UpdateDownloader();
                                 String downloadMsg = updater
                                         .download(new File("plugins/ChatItemDisplay " + version + ".jar"));
                                 if (downloadMsg != null) {

@@ -20,27 +20,19 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class ChatDisplayListener implements Listener {
 
-    final char bell = '\u0007';
-
-    final ChatItemDisplay m;
-    boolean displayed;
 
     public ChatDisplayListener() {
-        this.m = ChatItemDisplay.getInstance();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
-        displayed = false;
         if (ChatItemConfig.DEBUG_MODE)
             Bukkit.getLogger().info(p.getName() + " sent a message");
 
-        // Check for permission/cooldown
-        //Send permission message
-        //Do stuff regarding format
+
         DisplayParser dp = new DisplayParser(e.getMessage());
-        if (!dp.containsDisplay()) return; //Trying to display something
+        if (!dp.containsDisplay()) return; //Not trying to display anything
 
         if (!p.hasPermission("chatitemdisplay.cooldownbypass")) {
             Cooldown<Player> cooldown = ChatItemDisplay.getInstance().getDisplayCooldown();

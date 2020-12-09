@@ -7,12 +7,8 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class UpdateDownloader {
-    final String version;
     String newFileName;
 
-    public UpdateDownloader(String ver) {
-        version = ver;
-    }
 
     public String download(File newFile) throws FileNotFoundException {
         FileOutputStream downloadPath = new FileOutputStream(newFile);

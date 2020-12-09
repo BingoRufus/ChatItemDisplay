@@ -8,6 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ChatItemConfig {
     public static String COOLDOWN,
             BLACKLISTED_ITEM,
@@ -68,7 +69,6 @@ public class ChatItemConfig {
         COMMAND_INVENTORY_FORMAT = d.getString("inventory-display-format");
         INVENTORY_TITLE = d.getString("displayed-inventory-title");
         ENDERCHEST_TITLE = d.getString("displayed-enderchest-title");
-        ;
         DEBUG_MODE = c.getBoolean("debug-mode");
         BUNGEE = c.getBoolean("send-to-bungee");
         ITEM_TRIGGERS = c.getStringList("triggers.item");
