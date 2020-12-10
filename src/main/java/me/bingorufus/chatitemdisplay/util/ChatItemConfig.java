@@ -30,7 +30,10 @@ public class ChatItemConfig {
             COMMAND_INVENTORY_FORMAT,
             INVENTORY_TITLE,
             ENDERCHEST_TITLE,
-            CONTAINS_BLACKLIST;
+            CONTAINS_BLACKLIST,
+            TOO_LARGE_ITEM,
+            TOO_LARGE_INVENTORY,
+            TOO_LARGE_ENDERCHEST;
 
     public static boolean DEBUG_MODE,
             BUNGEE;
@@ -56,7 +59,9 @@ public class ChatItemConfig {
         GUI_DISABLED = m.getString("gui-disabled");
         MAP = m.getString("map-notification");
         CONTAINS_BLACKLIST = m.getString("contains-blacklist");
-
+        TOO_LARGE_ITEM = m.getString("display-too-large-item");
+        TOO_LARGE_ENDERCHEST = m.getString("display-too-large-enderchest");
+        TOO_LARGE_INVENTORY = m.getString("display-too-large-inventory");
         EMPTY_HAND = m.getString("empty-hand");
 
         ConfigurationSection d = c.getConfigurationSection("display-messages");

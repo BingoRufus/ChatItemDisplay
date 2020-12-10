@@ -47,7 +47,7 @@ public class DisplayPermissionChecker {
 
 
     public boolean isOnCooldown() {
-        return ChatItemDisplay.getInstance().getDisplayCooldown().isOnCooldown(p);
+        return ChatItemDisplay.getInstance().getDisplayCooldown().isOnCooldown(p) && !p.hasPermission("chatitemdisplay.cooldownbypass");
 
     }
 

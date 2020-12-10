@@ -29,6 +29,11 @@ public class DisplayItemExecutor implements CommandExecutor {
                 DisplayItem d = new DisplayItem(p.getInventory().getItemInMainHand(), p.getName(), p.getDisplayName(),
                         p.getUniqueId(),
                         false);
+                if (d.serialize().length() >= Short.MAX_VALUE - 20) {
+                    p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_ITEM));
+                    return true;
+                }
+
                 m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
                 if (ChatItemConfig.BUNGEE)
                     new BungeeCordSender().send(d, true);
@@ -42,10 +47,8 @@ public class DisplayItemExecutor implements CommandExecutor {
                 break;
             case COOLDOWN:
                 Cooldown<Player> cooldown = ChatItemDisplay.getInstance().getDisplayCooldown();
-                if (cooldown.isOnCooldown(p)) {
                     double secondsRemaining = (double) (Math.round((double) cooldown.getTimeRemaining(p) / 100)) / 10;
                     p.sendMessage(new StringFormatter().format(ChatItemConfig.COOLDOWN.replace("%seconds%", "" + secondsRemaining)));
-                }
                 break;
             case NO_PERMISSON:
                 p.sendMessage(new StringFormatter()

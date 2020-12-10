@@ -42,6 +42,10 @@ public class DisplayInventoryExecutor implements CommandExecutor {
 
         DisplayInventory d = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(),
                 p.getDisplayName(), p.getUniqueId(), false);
+        if (d.serialize().length() >= Short.MAX_VALUE - 20) {
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_INVENTORY));
+            return true;
+        }
 
         m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
         if (ChatItemConfig.BUNGEE)

@@ -2,6 +2,7 @@ package me.bingorufus.chatitemdisplay.listeners;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.DisplayParser;
+import me.bingorufus.chatitemdisplay.displayables.Displayable;
 import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.Cooldown;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
@@ -113,8 +114,31 @@ public class ChatDisplayListener implements Listener {
 
         // At this point, all checks should be passed, and the user should be able to display their item/inventory
         ChatItemDisplay.getInstance().getDisplayCooldown().addToCooldown(p);
-        e.setMessage(dp.format(p));
+        String message = dp.format(p);
+        if (isDisplayTooLong(dp.getItem())) {
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_ITEM));
+            e.setCancelled(true);
+            return;
+        }
+        if (isDisplayTooLong(dp.getEnderChest())) {
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_ENDERCHEST));
+            e.setCancelled(true);
+            return;
+        }
+        if (isDisplayTooLong(dp.getInventory())) {
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_INVENTORY));
+            e.setCancelled(true);
+            return;
+        }
+        e.setMessage(message);
+    }
 
+    /**
+     * @param display
+     * @return returns true if the length is over the maximum
+     */
+    private boolean isDisplayTooLong(Displayable display) {
+        return display.serialize().length() >= Short.MAX_VALUE - 20;
     }
 
 

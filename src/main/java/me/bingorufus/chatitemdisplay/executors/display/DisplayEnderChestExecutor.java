@@ -43,7 +43,7 @@ public class DisplayEnderChestExecutor implements CommandExecutor {
 
         }
         String title = new StringFormatter()
-                .format(m.getConfig().getString(ChatItemConfig.ENDERCHEST_TITLE).replace("%player%",
+                .format(ChatItemConfig.ENDERCHEST_TITLE.replace("%player%",
                         m.getConfig().getBoolean("use-nicks-in-gui") ? m.getConfig().getBoolean("strip-nick-colors-gui")
                                 ? ChatColor.stripColor(p.getDisplayName())
                                 : p.getDisplayName() : p.getName()));
@@ -51,6 +51,11 @@ public class DisplayEnderChestExecutor implements CommandExecutor {
         inv.setContents(p.getEnderChest().getContents());
 
         DisplayInventory d = new DisplayInventory(inv, title, p.getName(), p.getDisplayName(), p.getUniqueId(), false);
+
+        if (d.serialize().length() >= Short.MAX_VALUE - 20) {
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_ENDERCHEST));
+            return true;
+        }
 
         m.getDisplayedManager().addDisplayable(p.getName().toUpperCase(), d);
         if (ChatItemConfig.BUNGEE)

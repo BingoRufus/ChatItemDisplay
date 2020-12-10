@@ -18,7 +18,9 @@ public class DisplayParser {
     private boolean containsItem;
     private boolean containsInventory;
     private boolean containsEnderchest;
-
+    private DisplayItem item;
+    private DisplayInventory inv;
+    private DisplayInventory ec;
 
     public DisplayParser(String s) {
         this.s = s;
@@ -63,42 +65,57 @@ public class DisplayParser {
     }
 
     public String format(Player p) {
+        if (item == null) createDisplayables(p);
         String out = s;
-        ItemStack item = p.getInventory().getItemInMainHand();
         for (String t : ChatItemConfig.ITEM_TRIGGERS) {
             if (!out.contains(t)) continue;
-            Displayable di = new DisplayItem(item, p.getName(), p.getDisplayName(), p.getUniqueId(), false);
-            ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(p.getName(), di);
-            String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(di).getInsertion();
+            ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(p.getName(), item);
+            String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(item).getInsertion();
             out = out.replace(t, ins);
         }
         for (String t : ChatItemConfig.INVENTORY_TRIGGERS) {
             if (!out.contains(t)) continue;
-            PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator().replicateInventory(p);
-            Displayable di = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(), p.getDisplayName(), p.getUniqueId(), false);
-            ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(p.getName(), di);
-            String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(di).getInsertion();
+
+            ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(p.getName(), inv);
+            String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(inv).getInsertion();
             out = out.replace(t, ins);
         }
         for (String t : ChatItemConfig.ENDERCHEST_TRIGGERS) {
             if (!out.contains(t)) continue;
-
-            String title = new StringFormatter().format(ChatItemConfig.ENDERCHEST_TITLE.replace("%player%",
-                    ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui")
-                            ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
-                            ? ChatColor.stripColor(p.getDisplayName())
-                            : p.getDisplayName()
-                            : p.getName()));
-            Inventory inv = Bukkit.createInventory(p, InventoryType.ENDER_CHEST, title);
-            inv.setContents(p.getEnderChest().getContents());
-            Displayable di = new DisplayInventory(inv, title, p.getName(), p.getDisplayName(),
-                    p.getUniqueId(), false);
-            ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(p.getName(), di);
-            String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(di).getInsertion();
+            ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(p.getName(), ec);
+            String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(ec).getInsertion();
             out = out.replace(t, ins);
         }
         return out;
     }
 
+    public void createDisplayables(Player p) {
+        ItemStack item = p.getInventory().getItemInMainHand();
+        this.item = new DisplayItem(item, p.getName(), p.getDisplayName(), p.getUniqueId(), false);
+        PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator().replicateInventory(p);
+        inv = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(), p.getDisplayName(), p.getUniqueId(), false);
+        String title = new StringFormatter().format(ChatItemConfig.ENDERCHEST_TITLE.replace("%player%",
+                ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui")
+                        ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
+                        ? ChatColor.stripColor(p.getDisplayName())
+                        : p.getDisplayName()
+                        : p.getName()));
+        Inventory inv = Bukkit.createInventory(p, InventoryType.ENDER_CHEST, title);
+        inv.setContents(p.getEnderChest().getContents());
+        ec = new DisplayInventory(inv, title, p.getName(), p.getDisplayName(),
+                p.getUniqueId(), false);
+    }
+
+    public Displayable getEnderChest() {
+        return this.ec;
+    }
+
+    public Displayable getItem() {
+        return this.item;
+    }
+
+    public Displayable getInventory() {
+        return this.inv;
+    }
 
 }

@@ -45,9 +45,11 @@ public class ChatItemDisplay extends JavaPlugin {
         return main;
     }
 
-    /*
-     * TODO: a /version command that shows java version server cversion etc - auto
-     * update config - Command Block GUI
+    /*TODO:
+     * Auto config updating
+     * Images sent to discordSRV
+     * PlayerVaults
+     * Party chat
      */
 
     @Override
@@ -74,7 +76,6 @@ public class ChatItemDisplay extends JavaPlugin {
         new ConfigReloader().reload();
 
         Metrics metrics = new Metrics(this, 7229);
-
     }
 
     @Override
@@ -104,8 +105,7 @@ public class ChatItemDisplay extends JavaPlugin {
             Filter f = filters.next();
 
             if (f.getClass().getName().equals(ConsoleFilter.class.getName())) {// Check if the filter is one of mine
-                if (!f.isStopped())
-                    f.stop();
+                f.stop();
             }
         }
         logger.addFilter(new ConsoleFilter());

@@ -2,6 +2,7 @@ package me.bingorufus.chatitemdisplay.displayables;
 
 import com.google.gson.JsonObject;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.display.DisplayableBroadcaster;
 import me.bingorufus.chatitemdisplay.util.iteminfo.ItemStackReflection;
 import me.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff;
@@ -80,7 +81,7 @@ public class DisplayItemInfo implements DisplayInfo {
             // is nbt data
 
             String jsonString = itemJson.toString();
-            jsonString = jsonString.replaceAll("\\\"id\\\"", "id").replaceAll("\\\"Count\\\"", "Count") // Removes the
+            jsonString = jsonString.replaceAll("\"id\"", "id").replaceAll("\"Count\"", "Count") // Removes the
                     // quotes around
                     // the property
                     // names and
@@ -89,7 +90,7 @@ public class DisplayItemInfo implements DisplayInfo {
 
                     .replaceAll("\\\\", "");
             if (hasNbt) {
-                jsonString = jsonString.replaceAll("\\\"tag\\\":\\\"", "tag:").replaceFirst("(?s)\\\"(?!.*?\\\")", ""); // Removes
+                jsonString = jsonString.replaceAll("\"tag\":\"", "tag:").replaceFirst("(?s)\"(?!.*?\")", ""); // Removes
                 // the
                 // quotes
                 // arround
@@ -139,8 +140,8 @@ public class DisplayItemInfo implements DisplayInfo {
     public void cmdMsg() {
 
         String format = new StringFormatter().format(display.getItem().getAmount() > 1
-                ? m.getConfig().getString("display-messages.item-display-format-multiple")
-                : m.getConfig().getString("display-messages.item-display-format"));
+                ? ChatItemConfig.COMMAND_ITEM_FORMAT_MULTIPLE
+                : ChatItemConfig.COMMAND_ITEM_FORMAT);
 
         new DisplayableBroadcaster().broadcast(format(format));
     }

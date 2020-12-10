@@ -34,6 +34,9 @@ messages:
   missing-permission-item: "&cYou do not have permission to display items"
   missing-permission-inventory: "&cYou do not have permission to display your inventory"
   missing-permission-enderchest: "&cYou do not have permission to display your Ender Chest"
+  display-too-large-item: "&cThe item you are trying to display has too much nbt data to be displayed"
+  display-too-large-inventory: "&cThe inventory you are trying to display has too much nbt data to be displayed"
+  display-too-large-enderchest: "&cThe EnderChest you are trying to display has too much nbt data to be displayed"
   blacklisted-item: "&cYou cannot display this at item as it is blacklisted"
   contains-blacklist: "&cYou cannot display this inventory as it is contains a blacklisted item"
   player-not-displaying-anything: "&cThat player isn't displaying anything" #when someone does /viewitem <player> and the <player> isn't displaying anything
@@ -41,6 +44,7 @@ messages:
   cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
   gui-disabled: "&cThis feature has been disabled"
   map-notification: "&eDrop or click on the map to receive your item back"
+
   empty-hand: "&cYou are not holding anything" # Sent when a player tries to display an item that does not exist
   force-item-colors: false #Will set items with already existing colors to the item-color
   item-color: "" #The item's color will be set to this if item colors are removed or the item has no color to begin with
@@ -68,7 +72,7 @@ send-to-bungee: true # send displayed items/inventories to bungee
 
 
 show-item-amount: true #Will add x2 if a player is displaying 2 items
-display-cooldown: 0 #Measured in miliseconds. Use 0 for no cooldown.
+display-cooldown: 0 #Measured in milliseconds. Use 0 for no cooldown.
 
 
 blacklisted-items: #for help visit https://minecraftitemids.com/
