@@ -4,6 +4,7 @@ package me.bingorufus.chatitemdisplay.util.bungee;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.Display;
 import me.bingorufus.chatitemdisplay.displayables.Displayable;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import org.bukkit.Bukkit;
 
 import java.io.ByteArrayOutputStream;
@@ -34,7 +35,7 @@ public class BungeeCordSender {
 
         } catch (IOException ignored) {
         }
-        if (m.getConfig().getBoolean("debug-mode"))
+        if (ChatItemConfig.BUNGEE)
             Bukkit.getLogger().info("Sent data: " + data);
 
         Bukkit.getServer().sendPluginMessage(m, "chatitemdisplay:out", b.toByteArray());

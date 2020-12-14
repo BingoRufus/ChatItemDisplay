@@ -43,7 +43,7 @@ public class DisplayItemExecutor implements CommandExecutor {
                 break;
             case BLACKLISTED:
                 p.sendMessage(new StringFormatter()
-                        .format(m.getConfig().getString("messages.black-listed-item")));
+                        .format(ChatItemConfig.BLACKLISTED_ITEM));
                 break;
             case COOLDOWN:
                 Cooldown<Player> cooldown = ChatItemDisplay.getInstance().getDisplayCooldown();

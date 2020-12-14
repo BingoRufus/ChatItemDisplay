@@ -1,6 +1,7 @@
 package me.bingorufus.chatitemdisplay.listeners;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import me.bingorufus.chatitemdisplay.util.string.VersionComparator;
@@ -102,7 +103,7 @@ public class InventoryClick implements Listener {
 
     public void map(ItemStack item, Player p) {
         m.viewingMap.put(p, p.getInventory().getItemInMainHand());
-        p.sendMessage(new StringFormatter().format(m.getConfig().getString("messages.map-notification")));
+        p.sendMessage(new StringFormatter().format(ChatItemConfig.MAP));
         p.closeInventory();
         p.getInventory().setItemInMainHand(item);
     }

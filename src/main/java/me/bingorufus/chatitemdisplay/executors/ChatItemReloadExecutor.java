@@ -1,6 +1,7 @@
 package me.bingorufus.chatitemdisplay.executors;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.display.ConfigReloader;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
@@ -24,7 +25,7 @@ public class ChatItemReloadExecutor implements CommandExecutor {
 
 
             sender.sendMessage(new StringFormatter().format(
-                    this.chatItemDisplay.getConfig().getString("messages.missing-permission")));
+                    ChatItemConfig.MISSING_PERMISSION_GENERIC));
             return true;
         }
         return false;

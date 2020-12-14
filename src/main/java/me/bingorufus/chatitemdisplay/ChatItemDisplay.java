@@ -21,7 +21,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Logger;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -113,11 +112,6 @@ public class ChatItemDisplay extends JavaPlugin {
 
     public void reloadListeners() {
         displayCooldown.setCooldownTime((long) getConfig().getDouble("display-cooldown"));
-        if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "" + ChatColor.BOLD
-                    + "[ChatItemDisplay] ChatItemDisplay now requires ProtocolLib, consequently the plugin will be disabled");
-            Bukkit.getPluginManager().disablePlugin(this);
-        }
         if (pl == null)
             pl = new ProtocolLibRegister(this);
         pl.registerPacketListener();

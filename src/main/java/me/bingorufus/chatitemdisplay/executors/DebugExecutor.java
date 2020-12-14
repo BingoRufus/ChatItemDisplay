@@ -1,6 +1,7 @@
 package me.bingorufus.chatitemdisplay.executors;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import me.bingorufus.chatitemdisplay.util.string.VersionComparator;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -37,7 +38,7 @@ public class DebugExecutor implements CommandExecutor {
 
         if (!sender.hasPermission(" ChatItemDisplay.reload")) {
             sender.sendMessage(new StringFormatter().format(
-                    ChatItemDisplay.getInstance().getConfig().getString("messages.missing-permission")));
+                    ChatItemConfig.MISSING_PERMISSION_GENERIC));
             return true;
         }
 

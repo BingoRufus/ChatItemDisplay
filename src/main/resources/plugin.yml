@@ -4,7 +4,8 @@ description: Display items, inventories, and ender chests in chat
 api-version: 1.13
 author: BingoRufus
 version: ${project.version}
-softdepend: [ ProtocolLib,DiscordSRV ]
+depend: [ ProtocolLib ]
+softdepend: [ DiscordSRV ]
 load: POSTWORLD
 
 commands:

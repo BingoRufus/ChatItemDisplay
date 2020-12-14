@@ -19,6 +19,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.io.UnsupportedEncodingException;
+
 public class ChatDisplayListener implements Listener {
 
 
@@ -115,17 +117,17 @@ public class ChatDisplayListener implements Listener {
         // At this point, all checks should be passed, and the user should be able to display their item/inventory
         ChatItemDisplay.getInstance().getDisplayCooldown().addToCooldown(p);
         String message = dp.format(p);
-        if (isDisplayTooLong(dp.getItem())) {
+        if (dp.containsItem() && isDisplayTooLong(dp.getItem())) {
             p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_ITEM));
             e.setCancelled(true);
             return;
         }
-        if (isDisplayTooLong(dp.getEnderChest())) {
+        if (dp.containsEnderChest() && isDisplayTooLong(dp.getEnderChest())) {
             p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_ENDERCHEST));
             e.setCancelled(true);
             return;
         }
-        if (isDisplayTooLong(dp.getInventory())) {
+        if (dp.containsInventory() && isDisplayTooLong(dp.getInventory())) {
             p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_INVENTORY));
             e.setCancelled(true);
             return;
@@ -138,7 +140,15 @@ public class ChatDisplayListener implements Listener {
      * @return returns true if the length is over the maximum
      */
     private boolean isDisplayTooLong(Displayable display) {
-        return display.serialize().length() >= Short.MAX_VALUE - 20;
+
+        try {
+            byte[] bytes = display.serialize().getBytes("UTF-8");
+            return bytes.length >= Short.MAX_VALUE - 20;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return true;
+        }
+
     }
 
 
@@ -155,7 +165,7 @@ public class ChatDisplayListener implements Listener {
 
                     Container c = (Container) bsm.getBlockState();
 
-                    if (containsBlacklist(c.getInventory())) return true;
+                    return containsBlacklist(c.getInventory());
                 }
             }
 

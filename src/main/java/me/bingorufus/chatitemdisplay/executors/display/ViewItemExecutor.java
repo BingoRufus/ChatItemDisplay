@@ -3,6 +3,7 @@ package me.bingorufus.chatitemdisplay.executors.display;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.Display;
 import me.bingorufus.chatitemdisplay.displayables.Displayable;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -18,8 +19,7 @@ public class ViewItemExecutor implements CommandExecutor {
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (m.getConfig().getBoolean("disable-gui")) {
-            sender.sendMessage(new StringFormatter().format(
-                    m.getConfig().getString("messages.gui-disabled")));
+            sender.sendMessage(new StringFormatter().format(ChatItemConfig.GUI_DISABLED));
             return true;
 
         }
@@ -44,7 +44,7 @@ public class ViewItemExecutor implements CommandExecutor {
 
         if (invalidPlayer && usePlayer) {
             sender.sendMessage(
-                    new StringFormatter().format(m.getConfig().getString("messages.player-not-displaying-anything")));
+                    new StringFormatter().format(ChatItemConfig.EMPTY_DISPLAY));
             return true;
         }
 
@@ -54,11 +54,11 @@ public class ViewItemExecutor implements CommandExecutor {
 
             } catch (NumberFormatException e) {
                 sender.sendMessage(new StringFormatter()
-                        .format(m.getConfig().getString("messages.player-not-displaying-anything")));
+                        .format(ChatItemConfig.EMPTY_DISPLAY));
                 return true;
             }
             if (m.getDisplayedManager().getDisplayed(id) == null) {
-                sender.sendMessage(new StringFormatter().format(m.getConfig().getString("messages.invalid-id")));
+                sender.sendMessage(new StringFormatter().format(ChatItemConfig.INVALID_ID));
 
                 return true;
             }

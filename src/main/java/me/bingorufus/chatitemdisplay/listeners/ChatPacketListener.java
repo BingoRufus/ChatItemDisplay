@@ -11,6 +11,7 @@ import com.google.gson.JsonParser;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.displayables.DisplayInfo;
 import me.bingorufus.chatitemdisplay.displayables.Displayable;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -150,7 +151,7 @@ public class ChatPacketListener extends PacketAdapter {
                     String legacyText = bc.toLegacyText().replace(replace, replace + ChatColor
                             .getLastColors(bc.toLegacyText().substring(0, bc.toLegacyText().indexOf(replace))));
 
-                    if (m.getConfig().getBoolean("debug-mode")) {
+                    if (ChatItemConfig.BUNGEE) {
                         Bukkit.getLogger().info(displaying + " is displaying their item");
                     }
 

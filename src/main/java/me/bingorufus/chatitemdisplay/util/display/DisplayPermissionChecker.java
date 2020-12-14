@@ -1,6 +1,7 @@
 package me.bingorufus.chatitemdisplay.util.display;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +18,7 @@ public class DisplayPermissionChecker {
     }
 
     public DisplayReason displayItem() {
-        boolean debug = m.getConfig().getBoolean("debug-mode");
+        boolean debug = ChatItemConfig.DEBUG_MODE;
         ItemStack i = p.getInventory().getItemInMainHand().clone();
         if (i.getItemMeta() == null) {
             if (debug)

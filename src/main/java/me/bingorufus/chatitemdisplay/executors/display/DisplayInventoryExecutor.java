@@ -28,7 +28,7 @@ public class DisplayInventoryExecutor implements CommandExecutor {
         Player p = (Player) sender;
         if (!p.hasPermission("chatitemdisplay.display.inventory")) {
             p.sendMessage(
-                    new StringFormatter().format(m.getConfig().getString("messages.missing-permission-inventory")));
+                    ChatItemConfig.MISSING_PERMISSION_INVENTORY);
             return true;
         }
 

@@ -22,7 +22,6 @@ public class BungeeCordReceiver implements PluginMessageListener {
     @Override
     public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] bytes) {// Subchannel, Serialized display,
         // Is command
-        System.out.println("Received from proxy");
         if (!channel.equalsIgnoreCase("chatitemdisplay:in"))
             return;
         ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
