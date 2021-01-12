@@ -57,4 +57,8 @@ public class Display {
         return jo.toString();
     }
 
+    @Override
+    public String toString() {
+        return serialize();
+    }
 }
