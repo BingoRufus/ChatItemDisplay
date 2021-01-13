@@ -23,6 +23,8 @@ public class PlayerInventoryReplicator {
                                 ? ChatColor.stripColor(p.getDisplayName())
                                 : p.getDisplayName() : p.getName()));
         Inventory inv = Bukkit.createInventory(Bukkit.getOfflinePlayer(p.getUniqueId()).getPlayer(), 45, invTitle);
+        //subtitles.entity.generic.burn
+        //  "selectWorld.gameMode.survival.line2": "levels, health and hunger",
         PlayerInventory i = p.getInventory();
         inv.setItem(0, i.getHelmet());
         inv.setItem(1, i.getChestplate());

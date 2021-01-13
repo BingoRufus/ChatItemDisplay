@@ -5,6 +5,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.Display;
+import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -25,15 +26,12 @@ public class BungeeCordReceiver implements PluginMessageListener {
         if (!channel.equalsIgnoreCase("chatitemdisplay:in"))
             return;
         ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
-        String subchannel = in.readUTF();
 
         String data = in.readUTF();
-        if (m.getConfig().getBoolean("debug-mode")) {
+        if (ChatItemConfig.DEBUG_MODE) {
             Bukkit.getLogger().info("Received info: " + data);
         }
-        if (subchannel.equalsIgnoreCase("DisplayReceiver")) {
-            receiveDisplay(data, in);
-        }
+        receiveDisplay(data, in);
 
 
     }

@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -151,12 +152,12 @@ public class ChatPacketListener extends PacketAdapter {
                     String legacyText = bc.toLegacyText().replace(replace, replace + ChatColor
                             .getLastColors(bc.toLegacyText().substring(0, bc.toLegacyText().indexOf(replace))));
 
-                    if (ChatItemConfig.BUNGEE) {
-                        Bukkit.getLogger().info(displaying + " is displaying their item");
+                    if (ChatItemConfig.DEBUG_MODE) {
+                        Bukkit.getLogger().info(displaying + " is being displayed");
                     }
 
                     JsonObject jo = (JsonObject) new JsonParser().parse(displaying);
-                    Displayable display = m.getDisplayedManager().getDisplayed(jo.get("id").getAsLong())
+                    Displayable display = m.getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()))
                             .getDisplayable();
 
                     DisplayInfo disInfo = display.getInfo();

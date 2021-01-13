@@ -9,6 +9,7 @@ import org.apache.logging.log4j.message.SimpleMessage;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +34,7 @@ public class LoggerListener implements Listener {
 
             JsonObject jo = (JsonObject) new JsonParser().parse(json);
 
-            Display dis = ChatItemDisplay.getInstance().getDisplayedManager().getDisplayed(jo.get("id").getAsLong());
+            Display dis = ChatItemDisplay.getInstance().getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()));
 
             msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
                     dis.getDisplayable().getInfo().loggerMessage());

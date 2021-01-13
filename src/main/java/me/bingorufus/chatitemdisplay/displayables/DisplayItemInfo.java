@@ -17,6 +17,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 
+import java.util.UUID;
 import java.util.regex.Matcher;
 
 public class DisplayItemInfo implements DisplayInfo {
@@ -117,7 +118,7 @@ public class DisplayItemInfo implements DisplayInfo {
                     new HoverEvent(Action.SHOW_ITEM, new Item(display.getItem().getType().getKey().toString(),
                             display.getItem().getAmount(), ItemTag.ofNbt(itemRetriever.getNBT(display.getItem())))));
         }
-        Long id = m.getDisplayedManager().getDisplay(display).getId();
+        UUID id = m.getDisplayedManager().getDisplay(display).getId();
         Hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                 "/viewitem " + (id)));
 

@@ -11,6 +11,8 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
+import java.util.UUID;
+
 public class DisplayInventoryInfo implements DisplayInfo {
     private final DisplayInventory inv;
     private final ChatItemDisplay m = ChatItemDisplay.getInstance();
@@ -69,7 +71,7 @@ public class DisplayInventoryInfo implements DisplayInfo {
 
             whole.addExtra(tc);
         }
-        Long id = m.getDisplayedManager().getDisplay(inv).getId();
+        UUID id = m.getDisplayedManager().getDisplay(inv).getId();
         whole.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + (id)));
 
         return whole;

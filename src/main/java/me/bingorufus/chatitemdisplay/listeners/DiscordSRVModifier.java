@@ -9,6 +9,7 @@ import github.scarsz.discordsrv.api.events.GameChatMessagePostProcessEvent;
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.Display;
 
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +38,7 @@ public class DiscordSRVModifier {
 
             JsonObject jo = (JsonObject) new JsonParser().parse(json);
 
-            Display dis = m.getDisplayedManager().getDisplayed(jo.get("id").getAsLong());
+            Display dis = m.getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()));
             //   displays.add(dis);
             msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
                     dis.getDisplayable().getInfo().loggerMessage());

@@ -13,6 +13,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
+
 public class ViewItemExecutor implements CommandExecutor {
     final ChatItemDisplay m = ChatItemDisplay.getInstance();
 
@@ -33,7 +35,7 @@ public class ViewItemExecutor implements CommandExecutor {
 
         Player p = (Player) sender;
         String target = args[0];
-        Long id = null;
+        UUID id = null;
         boolean usePlayer = false;
         boolean invalidPlayer;
         if (Bukkit.getPlayer(args[0]) != null) {
@@ -50,16 +52,15 @@ public class ViewItemExecutor implements CommandExecutor {
 
         if (invalidPlayer) {
             try {
-                id = Long.parseLong(args[0]);
+                id = UUID.fromString(args[0]);
 
-            } catch (NumberFormatException e) {
+            } catch (IllegalArgumentException e) {
                 sender.sendMessage(new StringFormatter()
                         .format(ChatItemConfig.EMPTY_DISPLAY));
                 return true;
             }
             if (m.getDisplayedManager().getDisplayed(id) == null) {
                 sender.sendMessage(new StringFormatter().format(ChatItemConfig.INVALID_ID));
-
                 return true;
             }
 

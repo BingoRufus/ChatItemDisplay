@@ -65,6 +65,7 @@ public class DisplayParser {
     }
 
     public String format(Player p) {
+        int displays = 0;
         if (item == null) createDisplayables(p);
         String out = s;
         for (String t : ChatItemConfig.ITEM_TRIGGERS) {
@@ -72,6 +73,7 @@ public class DisplayParser {
             ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(p.getName(), item);
             String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(item).getInsertion();
             out = out.replace(t, ins);
+            displays++;
         }
         for (String t : ChatItemConfig.INVENTORY_TRIGGERS) {
             if (!out.contains(t)) continue;
@@ -79,6 +81,7 @@ public class DisplayParser {
             ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(p.getName(), inv);
             String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(inv).getInsertion();
             out = out.replace(t, ins);
+            displays++;
         }
         for (String t : ChatItemConfig.ENDERCHEST_TRIGGERS) {
             if (!out.contains(t)) continue;

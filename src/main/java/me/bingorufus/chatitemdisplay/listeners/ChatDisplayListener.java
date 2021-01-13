@@ -2,10 +2,13 @@ package me.bingorufus.chatitemdisplay.listeners;
 
 import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.DisplayParser;
+import me.bingorufus.chatitemdisplay.DisplayedManager;
 import me.bingorufus.chatitemdisplay.displayables.Displayable;
 import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.Cooldown;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
+import net.md_5.bungee.chat.ComponentSerializer;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Container;
@@ -19,7 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class ChatDisplayListener implements Listener {
 
@@ -46,6 +49,7 @@ public class ChatDisplayListener implements Listener {
                 return; // Is on cooldown
             }
         }
+
 
         if (dp.containsItem() && !p.hasPermission("chatitemdisplay.display.item")) {
             p.sendMessage(new StringFormatter().format(ChatItemConfig.MISSING_PERMISSION_ITEM));
@@ -132,23 +136,43 @@ public class ChatDisplayListener implements Listener {
             e.setCancelled(true);
             return;
         }
+        if (isMessageTooLong(message, dp)) {
+            p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_MESSAGE));
+            e.setCancelled(true);
+            return;
+        }
         e.setMessage(message);
     }
 
     /**
-     * @param display
+     * @param display display
      * @return returns true if the length is over the maximum
      */
     private boolean isDisplayTooLong(Displayable display) {
+        byte[] bytes = display.serialize().getBytes(StandardCharsets.UTF_8);
+        return bytes.length >= 1097152;
+    }
 
-        try {
-            byte[] bytes = display.serialize().getBytes("UTF-8");
-            return bytes.length >= Short.MAX_VALUE - 20;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return true;
+    /**
+     * @param message chat message
+     * @return returns true if the length is over mojang's max chat length
+     */
+    private boolean isMessageTooLong(String message, DisplayParser dp) {
+        DisplayedManager dm = ChatItemDisplay.getInstance().getDisplayedManager();
+        String edit = message;
+        if (dp.containsInventory()) {
+            edit = edit.replace(dm.getDisplay(dp.getInventory()).getInsertion(), StringEscapeUtils.unescapeJava(ComponentSerializer.toString(dp.getInventory().getInfo().getHover())));
         }
+        if (dp.containsEnderChest()) {
+            edit = edit.replace(dm.getDisplay(dp.getEnderChest()).getInsertion(), StringEscapeUtils.unescapeJava(ComponentSerializer.toString(dp.getEnderChest().getInfo().getHover())));
 
+        }
+        if (dp.containsItem()) {
+            edit = edit.replace(dm.getDisplay(dp.getItem()).getInsertion(), ComponentSerializer.toString(dp.getItem().getInfo().getHover()));
+
+        }
+        byte[] bytes = edit.getBytes(StandardCharsets.UTF_8);
+        return bytes.length >= 240000;
     }
 
 

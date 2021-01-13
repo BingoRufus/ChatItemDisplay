@@ -49,8 +49,7 @@ public class ConfigReloader {
 
         }
         m.reloadListeners();
-
-        update();
+        Bukkit.getScheduler().runTaskAsynchronously(ChatItemDisplay.getInstance(), this::update);
 
     }
 

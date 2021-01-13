@@ -26,16 +26,14 @@ public class BungeeCordSender {
         DataOutputStream out = new DataOutputStream(b);
 
         try {
-            out.writeUTF("DisplaySender");
             data = dis.serialize();
             out.writeUTF(data);
-
             out.writeBoolean(isCmd);
 
 
         } catch (IOException ignored) {
         }
-        if (ChatItemConfig.BUNGEE)
+        if (ChatItemConfig.DEBUG_MODE)
             Bukkit.getLogger().info("Sent data: " + data);
 
         Bukkit.getServer().sendPluginMessage(m, "chatitemdisplay:out", b.toByteArray());

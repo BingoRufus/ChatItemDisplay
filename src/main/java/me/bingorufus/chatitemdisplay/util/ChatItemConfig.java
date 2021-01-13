@@ -33,7 +33,8 @@ public class ChatItemConfig {
             CONTAINS_BLACKLIST,
             TOO_LARGE_ITEM,
             TOO_LARGE_INVENTORY,
-            TOO_LARGE_ENDERCHEST;
+            TOO_LARGE_ENDERCHEST,
+            TOO_LARGE_MESSAGE;
 
     public static boolean DEBUG_MODE,
             BUNGEE;
@@ -62,6 +63,8 @@ public class ChatItemConfig {
         TOO_LARGE_ITEM = m.getString("display-too-large-item");
         TOO_LARGE_ENDERCHEST = m.getString("display-too-large-enderchest");
         TOO_LARGE_INVENTORY = m.getString("display-too-large-inventory");
+        TOO_LARGE_MESSAGE = m.getString("too-large-display");
+
         EMPTY_HAND = m.getString("empty-hand");
 
         ConfigurationSection d = c.getConfigurationSection("display-messages");

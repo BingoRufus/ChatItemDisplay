@@ -4,10 +4,11 @@ import me.bingorufus.chatitemdisplay.displayables.Displayable;
 
 import java.util.HashMap;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class DisplayedManager {
-    private final HashMap<Long, Display> displayId = new HashMap<>();
+    private final HashMap<UUID, Display> displayId = new HashMap<>();
 
     /*
      * PlayerName -> Display
@@ -15,31 +16,26 @@ public class DisplayedManager {
      * PlayerName -> ID
      * Displayable -> Display
      */
-    private final HashMap<String, Long> mostRecent = new HashMap<>();// <Player,Id>
-    Long nextId = 0L;
-
+    private final HashMap<String, UUID> mostRecent = new HashMap<>();// <Player,Id>
 
     public DisplayedManager() {
 
     }
 
     public void addDisplayable(String player, Displayable display) {
-        Display dis = new Display(display, player.toUpperCase(), nextId);
-        displayId.put(nextId, dis);
-        mostRecent.put(player.toUpperCase(), nextId);
-        nextId++;
+        Display dis = new Display(display, player.toUpperCase(), UUID.randomUUID());
+        displayId.put(dis.getId(), dis);
+        mostRecent.put(player.toUpperCase(), dis.getId());
 
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     public Display addDisplay(Display d) {
         displayId.put(d.getId(), d);
         mostRecent.put(d.getPlayer().toUpperCase(), d.getId());
-        nextId = d.getId() + 1;
         return d;
     }
 
-    public Display getDisplayed(Long id) {
+    public Display getDisplayed(UUID id) {
         return displayId.get(id);
     }
 
@@ -52,7 +48,7 @@ public class DisplayedManager {
             }
 
         }
-        Long recent = mostRecent.get(player.toUpperCase());
+        UUID recent = mostRecent.get(player.toUpperCase());
 
         return displayId.get(recent);
     }
@@ -69,9 +65,6 @@ public class DisplayedManager {
         }
     }
 
-    public Long getNextId() {
-        return nextId;
-    }
 
 
 }
