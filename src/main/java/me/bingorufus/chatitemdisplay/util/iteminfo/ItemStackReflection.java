@@ -10,16 +10,23 @@ import org.bukkit.potion.PotionData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Optional;
 
 public class ItemStackReflection {
 
-    private Class<?> craftPotionUtil;
-    private Class<?> craftItemStack;
-    private Class<?> chatSerializer;
-    private Class<?> iChatBase;
+    private static Class<?> craftPotionUtil = null;
+    private static Class<?> craftItemStack = null;
+    private static Class<?> chatSerializer = null;
+    private static Class<?> iChatBase = null;
+    private static Class<?> nbtTagCompound = null;
+    private static Class<?> nbtTagList = null;
+    private static Class<?> nbtTagString = null;
+    private static Class<?> nbtBase = null;
 
+    private static Class<?> nmsItemStack;
 
-    public ItemStackReflection() {
+    static {
         try {
             String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
             craftPotionUtil = Class
@@ -31,6 +38,11 @@ public class ItemStackReflection {
                     .forName("net.minecraft.server.{v}.IChatBaseComponent$ChatSerializer".replace("{v}", version));
             iChatBase = Class.forName("net.minecraft.server.{v}.IChatBaseComponent".replace("{v}", version));
 
+            nbtTagCompound = Class.forName("net.minecraft.server.{v}.NBTTagCompound".replace("{v}", version));
+            nbtTagList = Class.forName("net.minecraft.server.{v}.NBTTagList".replace("{v}", version));
+            nbtTagString = Class.forName("net.minecraft.server.{v}.NBTTagString".replace("{v}", version));
+            nbtBase = Class.forName("net.minecraft.server.{v}.NBTBase".replace("{v}", version));
+            nmsItemStack = Class.forName("net.minecraft.server.{v}.ItemStack".replace("{v}", version));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -44,6 +56,11 @@ public class ItemStackReflection {
         asNms.setAccessible(true);
         return asNms.invoke(craftItemStack, item);
 
+    }
+
+    private Object toChatComponent(BaseComponent... component) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method toString = chatSerializer.getDeclaredMethod("a", String.class);
+        return toString.invoke(chatSerializer, ComponentSerializer.toString(component));
     }
 
     public BaseComponent getOldHover(ItemStack item) {
@@ -142,5 +159,65 @@ public class ItemStackReflection {
 
     }
 
+    private ItemStack fromNMS(Object nmsItem) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method fromNMS = craftItemStack.getMethod("asBukkitCopy", nmsItemStack);
+        fromNMS.setAccessible(true);
+        return (ItemStack) fromNMS.invoke(craftItemStack, nmsItem);
+    }
 
+    public ItemStack setItemName(final ItemStack item, final BaseComponent name) {
+        try {
+            Object nms = nmsItem(item);
+            Optional<Method> setNameOptional = Arrays.stream(nms.getClass().getDeclaredMethods()).filter(method -> method.getReturnType().equals(nms.getClass())).filter(method -> method.getParameterCount() == 1).filter(method -> method.getParameterTypes()[0].equals(iChatBase)).findFirst();
+            if (!setNameOptional.isPresent()) return item;
+            Method setName = setNameOptional.get();
+            setName.invoke(nms, toChatComponent(name));
+            return fromNMS(nms);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return item;
+    }
+
+
+    public ItemStack setLore(final ItemStack item, final BaseComponent... lore) {
+        try {
+            Object nms = nmsItem(item);
+            if (!nms.getClass().equals(nmsItemStack)) return item;
+            Method setTag = nmsItemStack.getDeclaredMethod("setTag", nbtTagCompound);
+
+            if (!hasNbt(item)) {
+                setTag.invoke(nms, nbtTagCompound.newInstance());
+            }
+            Method getTag = nmsItemStack.getMethod("getTag");
+            Object mainTag = getTag.invoke(nms);
+            Method nbtSet = nbtTagCompound.getDeclaredMethod("set", String.class, nbtBase);
+            Method nbtGetSubTag = nbtTagCompound.getDeclaredMethod("getCompound", String.class);
+            if (nbtGetSubTag.invoke(mainTag, "display") == null) {
+                nbtSet.invoke(mainTag, "display", nbtTagCompound.newInstance());
+
+            }
+            Object displayTag = nbtGetSubTag.invoke(mainTag, "display");
+            Object loreList = nbtTagList.newInstance();
+            Optional<Method> nbtListAddOptional = Arrays.stream(nbtTagList.getDeclaredMethods()).filter(method -> method.getParameterCount() == 2).filter(method -> method.getParameterTypes()[0].equals(int.class)).filter(method -> method.getParameterTypes()[1].equals(nbtBase)).findFirst();
+
+            if (!nbtListAddOptional.isPresent()) return item;
+            Method nbtListAdd = nbtListAddOptional.get();
+            Optional<Method> createStringOptional = Arrays.stream(nbtTagString.getDeclaredMethods()).filter(method -> method.getReturnType().equals(nbtTagString)).filter(method -> method.getParameterCount() == 1).filter(method -> method.getParameterTypes()[0].equals(String.class)).findFirst();
+            if (!createStringOptional.isPresent()) return item;
+            Method createNBTString = createStringOptional.get();
+            for (int i = 0; i < lore.length; i++) {
+                String json = ComponentSerializer.toString(lore[i]);
+                Object nbtString = createNBTString.invoke(createNBTString, json);
+                nbtListAdd.invoke(loreList, i, nbtString);
+            }
+            nbtSet.invoke(displayTag, "Lore", loreList);
+            nbtSet.invoke(mainTag, "display", displayTag);
+            setTag.invoke(nms, mainTag);
+            return fromNMS(nms);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
+            e.printStackTrace();
+        }
+        return item;
+    }
 }

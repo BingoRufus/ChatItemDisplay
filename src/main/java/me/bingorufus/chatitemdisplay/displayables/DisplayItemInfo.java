@@ -101,7 +101,7 @@ public class DisplayItemInfo implements DisplayInfo {
             }
 
 
-            if (m.getConfig().getBoolean("debug-mode")) {
+            if (ChatItemConfig.DEBUG_MODE) {
                 Bukkit.getLogger().info(
                         "From NMS: " + ComponentSerializer
                                 .toString(itemRetriever.getOldHover(display.getItem()).getHoverEvent().getValue()));
