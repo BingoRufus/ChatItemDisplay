@@ -1,5 +1,6 @@
 package me.bingorufus.chatitemdisplay.util.string;
 
+import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.regex.Matcher;
@@ -11,7 +12,7 @@ public class StringFormatter {
 
     public StringFormatter() {
         hasHex = new VersionComparator().isRecent(
-                VersionComparator.MINECRAFT_VERSION,
+                ChatItemDisplay.MINECRAFT_VERSION,
                 "1.16");
     }
 

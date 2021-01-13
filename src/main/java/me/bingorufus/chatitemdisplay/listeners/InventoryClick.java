@@ -134,7 +134,7 @@ public class InventoryClick implements Listener {
 
     public void book(ItemStack item, Player p) {
         // The player.openBook() method was added in 1.14.2, this makes sure the version is atleast 1.14.2
-        if (new VersionComparator().isRecent(VersionComparator.MINECRAFT_VERSION, "1.14.2") == Status.BEHIND) return;
+        if (new VersionComparator().isRecent(ChatItemDisplay.MINECRAFT_VERSION, "1.14.2") == Status.BEHIND) return;
 
         if (!item.hasItemMeta()) return;
         if (!(item.getItemMeta() instanceof BookMeta)) return;

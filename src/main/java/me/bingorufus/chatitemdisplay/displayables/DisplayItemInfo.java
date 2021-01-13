@@ -68,7 +68,7 @@ public class DisplayItemInfo implements DisplayInfo {
         TextComponent Hover = new TextComponent(bc);
 
 
-        Status s = new VersionComparator().isRecent(VersionComparator.MINECRAFT_VERSION,
+        Status s = new VersionComparator().isRecent(ChatItemDisplay.MINECRAFT_VERSION,
                 "1.16");
 
         if (s.equals(Status.BEHIND)) {

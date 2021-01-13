@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.UUID;
 
 public class ChatItemDisplay extends JavaPlugin {
+    public static final String MINECRAFT_VERSION = Bukkit.getServer().getVersion().substring(Bukkit.getServer().getVersion().indexOf("(MC: ") + 5,
+            Bukkit.getServer().getVersion().indexOf(")"));
     private static ChatItemDisplay main;
     public final HashMap<Player, ItemStack> viewingMap = new HashMap<>();//Contains players who are looking at maps, the value is the item that was replaced
     public final HashMap<Inventory, UUID> invs = new HashMap<>(); //Inventories and the UUIDs of the owners

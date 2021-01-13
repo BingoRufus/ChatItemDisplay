@@ -86,7 +86,7 @@ public class DebugExecutor implements CommandExecutor {
             TextComponent tc = new TextComponent(ChatColor.GREEN + "A debug log has been successfully generated and has been saved to ");
             TextComponent extra = new TextComponent(ChatColor.GREEN + "" + ChatColor.BOLD + zip.getAbsolutePath());
 
-            VersionComparator.Status s = new VersionComparator().isRecent(VersionComparator.MINECRAFT_VERSION,
+            VersionComparator.Status s = new VersionComparator().isRecent(ChatItemDisplay.MINECRAFT_VERSION,
                     "1.16");
 
             if (s.equals(VersionComparator.Status.BEHIND)) {
@@ -148,7 +148,7 @@ public class DebugExecutor implements CommandExecutor {
 
             ChatItemDisplay.getInstance().getDisplayedManager().forEach(display -> {
                 try {
-                    writeLine(w, StringEscapeUtils.unescapeJava(display.serialize()));
+                    writeLine(w, StringEscapeUtils.unescapeJava(StringEscapeUtils.unescapeJava(StringEscapeUtils.unescapeJava(display.serialize()))));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -1,11 +1,7 @@
 package me.bingorufus.chatitemdisplay.util.string;
 
-import org.bukkit.Bukkit;
-
 public class VersionComparator {
 
-    public static final String MINECRAFT_VERSION = Bukkit.getServer().getVersion().substring(Bukkit.getServer().getVersion().indexOf("(MC: ") + 5,
-            Bukkit.getServer().getVersion().indexOf(")"));
 
     private int[] toIntArray(String version) {
         int[] out = new int[20];

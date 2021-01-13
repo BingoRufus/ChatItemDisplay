@@ -6,6 +6,7 @@ import me.bingorufus.chatitemdisplay.DisplayedManager;
 import me.bingorufus.chatitemdisplay.displayables.Displayable;
 import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.Cooldown;
+import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -142,6 +143,20 @@ public class ChatDisplayListener implements Listener {
             return;
         }
         e.setMessage(message);
+
+        //Send stuff to bungee
+        if (ChatItemConfig.BUNGEE) {
+            BungeeCordSender sender = new BungeeCordSender();
+            if (dp.containsEnderChest()) {
+                sender.send(dp.getEnderChest(), false);
+            }
+            if (dp.containsItem()) {
+                sender.send(dp.getItem(), false);
+            }
+            if (dp.containsInventory()) {
+                sender.send(dp.getInventory(), false);
+            }
+        }
     }
 
     /**
