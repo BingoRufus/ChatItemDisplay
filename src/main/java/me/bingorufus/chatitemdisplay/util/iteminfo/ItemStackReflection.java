@@ -11,6 +11,7 @@ import org.bukkit.potion.PotionData;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class ItemStackReflection {
@@ -199,17 +200,14 @@ public class ItemStackReflection {
             }
             Object displayTag = nbtGetSubTag.invoke(mainTag, "display");
             Object loreList = nbtTagList.newInstance();
-            Optional<Method> nbtListAddOptional = Arrays.stream(nbtTagList.getDeclaredMethods()).filter(method -> method.getParameterCount() == 2).filter(method -> method.getParameterTypes()[0].equals(int.class)).filter(method -> method.getParameterTypes()[1].equals(nbtBase)).findFirst();
-
-            if (!nbtListAddOptional.isPresent()) return item;
-            Method nbtListAdd = nbtListAddOptional.get();
             Optional<Method> createStringOptional = Arrays.stream(nbtTagString.getDeclaredMethods()).filter(method -> method.getReturnType().equals(nbtTagString)).filter(method -> method.getParameterCount() == 1).filter(method -> method.getParameterTypes()[0].equals(String.class)).findFirst();
             if (!createStringOptional.isPresent()) return item;
             Method createNBTString = createStringOptional.get();
-            for (int i = 0; i < lore.length; i++) {
-                String json = ComponentSerializer.toString(lore[i]);
+            for (BaseComponent component : lore) {
+                List<Object> list = (List<Object>) loreList;
+                String json = ComponentSerializer.toString(component);
                 Object nbtString = createNBTString.invoke(createNBTString, json);
-                nbtListAdd.invoke(loreList, i, nbtString);
+                list.add(nbtString);
             }
             nbtSet.invoke(displayTag, "Lore", loreList);
             nbtSet.invoke(mainTag, "display", displayTag);
