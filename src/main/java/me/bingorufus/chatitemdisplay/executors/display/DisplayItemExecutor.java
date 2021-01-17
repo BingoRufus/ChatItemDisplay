@@ -16,8 +16,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class DisplayItemExecutor implements CommandExecutor {
     final ChatItemDisplay m = ChatItemDisplay.getInstance();
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
+        if (ChatItemConfig.COMMANDS_DISABLED) {
+            sender.sendMessage(new StringFormatter().format(ChatItemConfig.FEATURE_DISABLED));
+            return true;
+        }
         if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED + "You can't do that!");
             return true;
@@ -47,12 +52,12 @@ public class DisplayItemExecutor implements CommandExecutor {
                 break;
             case COOLDOWN:
                 Cooldown<Player> cooldown = ChatItemDisplay.getInstance().getDisplayCooldown();
-                    double secondsRemaining = (double) (Math.round((double) cooldown.getTimeRemaining(p) / 100)) / 10;
-                    p.sendMessage(new StringFormatter().format(ChatItemConfig.COOLDOWN.replace("%seconds%", "" + secondsRemaining)));
+                double secondsRemaining = (double) (Math.round((double) cooldown.getTimeRemaining(p) / 100)) / 10;
+                p.sendMessage(new StringFormatter().format(ChatItemConfig.COOLDOWN.replace("%seconds%", "" + secondsRemaining)));
                 break;
             case NO_PERMISSON:
                 p.sendMessage(new StringFormatter()
-                        .format(ChatItemConfig.MISSING_PERMISSION_ITEM));
+                        .format(ChatItemConfig.MISSING_PERMISSION_GENERIC));
                 break;
             case NULL_ITEM:
                 p.sendMessage(new StringFormatter()

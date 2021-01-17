@@ -19,7 +19,7 @@ public class ChatItemConfig {
             MISSING_PERMISSION_ENDERCHEST,
             EMPTY_DISPLAY,
             INVALID_ID,
-            GUI_DISABLED,
+            FEATURE_DISABLED,
             MAP,
             EMPTY_HAND,
             CHAT_ITEM_FORMAT,
@@ -37,7 +37,7 @@ public class ChatItemConfig {
             TOO_LARGE_MESSAGE;
 
     public static boolean DEBUG_MODE,
-            BUNGEE;
+            BUNGEE, COMMANDS_DISABLED;
 
     public static List<String> ITEM_TRIGGERS,
             ENDERCHEST_TRIGGERS,
@@ -49,7 +49,7 @@ public class ChatItemConfig {
         ConfigurationSection m = c.getConfigurationSection("messages");
         assert m != null;
         GUI_FORMAT = m.getString("gui-format");
-        MISSING_PERMISSION_GENERIC = m.getString("missing-permission-item");
+        MISSING_PERMISSION_GENERIC = m.getString("missing-permission");
         MISSING_PERMISSION_ITEM = m.getString("missing-permission-item");
         MISSING_PERMISSION_ENDERCHEST = m.getString("missing-permission-enderchest");
         MISSING_PERMISSION_INVENTORY = m.getString("missing-permission-inventory");
@@ -57,7 +57,7 @@ public class ChatItemConfig {
         EMPTY_DISPLAY = m.getString("player-not-displaying-anything");
         INVALID_ID = m.getString("invalid-id");
         COOLDOWN = m.getString("cooldown");
-        GUI_DISABLED = m.getString("gui-disabled");
+        FEATURE_DISABLED = m.getString("feature-disabled");
         MAP = m.getString("map-notification");
         CONTAINS_BLACKLIST = m.getString("contains-blacklist");
         TOO_LARGE_ITEM = m.getString("display-too-large-item");
@@ -66,6 +66,8 @@ public class ChatItemConfig {
         TOO_LARGE_MESSAGE = m.getString("too-large-display");
 
         EMPTY_HAND = m.getString("empty-hand");
+
+        COMMANDS_DISABLED = c.getBoolean("disable-commands");
 
         ConfigurationSection d = c.getConfigurationSection("display-messages");
         assert d != null;

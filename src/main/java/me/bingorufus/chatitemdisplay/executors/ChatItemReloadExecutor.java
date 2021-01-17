@@ -1,6 +1,5 @@
 package me.bingorufus.chatitemdisplay.executors;
 
-import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.display.ConfigReloader;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
@@ -12,12 +11,9 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
 
 public class ChatItemReloadExecutor implements CommandExecutor {
-    private final ChatItemDisplay chatItemDisplay = ChatItemDisplay.getInstance();
-
-
     public boolean onCommand(@NotNull CommandSender sender, Command cmd, @NotNull String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("chatitemreload")) {
-            if (sender.hasPermission("ChatItemDisplay.reload") || sender instanceof ConsoleCommandSender) {
+            if (sender.hasPermission("ChatItemDisplay.command.reload") || sender instanceof ConsoleCommandSender) {
                 new ConfigReloader().reload();
                 sender.sendMessage(ChatColor.GREEN + "ChatItemDisplay Reloaded");
                 return true;

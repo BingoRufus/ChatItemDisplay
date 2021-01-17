@@ -21,7 +21,7 @@ public class ViewItemExecutor implements CommandExecutor {
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (m.getConfig().getBoolean("disable-gui")) {
-            sender.sendMessage(new StringFormatter().format(ChatItemConfig.GUI_DISABLED));
+            sender.sendMessage(new StringFormatter().format(ChatItemConfig.FEATURE_DISABLED));
             return true;
 
         }

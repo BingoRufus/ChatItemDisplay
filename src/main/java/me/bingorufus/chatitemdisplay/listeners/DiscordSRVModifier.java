@@ -31,7 +31,7 @@ public class DiscordSRVModifier {
         Pattern pattern = Pattern.compile("\u0007cid(.*?)\u0007");
 
         Matcher matcher = pattern.matcher(msg);
-      //  List<Display> displays = new ArrayList<>();
+        //  List<Display> displays = new ArrayList<>();
         while (matcher.find()) {
 
             String json = matcher.group(1);

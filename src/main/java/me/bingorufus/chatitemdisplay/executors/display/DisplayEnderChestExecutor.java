@@ -5,7 +5,6 @@ import me.bingorufus.chatitemdisplay.displayables.DisplayInventory;
 import me.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import me.bingorufus.chatitemdisplay.util.Cooldown;
 import me.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
-import me.bingorufus.chatitemdisplay.util.display.DisplayPermissionChecker;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -22,7 +21,10 @@ public class DisplayEnderChestExecutor implements CommandExecutor {
 
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
-
+        if (ChatItemConfig.COMMANDS_DISABLED) {
+            sender.sendMessage(new StringFormatter().format(ChatItemConfig.FEATURE_DISABLED));
+            return true;
+        }
         if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED + "You can't do that!");
             return true;
@@ -30,14 +32,14 @@ public class DisplayEnderChestExecutor implements CommandExecutor {
 
 
         Player p = (Player) sender;
-        if (!p.hasPermission("chatitemdisplay.display.enderchest")) {
+        if (!p.hasPermission("chatitemdisplay.command.display.enderchest")) {
             p.sendMessage(
-                    new StringFormatter().format(ChatItemConfig.MISSING_PERMISSION_ENDERCHEST));
+                    new StringFormatter().format(ChatItemConfig.MISSING_PERMISSION_GENERIC));
             return true;
         }
-        if (new DisplayPermissionChecker(m, p).isOnCooldown()) {
-            Cooldown<Player> cooldown = ChatItemDisplay.getInstance().getDisplayCooldown();
-            double secondsRemaining = (double) (Math.round((double) cooldown.getTimeRemaining(p) / 100)) / 10;
+        Cooldown<Player> c = ChatItemDisplay.getInstance().getDisplayCooldown();
+        if (c.isOnCooldown(p)) {
+            double secondsRemaining = (double) (Math.round((double) c.getTimeRemaining(p) / 100)) / 10;
             p.sendMessage(new StringFormatter().format(ChatItemConfig.COOLDOWN.replace("%seconds%", "" + secondsRemaining)));
             return true; // Is on cooldown
 

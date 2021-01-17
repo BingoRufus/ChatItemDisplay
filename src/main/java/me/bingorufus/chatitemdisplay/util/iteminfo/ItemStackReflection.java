@@ -196,7 +196,6 @@ public class ItemStackReflection {
             Method nbtGetSubTag = nbtTagCompound.getDeclaredMethod("getCompound", String.class);
             if (nbtGetSubTag.invoke(mainTag, "display") == null) {
                 nbtSet.invoke(mainTag, "display", nbtTagCompound.newInstance());
-
             }
             Object displayTag = nbtGetSubTag.invoke(mainTag, "display");
             Object loreList = nbtTagList.newInstance();
@@ -213,7 +212,7 @@ public class ItemStackReflection {
             nbtSet.invoke(mainTag, "display", displayTag);
             setTag.invoke(nms, mainTag);
             return fromNMS(nms);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return item;

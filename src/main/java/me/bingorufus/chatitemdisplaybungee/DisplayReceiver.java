@@ -1,7 +1,5 @@
 package me.bingorufus.chatitemdisplaybungee;
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteStreams;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -15,9 +13,6 @@ public class DisplayReceiver implements Listener {
 
         if (!e.getTag().equalsIgnoreCase("chatitemdisplay:out"))
             return;
-        ByteArrayDataInput in = ByteStreams.newDataInput(e.getData());
-
-
         if (!(e.getReceiver() instanceof UserConnection))
             return;
 

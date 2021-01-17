@@ -36,7 +36,7 @@ public class DebugExecutor implements CommandExecutor {
     public boolean onCommand(CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
 
 
-        if (!sender.hasPermission(" ChatItemDisplay.reload")) {
+        if (!sender.hasPermission("chatitemdisplay.command.debug")) {
             sender.sendMessage(new StringFormatter().format(
                     ChatItemConfig.MISSING_PERMISSION_GENERIC));
             return true;

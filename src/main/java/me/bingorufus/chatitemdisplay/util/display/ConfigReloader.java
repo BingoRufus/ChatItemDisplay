@@ -15,9 +15,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public class ConfigReloader {
-    private final ChatItemDisplay m;
     private static PluginMessageListener bungeeIn;
     private static NewVersionDisplayer newVer;
+    private final ChatItemDisplay m;
 
     public ConfigReloader() {
         this.m = ChatItemDisplay.getInstance();

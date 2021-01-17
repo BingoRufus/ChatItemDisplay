@@ -15,7 +15,6 @@ commands:
     aliases: [ viewitem,viewinv,viewinventory,viewec,viewenderchest,displayview ]
   chatitemreload:
     usage: /<command>
-    permission: chatitemdisplay.reload
     description: Reload the ChatItemDisplay config
   displayitem:
     usage: /<command>
@@ -32,7 +31,6 @@ commands:
   generatedebuglog:
     usage: /<command>
     description: Generate a debug log, used for creating bug reports
-    permission: ChatItemDisplay.reload
     aliases: [ generatedebuglogs ]
 
 permissions:
@@ -40,9 +38,26 @@ permissions:
     description: Parent node to all ChatItemDisplay permissions
     default: op
     children:
-      chatitemdisplay.reload:
-        description: Reload the ChatItemDisplay config
+      chatitemdisplay.command.*:
+        description: All ChatItemDisplay commands
         default: op
+        children:
+          chatitemdisplay.command.reload:
+            description: Reload the config
+            default: op
+          chatitemdisplay.command.debug:
+            description: Create debug logs
+            default: op
+          chatitemdisplay.command.display.*:
+            description: Display commands
+            default: true
+            children:
+              chatitemdisplay.command.display.item:
+                description: Display items
+              chatitemdisplay.command.display.inventory:
+                description: Display player inventories
+              chatitemdisplay.command.display.enderchest:
+                description: Display Ender Chests
       chatitemdisplay.display.*:
         description: Display Objects
         default: true

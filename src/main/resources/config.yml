@@ -24,10 +24,15 @@ triggers: #These will determine when the objects are displayed, they are not cas
 
 disable-gui: false #Disable all the GUIs
 display-in-msg-command: true #It is recommended to disable this if you do not have a private message plugin
+disable-commands: false #Disable display commands
 message-command: # This allows players to display items in private messages
   - "/msg"
   - "/t"
   - "/w"
+  - "/pc"
+  - "/message"
+  - "/tell"
+  - "/whisper"
 messages:
   gui-format: "&a%player%&a's &cDisplayed Item"
   missing-permission: "&cYou do not have permission to do that"
@@ -43,7 +48,7 @@ messages:
   player-not-displaying-anything: "&cThat player isn't displaying anything" #when someone does /viewitem <player> and the <player> isn't displaying anything
   invalid-id: "&cThere is nothing displayed with that id" #When someone does /viewitem <id> and the id does not exist
   cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
-  gui-disabled: "&cThis feature has been disabled"
+  feature-disabled: "&cThis feature has been disabled"
   map-notification: "&eDrop or click on the map to receive your item back"
 
   empty-hand: "&cYou are not holding anything" # Sent when a player tries to display an item that does not exist

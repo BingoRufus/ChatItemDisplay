@@ -131,7 +131,6 @@ public class ChatItemDisplay extends JavaPlugin {
     }
 
 
-
     public void loadLang() {
         try {
             lang = new LangReader().readLang(this.getConfig().getString("messages.logger-lang"));

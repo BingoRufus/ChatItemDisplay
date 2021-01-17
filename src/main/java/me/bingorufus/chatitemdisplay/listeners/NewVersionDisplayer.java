@@ -22,7 +22,7 @@ public class NewVersionDisplayer implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        if (p.hasPermission("ChatItemDisplay.reload")) {
+        if (p.hasPermission("ChatItemDisplay.command.reload")) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.chatItemDisplay, () -> p.sendMessage(ChatColor.GREEN + "ChatItemDisplay is currently running " + ChatColor.BLUE + "v."
                     + ChatColor.WHITE + "" + ChatColor.BOLD + current + ChatColor.GREEN
                     + " and should be updated to " + ChatColor.BLUE + "v." + ChatColor.WHITE + ""

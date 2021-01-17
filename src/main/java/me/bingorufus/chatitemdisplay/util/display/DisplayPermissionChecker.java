@@ -25,7 +25,7 @@ public class DisplayPermissionChecker {
                 Bukkit.getLogger().info(p.getName() + "'s item has no meta data");
             return DisplayReason.NULL_ITEM;
         }
-        if (!p.hasPermission("chatitemdisplay.display.item")) {
+        if (!p.hasPermission("chatitemdisplay.command.display.item")) {
             if (debug)
                 Bukkit.getLogger().info(p.getName() + " does not have permission to display items");
 
