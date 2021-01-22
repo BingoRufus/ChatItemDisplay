@@ -165,6 +165,7 @@ public class ChatDisplayListener implements Listener {
      */
     private boolean isDisplayTooLong(Displayable display) {
         byte[] bytes = display.serialize().getBytes(StandardCharsets.UTF_8);
+        if (ChatItemConfig.BUNGEE && bytes.length >= 30000) return true; //
         return bytes.length >= 1097152;
     }
 
@@ -204,7 +205,7 @@ public class ChatDisplayListener implements Listener {
 
                     Container c = (Container) bsm.getBlockState();
 
-                    return containsBlacklist(c.getInventory());
+                    if (containsBlacklist(c.getInventory())) return true;
                 }
             }
 

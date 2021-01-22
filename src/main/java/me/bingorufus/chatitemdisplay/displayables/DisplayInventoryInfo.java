@@ -4,10 +4,7 @@ import me.bingorufus.chatitemdisplay.ChatItemDisplay;
 import me.bingorufus.chatitemdisplay.util.display.DisplayableBroadcaster;
 import me.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.md_5.bungee.api.chat.*;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
@@ -52,22 +49,20 @@ public class DisplayInventoryInfo implements DisplayInfo {
         TextComponent whole = new TextComponent();
         BaseComponent prev = null;
         for (int i = 0; i < parts.length; i++) {
-            if (i > 0)
-                prev = TextComponent.fromLegacyText(
-                        org.bukkit.ChatColor.getLastColors(whole.getExtra().get(i - 1).toLegacyText()))[0];
+            if (i > 0) prev = TextComponent.fromLegacyText(whole.getExtra().get(i - 1).toLegacyText())[0];
             String part = parts[i];
             if (part.equalsIgnoreCase("%type%")) {
                 TranslatableComponent type = new TranslatableComponent(key);
                 if (i > 0) {
-                    type.copyFormatting(prev);
+                    type.copyFormatting(prev, ComponentBuilder.FormatRetention.FORMATTING, false);
                 }
                 whole.addExtra(type);
                 continue;
             }
 
-            TextComponent tc = new TextComponent(part);
+            TextComponent tc = new TextComponent(TextComponent.fromLegacyText(part));
             if (i > 0 && !part.startsWith("§r"))
-                tc.copyFormatting(prev);
+                tc.copyFormatting(prev, ComponentBuilder.FormatRetention.FORMATTING, false);
 
             whole.addExtra(tc);
         }

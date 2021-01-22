@@ -48,7 +48,6 @@ public class DisplayItemInfo implements DisplayInfo {
     }
 
     public TextComponent getName() {
-
         TextComponent ItemName = new TextComponent(itemStuff.getName(display.getItem(), "", false));
 
         if (m.getConfig().getBoolean("show-item-amount") && display.getItem().getAmount() > 1)
@@ -164,9 +163,7 @@ public class DisplayItemInfo implements DisplayInfo {
 
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
-            if (i > 0)
-                prev = TextComponent.fromLegacyText(
-                        org.bukkit.ChatColor.getLastColors(whole.getExtra().get(i - 1).toLegacyText()))[0];
+            if (i > 0) prev = TextComponent.fromLegacyText(whole.getExtra().get(i - 1).toLegacyText())[0];
 
             if (part.contains("%item%")) {
                 whole.addExtra(base);
@@ -175,15 +172,15 @@ public class DisplayItemInfo implements DisplayInfo {
             if (part.contains("%amount%")) {
                 TextComponent tc = new TextComponent(display.getItem().getAmount() + "");
                 if (i > 0)
-                    tc.copyFormatting(prev);
-
+                    tc.copyFormatting(prev, ComponentBuilder.FormatRetention.FORMATTING, false);
                 whole.addExtra(tc);
                 continue;
             }
 
-            TextComponent tc = new TextComponent(part);
+            TextComponent tc = new TextComponent(TextComponent.fromLegacyText(part));
             if (i > 0 && !part.startsWith("§r"))
-                tc.copyFormatting(prev); // Checks if the previous
+                tc.copyFormatting(prev, ComponentBuilder.FormatRetention.FORMATTING, false);
+            // Checks if the previous
             // object was an item
             // and that it doesnt
             // have a §
