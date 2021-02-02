@@ -2,19 +2,39 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github</groupId>
+    <groupId>com.github.bingorufus</groupId>
     <artifactId>ChatItemDisplay</artifactId>
-    <version>1.6.5</version>
-    <packaging>jar</packaging>
+    <version>1.7.0</version>
 
     <name>ChatItemDisplay</name>
+    <developers>
+        <developer>
+            <id>BingoRufus</id>
+            <name>Curtis Bradley</name>
+            <timezone>PT</timezone>
+            <email>bingorufus@gmail.com</email>
+        </developer>
+    </developers>
 
-    <description>Display items, inventories, and ender chests in chat</description>
+    <packaging>jar</packaging>
+
+
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <javaplugin.name>ChatItemDisplay</javaplugin.name>
+        <javaplugin.main>com.github.bingorufus.chatitemdisplay.ChatItemDisplay</javaplugin.main>
+        <javaplugin.description>Display items, inventories, and ender chests in chat</javaplugin.description>
+
+
+        <bungee.name>ChatItemDisplayBungee</bungee.name>
+        <bungee.main>com.github.bingorufus.chatitemdisplaybungee.ChatItemDisplayBungee</bungee.main>
+        <bungee.description>Bungee support for ChatItemDisplay</bungee.description>
+
     </properties>
     <url>https://www.github.com/bingorufus/ChatItemDisplay</url>
 
@@ -67,6 +87,64 @@
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io/</url>
+        </repository>
+        <repository>
+            <!-- Discord SRV-->
+            <id>Scarsz-Nexus</id>
+            <url>https://nexus.scarsz.me/content/groups/public/</url>
+        </repository>
+
+        <repository>
+            <id>bungeecord-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
     </repositories>
 
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.16</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.16.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dmulloy2</groupId>
+            <artifactId>Protocollib</artifactId>
+            <version>4.5.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.discordsrv</groupId>
+            <artifactId>discordsrv</artifactId>
+            <version>1.21.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-api</artifactId>
+            <version>1.16-R0.4-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-api</artifactId>
+            <version>1.16-R0.4-SNAPSHOT</version>
+            <type>javadoc</type>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

@@ -1,5 +1,5 @@
-main: me.bingorufus.chatitemdisplaybungee.ChatItemDisplayBungee
-name: ChatItemDisplayBungee
-description: Bungee support for ChatItemDisplay
+main: ${bungee.main}
+name: ${bungee.name}
+description: ${bungee.description}
 author: BingoRufus
 version: ${project.version}

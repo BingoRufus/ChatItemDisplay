@@ -1,6 +1,6 @@
-name: ChatItemDisplay
-main: me.bingorufus.chatitemdisplay.ChatItemDisplay
-description: Display items, inventories, and ender chests in chat
+name: ${javaplugin.name}
+main: ${javaplugin.main}
+description: ${javaplugin.description}
 api-version: 1.13
 author: BingoRufus
 version: ${project.version}
