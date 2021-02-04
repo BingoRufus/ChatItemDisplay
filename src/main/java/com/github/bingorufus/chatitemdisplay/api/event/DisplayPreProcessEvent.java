@@ -6,6 +6,7 @@ import com.github.bingorufus.chatitemdisplay.displayables.Displayable;
 import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -28,7 +29,7 @@ public class DisplayPreProcessEvent extends Event implements Cancellable {
     private String cancellationMessage = ChatItemConfig.MISSING_PERMISSION_GENERIC;
 
     public DisplayPreProcessEvent(Player player, Displayable displayable, boolean fromChat) {
-        super(fromChat);
+        super(!Bukkit.isPrimaryThread());
         this.player = player;
         this.displayable = displayable;
         this.type = displayable.getType();

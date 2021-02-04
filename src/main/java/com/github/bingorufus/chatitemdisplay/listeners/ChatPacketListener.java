@@ -13,10 +13,10 @@ import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
@@ -65,7 +65,6 @@ public class ChatPacketListener extends PacketAdapter {
         } else {
             originalComps = ComponentSerializer.parse(chat.getJson());
         }
-
         if (originalComps == null) return;
 
         if (originalComps.length != 1) {
@@ -114,7 +113,7 @@ public class ChatPacketListener extends PacketAdapter {
                 }
                 for (String part : parts) {
 
-                    TextComponent tc = new TextComponent(part);
+                    TextComponent tc = (TextComponent) TextComponent.fromLegacyText(part)[0];
                     tc.copyFormatting(bc, false);
                     editedExtra.add(tc);
                 }
@@ -128,6 +127,7 @@ public class ChatPacketListener extends PacketAdapter {
         originalComps[0] = org;
 
         baseComps = originalComps;
+
 
         try {
             for (int i = 0; i < baseComps[0].getExtra().size(); i++) {
@@ -149,8 +149,7 @@ public class ChatPacketListener extends PacketAdapter {
                     replace = bell + "cid" + matcher.group(1) + bell;
 
 
-                    String legacyText = bc.toLegacyText().replace(replace, replace + ChatColor
-                            .getLastColors(bc.toLegacyText().substring(0, bc.toLegacyText().indexOf(replace))));
+                    String legacyText = bc.toLegacyText().replace(replace, replace + getLastColors(bc.toLegacyText().substring(0, bc.toLegacyText().indexOf(replace))));
 
                     if (ChatItemConfig.DEBUG_MODE) {
                         Bukkit.getLogger().info(displaying + " is being displayed");
@@ -172,7 +171,7 @@ public class ChatPacketListener extends PacketAdapter {
                             component.addExtra(hover);
                             continue;
                         }
-                        TextComponent tc = new TextComponent(part);
+                        TextComponent tc = (TextComponent) TextComponent.fromLegacyText(part)[0];
                         component.addExtra(tc);
                     }
                     extra.set(i, component);
@@ -198,5 +197,11 @@ public class ChatPacketListener extends PacketAdapter {
 
     }
 
+    private String getLastColors(String string) {
+        TextComponent tc = (TextComponent) TextComponent.fromLegacyText(string)[0];
+        TextComponent colored = new TextComponent();
+        colored.copyFormatting(tc, ComponentBuilder.FormatRetention.FORMATTING, true);
+        return colored.toLegacyText();
+    }
 
 }
