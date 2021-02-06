@@ -94,9 +94,8 @@ public class ItemStackStuff {
         BaseComponent legacy = TextComponent.fromLegacyText(forceColor ? color : colorPrefix)[0];
         if (Objects.requireNonNull(item.getItemMeta()).hasDisplayName()) {
             colorPrefix += ChatColor.ITALIC;
-            TextComponent itemName = (TextComponent) TextComponent.fromLegacyText(colorPrefix + item.getItemMeta().getDisplayName())[0];
+            TextComponent itemName = new TextComponent(TextComponent.fromLegacyText(colorPrefix + item.getItemMeta().getDisplayName()));
             if (forceColor) {
-
                 itemName = (TextComponent) TextComponent.fromLegacyText(color + ChatColor.stripColor(item.getItemMeta().getDisplayName()))[0];
                 itemName.copyFormatting(legacy, FormatRetention.FORMATTING, true);
 

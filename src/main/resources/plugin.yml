@@ -32,6 +32,7 @@ commands:
     usage: /<command>
     description: Generate a debug log, used for creating bug reports
     aliases: [ generatedebuglogs ]
+    permission: chatitemdisplay.command.debug
 
 permissions:
   chatitemdisplay.*:

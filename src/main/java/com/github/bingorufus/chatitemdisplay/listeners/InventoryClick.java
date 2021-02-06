@@ -69,7 +69,7 @@ public class InventoryClick implements Listener {
                 case WRITTEN_BOOK:
                 case WRITABLE_BOOK:
                     book(e.getCurrentItem(), p);
-                    break;
+                    return;
                 default:
             }
 
@@ -142,7 +142,7 @@ public class InventoryClick implements Listener {
         BookMeta bm = (BookMeta) item.getItemMeta();
 
         if (!bm.hasPages()) bm.setPages("");
-        bm.setTitle("ChatItemDisplay is the best plugin");
+        bm.setTitle("ChatItemDisplay Book");
         bm.setAuthor("ChatItemDisplay");
         p.closeInventory();
 

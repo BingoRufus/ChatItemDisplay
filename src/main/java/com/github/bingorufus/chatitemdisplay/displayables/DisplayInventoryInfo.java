@@ -36,6 +36,7 @@ public class DisplayInventoryInfo implements DisplayInfo {
                                 : inv.getDisplayName()
                                 : inv.getPlayer());
 
+
         new DisplayableBroadcaster().broadcast(format(format, key));
     }
 
@@ -49,7 +50,8 @@ public class DisplayInventoryInfo implements DisplayInfo {
         TextComponent whole = new TextComponent();
         BaseComponent prev = null;
         for (int i = 0; i < parts.length; i++) {
-            if (i > 0) prev = TextComponent.fromLegacyText(whole.getExtra().get(i - 1).toLegacyText())[0];
+            if (i > 0)
+                prev = new TextComponent(TextComponent.fromLegacyText(whole.getExtra().get(i - 1).toLegacyText()));
             String part = parts[i];
             if (part.equalsIgnoreCase("%type%")) {
                 TranslatableComponent type = new TranslatableComponent(key);
