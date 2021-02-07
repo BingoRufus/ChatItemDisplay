@@ -40,7 +40,7 @@ public class ChatPacketListener extends PacketAdapter {
 
     @Override
     public void onPacketReceiving(final PacketEvent e) {
-        if (m.invs.containsKey(e.getPlayer().getOpenInventory().getTopInventory())) {
+        if (m.getChatItemDisplayInventories().containsKey(e.getPlayer().getOpenInventory().getTopInventory())) {
             e.setCancelled(true);
         }
     }

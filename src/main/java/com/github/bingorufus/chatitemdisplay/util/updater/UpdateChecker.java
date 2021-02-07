@@ -15,18 +15,14 @@ public class UpdateChecker {
         this.id = i;
     }
 
-    public String getLatestVersion(Consumer<String> version) {
+    public void getLatestVersion(Consumer<String> version) throws IOException {
 
-        try (InputStream inputStream = new URL(
+        InputStream inputStream = new URL(
                 "https://api.spigotmc.org/legacy/update.php?resource=" + this.id + "?" + UUID.randomUUID())
-                .openStream(); Scanner scanner = new Scanner(inputStream)) {
-            if (scanner.hasNext()) {
-                version.accept(scanner.next());
-            }
-            return null;
-
-        } catch (IOException e) {
-            return ("Unable to connect to Spigot to check for updates " + e.getMessage());
+                .openStream();
+        Scanner scanner = new Scanner(inputStream);
+        if (scanner.hasNext()) {
+            version.accept(scanner.next());
         }
 
 

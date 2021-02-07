@@ -16,7 +16,7 @@ public class DisplayInventoryInfo implements DisplayInfo {
 
     public DisplayInventoryInfo(DisplayInventory inv) {
         this.inv = inv;
-        m.invs.put(inv.getInventory(), inv.getUUID());
+        m.getChatItemDisplayInventories().put(inv.getInventory(), inv.getUUID());
 
     }
 

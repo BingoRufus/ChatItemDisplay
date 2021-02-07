@@ -7,7 +7,7 @@ import lombok.Getter;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class ChatItemDisplayBungee extends Plugin {
     @Getter
@@ -31,35 +31,32 @@ public class ChatItemDisplayBungee extends Plugin {
 
     public void downloadUpdate() {
         getProxy().getScheduler().runAsync(this, () -> {
-            String error = new UpdateChecker(77177).getLatestVersion(ver -> {
-                VersionComparator.Status s = new VersionComparator().isRecent(this.getDescription().getVersion(), ver);
+            try {
+                new UpdateChecker(77177).getLatestVersion(ver -> {
+                    VersionComparator.Status s = new VersionComparator().isRecent(this.getDescription().getVersion(), ver);
 
-                if (s.equals(VersionComparator.Status.BEHIND)) {
-                    try {
+                    if (s.equals(VersionComparator.Status.BEHIND)) {
                         UpdateDownloader downloader = new UpdateDownloader();
-                        String downloadError = downloader
-                                .download(new File(
-                                        "plugins/ChatItemDisplay " + ver + ".jar"));
-                        if (downloadError != null) {
+                        try {
+                            downloader
+                                    .download(new File(
+
+                                            "plugins/ChatItemDisplay " + ver + ".jar"));
+                            getLogger().info(
+                                    "The newest version of ChatItemDisplay has been downloaded automatically, it will be loaded upon the next startup");
+                            downloader.deletePlugin(this);
+                        } catch (IOException e) {
+                            e.printStackTrace();
                             getLogger().warning(
-                                    "Could not download the newest version of ChatItemDisplay (" + downloadError + ")");
+                                    "Could not download the newest version of ChatItemDisplay (" + e.getMessage() + ")");
                             return;
                         }
-                        downloader.deletePlugin(this);
-                        getLogger().info(
-                                "The newest version of ChatItemDisplay has been downloaded automatically, it will be loaded upon the next startup");
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                        getLogger().warning(
-                                "Could not download the newest version of ChatItemDisplay (" + e.getMessage() + ")");
 
-                        return;
                     }
-                }
-                getLogger().info("ChatItemDisplay is up to date");
-            });
-            if (error != null) {
-                getLogger().warning(error);
+                    getLogger().info("ChatItemDisplay is up to date");
+                });
+            } catch (Exception e) {
+                getProxy().getLogger().warning(String.format("Unable to retrieve the latest version of ChatItemDisplay ({%s})", e.getMessage()));
             }
         });
 

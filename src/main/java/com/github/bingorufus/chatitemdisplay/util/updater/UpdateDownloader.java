@@ -10,32 +10,27 @@ public class UpdateDownloader {
     String newFileName;
 
 
-    public String download(File newFile) throws FileNotFoundException {
+    public File download(File newFile) throws IOException {
         FileOutputStream downloadPath = new FileOutputStream(newFile);
-        try (BufferedReader inputStream = new BufferedReader(new InputStreamReader(
+        BufferedReader inputStream = new BufferedReader(new InputStreamReader(
                 new URL("https://gist.githubusercontent.com/BingoRufus/a3714f3e6afb400122ec5ffefe6c430c/raw/?version="
                         + Math.random()).openStream()));
-             Scanner scanner = new Scanner(inputStream)) {
-            String link = scanner.next();
+        Scanner scanner = new Scanner(inputStream);
+        String link = scanner.next();
 
-            try (BufferedInputStream in = new BufferedInputStream(new URL(link).openStream())) {
+        BufferedInputStream in = new BufferedInputStream(new URL(link).openStream());
 
-                byte[] dataBuffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                    downloadPath.write(dataBuffer, 0, bytesRead);
+        byte[] dataBuffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+            downloadPath.write(dataBuffer, 0, bytesRead);
 
-                }
-                newFileName = newFile.getName();
-                downloadPath.close();
-                return null;
-
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Unable to download the newest version of ChatItemDisplay (" + e.getMessage() + ")";
         }
+        newFileName = newFile.getName();
+        downloadPath.close();
+        return newFile;
+
+
     }
 
     public void deletePlugin(Object plugin) {

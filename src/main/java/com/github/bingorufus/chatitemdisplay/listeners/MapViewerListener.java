@@ -22,7 +22,7 @@ public class MapViewerListener implements Listener {
 
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
-        if (m.viewingMap.containsKey(e.getPlayer())) {
+        if (m.getMapViewers().containsKey(e.getPlayer())) {
             restore(e.getPlayer());
 
         }
@@ -30,7 +30,7 @@ public class MapViewerListener implements Listener {
 
     @EventHandler
     public void onHandSwap(PlayerSwapHandItemsEvent e) {
-        if (m.viewingMap.containsKey(e.getPlayer())) {
+        if (m.getMapViewers().containsKey(e.getPlayer())) {
             e.setCancelled(true);
 
             restore(e.getPlayer());
@@ -40,7 +40,7 @@ public class MapViewerListener implements Listener {
 
     @EventHandler
     public void onItemChange(PlayerItemHeldEvent e) {
-        if (m.viewingMap.containsKey(e.getPlayer())) {
+        if (m.getMapViewers().containsKey(e.getPlayer())) {
             restore(e.getPlayer());
 
         }
@@ -48,7 +48,7 @@ public class MapViewerListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
-        if (m.viewingMap.containsKey(e.getPlayer())) {
+        if (m.getMapViewers().containsKey(e.getPlayer())) {
             e.setCancelled(true);
             restore(e.getPlayer());
 
@@ -57,7 +57,7 @@ public class MapViewerListener implements Listener {
 
     @EventHandler
     public void onClickEntity(PlayerInteractAtEntityEvent e) {
-        if (m.viewingMap.containsKey(e.getPlayer())) {
+        if (m.getMapViewers().containsKey(e.getPlayer())) {
             e.setCancelled(true);
             restore(e.getPlayer());
 
@@ -69,7 +69,7 @@ public class MapViewerListener implements Listener {
         if (!(e.getEntity() instanceof Player))
             return;
         Player p = (Player) e.getEntity();
-        if (m.viewingMap.containsKey(p)) {
+        if (m.getMapViewers().containsKey(p)) {
             restore(p);
 
         }
@@ -78,7 +78,7 @@ public class MapViewerListener implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
-        if (m.viewingMap.containsKey(p)) {
+        if (m.getMapViewers().containsKey(p)) {
             e.setCancelled(true);
             restore(p);
         }
@@ -87,7 +87,7 @@ public class MapViewerListener implements Listener {
     @EventHandler
     public void onCreativeClick(InventoryCreativeEvent e) {
         Player p = (Player) e.getWhoClicked();
-        if (m.viewingMap.containsKey(p)) {
+        if (m.getMapViewers().containsKey(p)) {
             e.setCancelled(true);
             restore(p);
         }
@@ -95,7 +95,7 @@ public class MapViewerListener implements Listener {
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent e) {
-        if (m.viewingMap.containsKey(e.getPlayer())) {
+        if (m.getMapViewers().containsKey(e.getPlayer())) {
             e.getItemDrop().remove();
             restore(e.getPlayer());
         }
@@ -103,7 +103,7 @@ public class MapViewerListener implements Listener {
 
     @EventHandler
     public void onHang(HangingPlaceEvent e) {
-        if (m.viewingMap.containsKey(e.getPlayer())) {
+        if (m.getMapViewers().containsKey(e.getPlayer())) {
             e.setCancelled(true);
             restore(e.getPlayer());
         }
@@ -115,7 +115,7 @@ public class MapViewerListener implements Listener {
         if (!(e.getEntity() instanceof Player))
             return;
         Player p = (Player) e.getEntity();
-        if (!m.viewingMap.containsKey(p))
+        if (!m.getMapViewers().containsKey(p))
             return;
         if (e.getItem().getItemStack().isSimilar(p.getInventory().getItemInMainHand())) {
             e.setCancelled(true);
@@ -126,10 +126,10 @@ public class MapViewerListener implements Listener {
 
     public void restore(Player p) {
         p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-        ItemStack item = m.viewingMap.get(p);
+        ItemStack item = m.getMapViewers().get(p);
         if (item.getItemMeta() != null)
             p.getInventory().setItemInMainHand(item);
-        m.viewingMap.remove(p);
+        m.getMapViewers().remove(p);
     }
 
 

@@ -33,9 +33,9 @@ import java.util.UUID;
 public class ChatItemDisplay extends JavaPlugin {
     public static final String MINECRAFT_VERSION = Bukkit.getServer().getVersion().substring(Bukkit.getServer().getVersion().indexOf("(MC: ") + 5,
             Bukkit.getServer().getVersion().indexOf(")"));
-    private static ChatItemDisplay main;
-    public final HashMap<Player, ItemStack> viewingMap = new HashMap<>();//Contains players who are looking at maps, the value is the item that was replaced
-    public final HashMap<Inventory, UUID> invs = new HashMap<>(); //Inventories and the UUIDs of the owners
+    private static ChatItemDisplay INSTANCE;
+    private final HashMap<Player, ItemStack> mapViewers = new HashMap<>();//Contains players who are looking at maps, the value is the item that was replaced
+    private final HashMap<Inventory, UUID> chatItemDisplayInventories = new HashMap<>(); //Inventories and the UUIDs of the owners
     private final Cooldown<Player> displayCooldown = new Cooldown<>(0);
     private ProtocolLibRegister pl;
     private DiscordSRVRegister discordReg;
@@ -43,7 +43,7 @@ public class ChatItemDisplay extends JavaPlugin {
     private JsonObject lang;
 
     public static ChatItemDisplay getInstance() {
-        return main;
+        return INSTANCE;
     }
 
     /*TODO:
@@ -55,7 +55,7 @@ public class ChatItemDisplay extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        main = this;
+        INSTANCE = this;
         this.saveDefaultConfig();
         this.dm = new DisplayedManager();
         this.getCommand("generatedebuglog").setExecutor(new DebugExecutor());
@@ -85,10 +85,10 @@ public class ChatItemDisplay extends JavaPlugin {
             discordReg.unregister();
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (viewingMap.containsKey(p)) {
-                p.getInventory().setItemInMainHand(viewingMap.get(p));
+            if (getMapViewers().containsKey(p)) {
+                p.getInventory().setItemInMainHand(getMapViewers().get(p));
             }
-            if (invs.containsKey(p.getOpenInventory().getTopInventory())) {
+            if (getChatItemDisplayInventories().containsKey(p.getOpenInventory().getTopInventory())) {
                 p.closeInventory();
             }
 
@@ -147,5 +147,13 @@ public class ChatItemDisplay extends JavaPlugin {
 
     public Cooldown<Player> getDisplayCooldown() {
         return displayCooldown;
+    }
+
+    public HashMap<Player, ItemStack> getMapViewers() {
+        return mapViewers;
+    }
+
+    public HashMap<Inventory, UUID> getChatItemDisplayInventories() {
+        return chatItemDisplayInventories;
     }
 }

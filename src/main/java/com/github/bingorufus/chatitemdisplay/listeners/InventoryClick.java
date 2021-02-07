@@ -42,7 +42,7 @@ public class InventoryClick implements Listener {
 
     @EventHandler
     public void onClick(final InventoryClickEvent e) {
-        if (m.invs.containsKey(e.getInventory())) {
+        if (m.getChatItemDisplayInventories().containsKey(e.getInventory())) {
             e.setCancelled(true);
             if (e.getClickedInventory() == null)
                 return;
@@ -56,7 +56,7 @@ public class InventoryClick implements Listener {
             if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
                 BlockStateMeta bsm = ((BlockStateMeta) e.getCurrentItem().getItemMeta());
                 if (bsm.getBlockState() instanceof Container) {
-                    container(e.getCurrentItem().clone(), p, m.invs.get(e.getInventory()));
+                    container(e.getCurrentItem().clone(), p, m.getChatItemDisplayInventories().get(e.getInventory()));
                     return;
                 }
 
@@ -101,7 +101,7 @@ public class InventoryClick implements Listener {
     }
 
     public void map(ItemStack item, Player p) {
-        m.viewingMap.put(p, p.getInventory().getItemInMainHand());
+        m.getMapViewers().put(p, p.getInventory().getItemInMainHand());
         p.sendMessage(new StringFormatter().format(ChatItemConfig.MAP));
         p.closeInventory();
         p.getInventory().setItemInMainHand(item);
@@ -125,7 +125,7 @@ public class InventoryClick implements Listener {
             containerInv = Bukkit.createInventory(holder, container.getType(), ItemStackStuff.itemName(item));
         containerInv.setContents(container.getContents());
 
-        m.invs.put(containerInv, owner);
+        m.getChatItemDisplayInventories().put(containerInv, owner);
         p.openInventory(containerInv);
 
     }

@@ -40,8 +40,8 @@ public class DisplayItemInfo implements DisplayInfo {
                                 : display.getDisplayName() : display.getPlayer()));
         inventory.setItem(4, display.getItem());
 
-        if (!m.invs.containsKey(inventory)) {
-            m.invs.put(inventory, display.getUUID());
+        if (!m.getChatItemDisplayInventories().containsKey(inventory)) {
+            m.getChatItemDisplayInventories().put(inventory, display.getUUID());
         }
 
     }
