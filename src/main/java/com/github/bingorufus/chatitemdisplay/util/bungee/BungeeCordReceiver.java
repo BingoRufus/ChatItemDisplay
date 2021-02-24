@@ -41,7 +41,7 @@ public class BungeeCordReceiver implements PluginMessageListener {
         m.getDisplayedManager().addDisplay(display);
 
         if (in.readBoolean()) {
-            display.getDisplayable().getInfo().broadcastCommandMessage();
+            display.getDisplayable().broadcastDisplayable();
         }
     }
 

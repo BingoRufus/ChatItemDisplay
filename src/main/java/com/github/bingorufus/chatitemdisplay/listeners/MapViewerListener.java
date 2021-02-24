@@ -14,11 +14,8 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
 public class MapViewerListener implements Listener {
-    final ChatItemDisplay m;
+    private final ChatItemDisplay m = ChatItemDisplay.getInstance();
 
-    public MapViewerListener(ChatItemDisplay m) {
-        this.m = m;
-    }
 
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {

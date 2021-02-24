@@ -1,8 +1,7 @@
 package com.github.bingorufus.chatitemdisplay.api.event;
 
 
-import com.github.bingorufus.chatitemdisplay.displayables.DisplayType;
-import com.github.bingorufus.chatitemdisplay.displayables.Displayable;
+import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +17,7 @@ public class DisplayPreProcessEvent extends Event implements Cancellable {
     private final Player player;
     @Getter
     private final Displayable displayable;
-    @Getter
-    private final DisplayType type;
+
     private final boolean inChatDisplay;
     @Getter
     @Setter
@@ -32,7 +30,6 @@ public class DisplayPreProcessEvent extends Event implements Cancellable {
         super(!Bukkit.isPrimaryThread());
         this.player = player;
         this.displayable = displayable;
-        this.type = displayable.getType();
         this.inChatDisplay = fromChat;
     }
 

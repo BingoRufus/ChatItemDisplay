@@ -1,6 +1,6 @@
 package com.github.bingorufus.chatitemdisplay;
 
-import com.github.bingorufus.chatitemdisplay.displayables.Displayable;
+import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -22,16 +22,16 @@ public class DisplayedManager {
 
     }
 
-    public void addDisplayable(String player, Displayable display) {
-        Display dis = new Display(display, player.toUpperCase(), UUID.randomUUID());
+    public Display addDisplayable(Displayable display) {
+        Display dis = new Display(display, UUID.randomUUID());
         displayId.put(dis.getId(), dis);
-        mostRecent.put(player.toUpperCase(), dis.getId());
-
+        mostRecent.put(display.getDisplayer().getRegularName().toUpperCase(), dis.getId());
+        return dis;
     }
 
     public void addDisplay(Display d) {
         displayId.put(d.getId(), d);
-        mostRecent.put(d.getPlayer().toUpperCase(), d.getId());
+        mostRecent.put(d.getPlayer().getRegularName().toUpperCase(), d.getId());
     }
 
     public Display getDisplayed(UUID id) {

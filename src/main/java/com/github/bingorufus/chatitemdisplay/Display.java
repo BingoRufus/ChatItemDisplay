@@ -1,6 +1,8 @@
 package com.github.bingorufus.chatitemdisplay;
 
-import com.github.bingorufus.chatitemdisplay.displayables.Displayable;
+import com.github.bingorufus.chatitemdisplay.api.display.DisplayType;
+import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
+import com.github.bingorufus.chatitemdisplay.displayables.DisplayingPlayer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -8,29 +10,42 @@ import java.util.UUID;
 
 public class Display {
     private final Displayable dis;
-    private final String player;
+    private final DisplayingPlayer player;
     private final UUID id; // Just allows for a big number to prevent overflow, as long as less than 9
     // quintillion items are displayed before the server restarts.
 
-    public Display(Displayable displayable, String player, UUID id) {
+
+    public Display(Displayable displayable, UUID id) {
         this.dis = displayable;
-        this.player = player;
+        this.player = displayable.getDisplayer();
         this.id = id;
     }
 
     public static Display deserialize(String json) {
         JsonObject jo = (JsonObject) new JsonParser().parse(json);
-        String player = jo.get("player").getAsString();
+
         UUID id = UUID.fromString(jo.get("id").getAsString());
-        Displayable dis = Displayable.deserialize(jo.get("displayable").getAsString());
-        return new Display(dis, player, id);
+        JsonObject displayableJSON = jo.getAsJsonObject("displayable");
+        Displayable displayable;
+        try {
+            DisplayType displayType = ChatItemDisplay.getInstance().getDisplayType((Class<? extends DisplayType>) Class.forName(displayableJSON.get("type").getAsString()));
+            if (displayType == null) {
+                return null;
+            }
+            displayable = displayType.initDisplayable(displayableJSON);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return new Display(displayable, id);
     }
 
     public Displayable getDisplayable() {
         return dis;
     }
 
-    public String getPlayer() {
+    public DisplayingPlayer getPlayer() {
         return player;
     }
 
@@ -41,16 +56,14 @@ public class Display {
 
     public String getInsertion() {
         JsonObject jo = new JsonObject();
-        jo.addProperty("player", player);
         jo.addProperty("id", id.toString());
         return '\u0007' + "cid" + jo.toString() + '\u0007';
     }
 
     public String serialize() {
         JsonObject jo = new JsonObject();
-        jo.addProperty("player", player);
         jo.addProperty("id", id.toString());
-        jo.addProperty("displayable", dis.serialize());
+        jo.add("displayable", dis.serialize());
         return jo.toString();
     }
 

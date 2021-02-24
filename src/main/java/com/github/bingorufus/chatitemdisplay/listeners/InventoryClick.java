@@ -112,17 +112,15 @@ public class InventoryClick implements Listener {
         BlockStateMeta bsm = ((BlockStateMeta) item.getItemMeta());
         if (bsm == null) return;
 
-        Inventory container;
-        Player holder = Bukkit.getOfflinePlayer(owner).getPlayer();
         Container c = (Container) bsm.getBlockState();
-        container = c.getInventory();
+        Inventory container = c.getInventory();
         if (Arrays.stream(container.getContents()).noneMatch(Objects::nonNull))
             return;
         InventoryType type = container.getType();
-        Inventory containerInv = Bukkit.createInventory(holder, type, type.getDefaultTitle());
+        Inventory containerInv = Bukkit.createInventory(null, type, type.getDefaultTitle());
 
         if (item.getItemMeta().hasDisplayName())
-            containerInv = Bukkit.createInventory(holder, container.getType(), ItemStackStuff.itemName(item));
+            containerInv = Bukkit.createInventory(null, container.getType(), ItemStackStuff.itemName(item));
         containerInv.setContents(container.getContents());
 
         m.getChatItemDisplayInventories().put(containerInv, owner);

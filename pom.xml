@@ -7,7 +7,7 @@
 
     <groupId>com.github.bingorufus</groupId>
     <artifactId>ChatItemDisplay</artifactId>
-    <version>1.7.2</version>
+    <version>1.8.0</version>
 
     <name>ChatItemDisplay</name>
     <developers>
@@ -135,16 +135,8 @@
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
             <version>1.16-R0.4-SNAPSHOT</version>
-            <type>jar</type>
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>net.md-5</groupId>
-            <artifactId>bungeecord-api</artifactId>
-            <version>1.16-R0.4-SNAPSHOT</version>
-            <type>javadoc</type>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 </project>

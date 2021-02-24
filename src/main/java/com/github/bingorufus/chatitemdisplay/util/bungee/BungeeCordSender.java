@@ -3,7 +3,7 @@ package com.github.bingorufus.chatitemdisplay.util.bungee;
 
 import com.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import com.github.bingorufus.chatitemdisplay.Display;
-import com.github.bingorufus.chatitemdisplay.displayables.Displayable;
+import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import org.bukkit.Bukkit;
 

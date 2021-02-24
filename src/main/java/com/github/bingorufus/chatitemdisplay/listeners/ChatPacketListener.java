@@ -7,8 +7,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.github.bingorufus.chatitemdisplay.ChatItemDisplay;
-import com.github.bingorufus.chatitemdisplay.displayables.DisplayInfo;
-import com.github.bingorufus.chatitemdisplay.displayables.Displayable;
+import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -29,9 +28,7 @@ import java.util.regex.Pattern;
 
 public class ChatPacketListener extends PacketAdapter {
 
-    final char bell = '\u0007';
-
-    final ChatItemDisplay m;
+    private final ChatItemDisplay m;
 
     public ChatPacketListener(Plugin plugin, ListenerPriority listenerPriority, PacketType... types) {
         super(plugin, listenerPriority, types);
@@ -43,44 +40,50 @@ public class ChatPacketListener extends PacketAdapter {
         if (m.getChatItemDisplayInventories().containsKey(e.getPlayer().getOpenInventory().getTopInventory())) {
             e.setCancelled(true);
         }
+        //Prevents items from being duplicated from displayed furnaces by shift clicking a recipe in the recipe booked
     }
 
     @Override
     public void onPacketSending(final PacketEvent e) {
-        PacketContainer packet = e.getPacket();
-        WrappedChatComponent chat = packet.getChatComponents().read(0);
         BaseComponent[] baseComps;
         BaseComponent[] originalComps;
         int field = 0;
-        if (chat == null) {
-            Object chatPacket = packet.getHandle();
-            try {
-                Field f = chatPacket.getClass().getDeclaredField("components");
-                originalComps = (BaseComponent[]) f.get(chatPacket);
-                field = 1;
-            } catch (SecurityException | NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
-                ex.printStackTrace();
-                return;
+        PacketContainer packet = e.getPacket();
+        { // Get JSON of message
+            WrappedChatComponent chat = packet.getChatComponents().read(0);
+            if (chat == null) {
+                Object chatPacket = packet.getHandle();
+                try {
+                    Field f = chatPacket.getClass().getDeclaredField("components");
+                    originalComps = (BaseComponent[]) f.get(chatPacket);
+                    field = 1;
+                } catch (SecurityException | NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex) {
+                    ex.printStackTrace();
+                    return;
+                }
+            } else {
+                originalComps = ComponentSerializer.parse(chat.getJson());
             }
-        } else {
-            originalComps = ComponentSerializer.parse(chat.getJson());
+            if (originalComps == null) return;
+            if (originalComps.length != 1) {
+                TextComponent comp = new TextComponent(originalComps);
+                originalComps = new BaseComponent[]{comp};
+            }
         }
-        if (originalComps == null) return;
 
-        if (originalComps.length != 1) {
-            TextComponent comp = new TextComponent(originalComps);
-            originalComps = new BaseComponent[]{comp};
-        }
 
         if (!ComponentSerializer.toString(originalComps).contains("\\u0007cid"))
             return;
+
         if (originalComps[0].getExtra() == null)
             return;
+
         List<BaseComponent> editedExtra = new ArrayList<>();
         for (int i = 0; i < originalComps[0].getExtra().size(); i++) {
             List<BaseComponent> extra = originalComps[0].getExtra();
 
             TextComponent bc = (TextComponent) extra.get(i);
+
             if (!bc.toLegacyText().contains("\u0007cid")) {
                 editedExtra.add(bc);
                 continue;
@@ -146,6 +149,7 @@ public class ChatPacketListener extends PacketAdapter {
 
                 while (matcher.find()) {
                     displaying = matcher.group(1);
+                    char bell = '\u0007';
                     replace = bell + "cid" + matcher.group(1) + bell;
 
 
@@ -159,12 +163,10 @@ public class ChatPacketListener extends PacketAdapter {
                     Displayable display = m.getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()))
                             .getDisplayable();
 
-                    DisplayInfo disInfo = display.getInfo();
-
 
                     String[] parts = legacyText
                             .split("((?<=" + Pattern.quote(replace) + ")|(?=" + Pattern.quote(replace) + "))");
-                    TextComponent hover = disInfo.getHover();
+                    BaseComponent hover = display.getInsertion();
                     TextComponent component = new TextComponent();
                     for (String part : parts) {
                         if (part.equalsIgnoreCase(replace)) {
@@ -186,7 +188,6 @@ public class ChatPacketListener extends PacketAdapter {
             }
         } catch (NullPointerException npe) {
             npe.printStackTrace();
-
         }
         if (field == 0) {
             packet.getChatComponents().write(0, WrappedChatComponent.fromJson(ComponentSerializer.toString(baseComps)));

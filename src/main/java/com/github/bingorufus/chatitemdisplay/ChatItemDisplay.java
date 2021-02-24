@@ -1,11 +1,13 @@
 package com.github.bingorufus.chatitemdisplay;
 
 
+import com.github.bingorufus.chatitemdisplay.api.display.DisplayType;
+import com.github.bingorufus.chatitemdisplay.displayables.DisplayEnderChestType;
+import com.github.bingorufus.chatitemdisplay.displayables.DisplayInventoryType;
+import com.github.bingorufus.chatitemdisplay.displayables.DisplayItemType;
 import com.github.bingorufus.chatitemdisplay.executors.ChatItemReloadExecutor;
 import com.github.bingorufus.chatitemdisplay.executors.DebugExecutor;
-import com.github.bingorufus.chatitemdisplay.executors.display.DisplayEnderChestExecutor;
-import com.github.bingorufus.chatitemdisplay.executors.display.DisplayInventoryExecutor;
-import com.github.bingorufus.chatitemdisplay.executors.display.DisplayItemExecutor;
+import com.github.bingorufus.chatitemdisplay.executors.display.DisplayExecutor;
 import com.github.bingorufus.chatitemdisplay.executors.display.ViewItemExecutor;
 import com.github.bingorufus.chatitemdisplay.listeners.*;
 import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
@@ -26,6 +28,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
@@ -33,6 +36,8 @@ import java.util.UUID;
 public class ChatItemDisplay extends JavaPlugin {
     public static final String MINECRAFT_VERSION = Bukkit.getServer().getVersion().substring(Bukkit.getServer().getVersion().indexOf("(MC: ") + 5,
             Bukkit.getServer().getVersion().indexOf(")"));
+
+    private static final ArrayList<DisplayType> registeredDisplayables = new ArrayList<>();
     private static ChatItemDisplay INSTANCE;
     private final HashMap<Player, ItemStack> mapViewers = new HashMap<>();//Contains players who are looking at maps, the value is the item that was replaced
     private final HashMap<Inventory, UUID> chatItemDisplayInventories = new HashMap<>(); //Inventories and the UUIDs of the owners
@@ -61,12 +66,9 @@ public class ChatItemDisplay extends JavaPlugin {
         this.getCommand("generatedebuglog").setExecutor(new DebugExecutor());
         this.getCommand("viewitem").setExecutor(new ViewItemExecutor());
         this.getCommand("chatitemreload").setExecutor(new ChatItemReloadExecutor());
-        this.getCommand("displayitem").setExecutor(new DisplayItemExecutor());
-        this.getCommand("displayinv").setExecutor(new DisplayInventoryExecutor());
-        this.getCommand("displayenderchest").setExecutor(new DisplayEnderChestExecutor());
 
         Bukkit.getPluginManager().registerEvents(new MessageCommandListener(), this);
-        Bukkit.getPluginManager().registerEvents(new MapViewerListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new MapViewerListener(), this);
         Bukkit.getPluginManager().registerEvents(new LoggerListener(), this);
         Bukkit.getPluginManager().registerEvents(new InventoryClick(), this);
         Bukkit.getPluginManager().registerEvents(new ChatDisplayListener(), this);
@@ -75,6 +77,10 @@ public class ChatItemDisplay extends JavaPlugin {
         reloadListeners();
 
         new ConfigReloader().reload();
+        registerDisplayable(new DisplayItemType());
+        registerDisplayable(new DisplayInventoryType());
+        registerDisplayable(new DisplayEnderChestType());
+
 
         Metrics metrics = new Metrics(this, 7229);
     }
@@ -156,4 +162,28 @@ public class ChatItemDisplay extends JavaPlugin {
     public HashMap<Inventory, UUID> getChatItemDisplayInventories() {
         return chatItemDisplayInventories;
     }
+
+
+    public ArrayList<DisplayType> getRegisteredDisplayables() {
+        return (ArrayList<DisplayType>) registeredDisplayables.clone();
+    }
+
+    public void registerDisplayable(DisplayType displayType) {
+        registeredDisplayables.add(displayType);
+        try {
+            getCommand(displayType.getCommand()).setExecutor(new DisplayExecutor(displayType));
+        } catch (NullPointerException e) {
+            throw new NullPointerException("No comamnd named \"" + displayType.getCommand() + "\" has been registered in the plugin.yml");
+        }
+    }
+
+    public DisplayType getDisplayType(Class<? extends DisplayType> displayTypeClass) {
+        DisplayType displayType = ChatItemDisplay.getInstance().getRegisteredDisplayables().stream().filter(type -> type.getClass().equals(displayTypeClass)).findFirst().orElse(null);
+        if (displayType == null) {
+            System.out.println("Cannot find a displaytype that has the class path of: " + displayTypeClass.getCanonicalName());
+            return null;
+        }
+        return displayType;
+    }
+
 }

@@ -31,7 +31,7 @@ public class PlayerInventoryReplicator {
                         m.getConfig().getBoolean("use-nicks-in-gui") ? m.getConfig().getBoolean("strip-nick-colors-gui")
                                 ? ChatColor.stripColor(p.getDisplayName())
                                 : p.getDisplayName() : p.getName()));
-        Inventory inv = Bukkit.createInventory(Bukkit.getOfflinePlayer(p.getUniqueId()).getPlayer(), 45, invTitle);
+        Inventory inv = Bukkit.createInventory(null, 45, invTitle);
 
 
         PlayerInventory i = p.getInventory();

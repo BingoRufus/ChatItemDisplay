@@ -1,106 +1,68 @@
 package com.github.bingorufus.chatitemdisplay;
 
+import com.github.bingorufus.chatitemdisplay.api.display.DisplayType;
+import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.github.bingorufus.chatitemdisplay.api.event.DisplayPreProcessEvent;
-import com.github.bingorufus.chatitemdisplay.displayables.DisplayInventory;
-import com.github.bingorufus.chatitemdisplay.displayables.DisplayItem;
-import com.github.bingorufus.chatitemdisplay.displayables.DisplayType;
-import com.github.bingorufus.chatitemdisplay.displayables.Displayable;
-import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
-import com.github.bingorufus.chatitemdisplay.util.iteminfo.PlayerInventoryReplicator;
-import com.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class DisplayParser {
-    private final String s;
-    private boolean containsItem;
-    private boolean containsInventory;
-    private boolean containsEnderchest;
-    private DisplayItem item;
-    private DisplayInventory inv;
-    private DisplayInventory ec;
+    private final String message;
+    private final List<DisplayType> displayTypes = new ArrayList<>();
+    private final HashMap<DisplayType, Displayable> displayables = new HashMap<>();
 
-    public DisplayParser(String s) {
-        this.s = s;
+    public DisplayParser(String message) {
+        this.message = message;
         read();
     }
 
     private void read() {
-        for (String t : ChatItemConfig.ITEM_TRIGGERS) {
-            if (s.contains(t)) {
-                containsItem = true;
-                break;
-            }
-        }
-        for (String t : ChatItemConfig.INVENTORY_TRIGGERS) {
-            if (s.contains(t)) {
-                containsInventory = true;
-                break;
-            }
-        }
-        for (String t : ChatItemConfig.ENDERCHEST_TRIGGERS) {
-            if (s.contains(t)) {
-                containsEnderchest = true;
-                break;
+        for (DisplayType displayType : ChatItemDisplay.getInstance().getRegisteredDisplayables()) {
+            for (String trigger : displayType.getTriggers()) {
+                if (message.toUpperCase().contains(trigger.toUpperCase())) {
+                    displayTypes.add(displayType);
+                    break;
+                }
             }
         }
     }
 
     public boolean containsDisplay() {
-        return containsItem || containsInventory || containsEnderchest;
+        return displayTypes.size() > 0;
     }
 
-    public boolean containsItem() {
-        return containsItem;
+    public List<Displayable> getDisplayables() {
+        return new ArrayList<>(displayables.values());
     }
 
-    public boolean containsInventory() {
-        return containsInventory;
-    }
-
-    public boolean containsEnderChest() {
-        return containsEnderchest;
+    public List<DisplayType> getDisplayedTypes() {
+        return displayTypes;
     }
 
     public String format(Player p) {
-        if (item == null && ec == null && inv == null) createDisplayables(p);
-        String out = s;
-        out = replaceTrigger(out, p, DisplayType.ITEM);
-        out = replaceTrigger(out, p, DisplayType.INVENTORY);
-        out = replaceTrigger(out, p, DisplayType.ENDERCHEST);
+        if (displayables.size() == 0) createDisplayables(p);
+        String out = message;
+        for (DisplayType displayType : ChatItemDisplay.getInstance().getRegisteredDisplayables()) {
+            out = replaceTrigger(out, p, displayType);
+        }
 
         return out;
     }
 
-    private String replaceTrigger(String message, Player p, DisplayType type) {
+    private String replaceTrigger(String message, Player p, DisplayType displayType) {
         String out = message;
-        Displayable displayable;
-        List<String> triggers;
         boolean sentEvent = false;
-        switch (type) {
-            case INVENTORY:
-                triggers = ChatItemConfig.INVENTORY_TRIGGERS;
-                displayable = inv;
-                break;
-            case ENDERCHEST:
-                triggers = ChatItemConfig.ENDERCHEST_TRIGGERS;
-                displayable = ec;
-                break;
-            default:
-                triggers = ChatItemConfig.ITEM_TRIGGERS;
-                displayable = item;
-                break;
-        }
-        for (String t : triggers) {
-            if (!out.contains(t)) continue;
+
+
+        for (String trigger : displayType.getTriggers()) {
+            if (!out.toUpperCase().contains(trigger.toUpperCase())) continue;
             if (!sentEvent) {
-                DisplayPreProcessEvent displayEvent = new DisplayPreProcessEvent(p, displayable, true);
+                DisplayPreProcessEvent displayEvent = new DisplayPreProcessEvent(p, displayables.get(displayType), true);
                 Bukkit.getPluginManager().callEvent(displayEvent);
                 if (displayEvent.isCancelled()) {
                     p.sendMessage(displayEvent.getCancellationMessage());
@@ -109,47 +71,45 @@ public class DisplayParser {
                 sentEvent = true;
             }
 
-            ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(p.getName(), displayable);
-            String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(displayable).getInsertion();
-            out = out.replace(t, ins);
+            ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(displayables.get(displayType));
+            String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(displayables.get(displayType)).getInsertion();
+            out = out.replaceAll("(?i)" + Pattern.quote(trigger), ins);
+            System.out.println(out);
+
         }
         return out;
 
     }
 
     public void createDisplayables(Player p) {
-        if (containsItem()) {
-            ItemStack item = p.getInventory().getItemInMainHand();
-            this.item = new DisplayItem(item, p.getName(), p.getDisplayName(), p.getUniqueId());
-        }
-        if (containsInventory()) {
-            PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator().replicateInventory(p);
-            inv = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(), p.getDisplayName(), p.getUniqueId());
-        }
-        if (containsEnderChest()) {
-            String title = new StringFormatter().format(ChatItemConfig.ENDERCHEST_TITLE.replace("%player%",
-                    ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui")
-                            ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
-                            ? ChatColor.stripColor(p.getDisplayName())
-                            : p.getDisplayName()
-                            : p.getName()));
-            Inventory inv = Bukkit.createInventory(p, InventoryType.ENDER_CHEST, title);
-            inv.setContents(p.getEnderChest().getContents());
-            ec = new DisplayInventory(inv, title, p.getName(), p.getDisplayName(),
-                    p.getUniqueId());
-        }
+        displayTypes.forEach(displayType -> {
+            displayables.put(displayType, displayType.initDisplayable(p));
+        });
+
+//        if (containsItem()) {
+//            ItemStack item = p.getInventory().getItemInMainHand();
+//            this.item = new DisplayItem(item, p.getName(), p.getDisplayName(), p.getUniqueId());
+//        }
+//        if (containsInventory()) {
+//            PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator().replicateInventory(p);
+//            inv = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(), p.getDisplayName(), p.getUniqueId());
+//        }
+//        if (containsEnderChest()) {
+//            String title = new StringFormatter().format(ChatItemConfig.ENDERCHEST_TITLE.replace("%player%",
+//                    ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui")
+//                            ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
+//                            ? ChatColor.stripColor(p.getDisplayName())
+//                            : p.getDisplayName()
+//                            : p.getName()));
+//            Inventory inv = Bukkit.createInventory(p, InventoryType.ENDER_CHEST, title);
+//            inv.setContents(p.getEnderChest().getContents());
+//            ec = new DisplayInventory(inv, title, p.getName(), p.getDisplayName(),
+//                    p.getUniqueId());
+//        }
     }
 
-    public Displayable getEnderChest() {
-        return this.ec;
-    }
-
-    public Displayable getItem() {
-        return this.item;
-    }
-
-    public Displayable getInventory() {
-        return this.inv;
+    public Displayable getDisplayable(DisplayType type) {
+        return displayables.get(type);
     }
 
 }

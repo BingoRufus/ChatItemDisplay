@@ -37,7 +37,7 @@ public class LoggerListener implements Listener {
             Display dis = ChatItemDisplay.getInstance().getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()));
 
             msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
-                    dis.getDisplayable().getInfo().loggerMessage());
+                    dis.getDisplayable().getLoggerMessage());
             matcher = pattern.matcher(msg);
 
         }

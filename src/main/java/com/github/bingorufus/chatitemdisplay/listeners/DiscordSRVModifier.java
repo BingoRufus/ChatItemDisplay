@@ -41,7 +41,7 @@ public class DiscordSRVModifier {
             Display dis = m.getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()));
             //   displays.add(dis);
             msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
-                    dis.getDisplayable().getInfo().loggerMessage());
+                    dis.getDisplayable().getLoggerMessage());
             matcher = pattern.matcher(msg);
         }
 

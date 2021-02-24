@@ -2,7 +2,6 @@ package com.github.bingorufus.chatitemdisplay.executors.display;
 
 import com.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import com.github.bingorufus.chatitemdisplay.Display;
-import com.github.bingorufus.chatitemdisplay.displayables.Displayable;
 import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import com.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
@@ -11,6 +10,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -76,9 +76,11 @@ public class ViewItemExecutor implements CommandExecutor {
         if (dis == null) {
             return false;
         }
-
-        Displayable d = dis.getDisplayable();
-        p.openInventory(d.getInfo().getInventory());
+        Inventory inv = dis.getDisplayable().onViewDisplay(p);
+        if (inv != null) {
+            ChatItemDisplay.getInstance().getChatItemDisplayInventories().put(inv, null);
+            p.openInventory(inv);
+        }
         return true;
 
 

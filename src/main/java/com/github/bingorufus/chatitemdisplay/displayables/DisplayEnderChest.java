@@ -5,7 +5,6 @@ import com.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import com.github.bingorufus.chatitemdisplay.util.iteminfo.InventorySerializer;
-import com.github.bingorufus.chatitemdisplay.util.iteminfo.PlayerInventoryReplicator;
 import com.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import com.google.gson.JsonObject;
 import net.md_5.bungee.api.ChatColor;
@@ -17,21 +16,26 @@ import org.bukkit.inventory.Inventory;
 
 import java.util.UUID;
 
-public class DisplayInventory extends Displayable {
+public class DisplayEnderChest extends Displayable {
     protected Inventory inventory;
     protected String inventoryTitle;
 
-    public DisplayInventory(Player displayer) {
-        super(displayer);
-        PlayerInventoryReplicator playerInventoryReplicator = new PlayerInventoryReplicator();
-        PlayerInventoryReplicator.InventoryData data = playerInventoryReplicator.replicateInventory(displayer);
-        inventory = data.getInventory();
-        inventoryTitle = data.getTitle();
+    public DisplayEnderChest(Player player) {
+        super(player);
+        inventoryTitle = new StringFormatter()
+                .format(ChatItemConfig.ENDERCHEST_TITLE.replace("%player%",
+                        ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui") ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
+                                ? ChatColor.stripColor(displayer.getDisplayName())
+                                : displayer.getDisplayName() : displayer.getRegularName()));
+        inventory = Bukkit.createInventory(player, InventoryType.ENDER_CHEST, inventoryTitle);
+        inventory.setContents(player.getEnderChest().getContents().clone());
+
+
     }
 
     @Override
     protected Class<? extends DisplayType> getTypeClass() {
-        return DisplayInventoryType.class;
+        return DisplayEnderChestType.class;
     }
 
     @Override
@@ -55,7 +59,7 @@ public class DisplayInventory extends Displayable {
                 prev = new TextComponent(TextComponent.fromLegacyText(whole.getExtra().get(i - 1).toLegacyText()));
             String part = parts[i];
             if (part.equalsIgnoreCase("%type%")) {
-                TranslatableComponent type = new TranslatableComponent("container.inventory");
+                TranslatableComponent type = new TranslatableComponent("container.enderchest");
                 if (i > 0) {
                     type.copyFormatting(prev, ComponentBuilder.FormatRetention.FORMATTING, false);
                 }
@@ -99,7 +103,7 @@ public class DisplayInventory extends Displayable {
                         ? ChatColor.stripColor(displayer.getDisplayName())
                         : displayer.getDisplayName()
                         : displayer.getRegularName());
-        format = format.replaceAll("%type%", ChatItemDisplay.getInstance().getLang().get("container.inventory").getAsString());
+        format = format.replaceAll("%type%", ChatItemDisplay.getInstance().getLang().get("container.enderchest").getAsString());
 
         return ChatColor.stripColor(new StringFormatter().format(format));
     }
