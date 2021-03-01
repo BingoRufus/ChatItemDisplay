@@ -67,7 +67,6 @@ public abstract class Displayable {
 
     public abstract Inventory onViewDisplay(Player viewer);
 
-    //public abstract String getPlaceholder(); ADD to Display
     public abstract String getLoggerMessage();
 
     protected abstract JsonObject serializeData();
