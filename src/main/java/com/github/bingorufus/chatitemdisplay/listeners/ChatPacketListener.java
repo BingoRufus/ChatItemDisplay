@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ChatPacketListener extends PacketAdapter {
-
+    private final static Pattern displayPattern = Pattern.compile("\u0007cid(.*?)\u0007");
 
     public ChatPacketListener(Plugin plugin, ListenerPriority listenerPriority, PacketType... types) {
         super(plugin, listenerPriority, types);
@@ -92,39 +92,32 @@ public class ChatPacketListener extends PacketAdapter {
                     editedExtra.add(bc);
                     continue;
                 }
-                Pattern pattern = Pattern.compile("(\u0007cid\\{(.*?)}\u0007)");
-                Matcher matcher = pattern.matcher(bc.toLegacyText());
+
+                Matcher matcher = displayPattern.matcher(bc.toLegacyText());
                 if (!matcher.find()) {
                     editedExtra.add(bc);
                     continue;
                 }
 
-                matcher = pattern.matcher(bc.toLegacyText());
-                if (matcher.find()) {
+                matcher = displayPattern.matcher(bc.toLegacyText());
+                List<String> partsTemp = new ArrayList<>();
+                List<String> parts = new ArrayList<>();
+                parts.add(bc.toLegacyText());
 
-                    List<String> partsTemp = new ArrayList<>();
-                    List<String> parts = new ArrayList<>();
-                    parts.add(bc.toLegacyText());
-
-                    for (int matchNumber = 1; matchNumber < matcher.groupCount(); matchNumber++) {
-                        String match = matcher.group(matchNumber);
-                        for (String part : parts) {
-                            Collections.addAll(partsTemp, part
-                                    .split("((?<=" + Pattern.quote(match) + ")|(?=" + Pattern.quote(match) + "))"));
-
-                        }
-                        parts.clear();
-                        parts.addAll(partsTemp);
-                        partsTemp.clear();
-
-                    }
+                while (matcher.find()) {
                     for (String part : parts) {
-                        TextComponent tc = new TextComponent(part);
-                        tc.copyFormatting(bc, false);
-                        editedExtra.add(tc);
+                        Collections.addAll(partsTemp, part
+                                .split("((?<=" + Pattern.quote(matcher.group(0)) + ")|(?=" + Pattern.quote(matcher.group(0)) + "))"));
+
                     }
-
-
+                    parts.clear();
+                    parts.addAll(partsTemp);
+                    partsTemp.clear();
+                }
+                for (String part : parts) {
+                    TextComponent tc = new TextComponent(part);
+                    tc.copyFormatting(bc, false);
+                    editedExtra.add(tc);
                 }
 
 
@@ -144,37 +137,27 @@ public class ChatPacketListener extends PacketAdapter {
                     if (!bc.toLegacyText().contains("\u0007cid"))
                         continue;
 
-                    String replace;
 
-                    String displaying;
-                    Pattern pattern = Pattern.compile("\u0007cid(.*?)\u0007"); // Searches for a string that starts and ends
-                    // with the bell character
-
-                    Matcher matcher = pattern.matcher(bc.toLegacyText());
+                    Matcher matcher = displayPattern.matcher(bc.toLegacyText());
 
                     while (matcher.find()) {
-                        displaying = matcher.group(1);
-                        char bell = '\u0007';
-                        replace = bell + "cid" + matcher.group(1) + bell;
-
-
-                        String legacyText = bc.toLegacyText().replace(replace, replace + getLastColors(bc.toLegacyText().substring(0, bc.toLegacyText().indexOf(replace))));
-
+                        String legacyText = bc.toLegacyText().replace(matcher.group(0), matcher.group(0) + getLastColors(bc.toLegacyText().substring(0, bc.toLegacyText().indexOf(matcher.group(0)))));
 
                         if (ChatItemConfig.DEBUG_MODE) {
-                            Bukkit.getLogger().info(displaying + " is being displayed");
+                            Bukkit.getLogger().info(matcher.group(1) + " is being displayed");
                         }
 
-                        JsonObject jo = (JsonObject) new JsonParser().parse(displaying);
+                        JsonObject jo = (JsonObject) new JsonParser().parse(matcher.group(1));
                         Displayable display = ChatItemDisplay.getInstance().getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()))
                                 .getDisplayable();
 
 
                         String[] parts = legacyText
-                                .split("((?<=" + Pattern.quote(replace) + ")|(?=" + Pattern.quote(replace) + "))");
+                                .split("((?<=" + Pattern.quote(matcher.group(0)) + ")|(?=" + Pattern.quote(matcher.group(0)) + "))");
                         TextComponent component = new TextComponent();
+
                         for (String part : parts) {
-                            if (part.equalsIgnoreCase(replace)) {
+                            if (part.equalsIgnoreCase(matcher.group(0))) {
                                 component.addExtra(display.getInsertion());
                                 continue;
                             }
@@ -186,7 +169,7 @@ public class ChatPacketListener extends PacketAdapter {
                         bc = new TextComponent(extra.get(i));
                         if (!bc.toLegacyText().contains("\u0007cid"))
                             break;
-                        matcher = pattern.matcher(bc.toLegacyText());
+                        matcher = displayPattern.matcher(bc.toLegacyText());
                     }
                 }
             } catch (NullPointerException npe) {
