@@ -44,6 +44,8 @@ public class ChatItemConfig {
             INVENTORY_TRIGGERS;
     public static List<Material> BLACKLISTED_ITEMS;
 
+    public static int MAXIMUM_DISPLAYS;
+
     public static void reloadMessages() {
         FileConfiguration c = ChatItemDisplay.getInstance().getConfig();
         ConfigurationSection m = c.getConfigurationSection("messages");
@@ -68,6 +70,8 @@ public class ChatItemConfig {
         EMPTY_HAND = m.getString("empty-hand");
 
         COMMANDS_DISABLED = c.getBoolean("disable-commands");
+        MAXIMUM_DISPLAYS = c.getInt("maximum-displays");
+
 
         ConfigurationSection d = c.getConfigurationSection("display-messages");
         assert d != null;

@@ -88,26 +88,8 @@ public class PlayerInventoryReplicator {
         inv.setItem(6, potionEffects);
 
 
-        return new InventoryData(invTitle, inv);
+        return new InventoryData(inv, invTitle);
     }
 
 
-    public static class InventoryData {
-        private final String title;
-        private final Inventory inv;
-
-        private InventoryData(String title, Inventory inv) {
-            this.title = title;
-            this.inv = inv;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public Inventory getInventory() {
-            return inv;
-        }
-
-    }
 }

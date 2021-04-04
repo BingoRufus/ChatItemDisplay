@@ -5,15 +5,14 @@ import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.github.bingorufus.chatitemdisplay.displayables.DisplayingPlayer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import lombok.NonNull;
 
 import java.util.UUID;
 
 public class Display {
     private final Displayable dis;
     private final DisplayingPlayer player;
-    private final UUID id; // Just allows for a big number to prevent overflow, as long as less than 9
-    // quintillion items are displayed before the server restarts.
-
+    private final UUID id;
 
     public Display(Displayable displayable, UUID id) {
         this.dis = displayable;
@@ -41,7 +40,7 @@ public class Display {
         return new Display(displayable, id);
     }
 
-    public Displayable getDisplayable() {
+    public @NonNull Displayable getDisplayable() {
         return dis;
     }
 

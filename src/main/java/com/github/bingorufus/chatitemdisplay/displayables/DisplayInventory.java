@@ -4,6 +4,7 @@ import com.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import com.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
+import com.github.bingorufus.chatitemdisplay.util.iteminfo.InventoryData;
 import com.github.bingorufus.chatitemdisplay.util.iteminfo.InventorySerializer;
 import com.github.bingorufus.chatitemdisplay.util.iteminfo.PlayerInventoryReplicator;
 import com.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
@@ -12,7 +13,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
 import java.util.UUID;
@@ -21,10 +21,14 @@ public class DisplayInventory extends Displayable {
     protected Inventory inventory;
     protected String inventoryTitle;
 
+    public DisplayInventory(JsonObject data) {
+        super(data);
+    }
+
     public DisplayInventory(Player displayer) {
         super(displayer);
         PlayerInventoryReplicator playerInventoryReplicator = new PlayerInventoryReplicator();
-        PlayerInventoryReplicator.InventoryData data = playerInventoryReplicator.replicateInventory(displayer);
+        InventoryData data = playerInventoryReplicator.replicateInventory(displayer);
         inventory = data.getInventory();
         inventoryTitle = data.getTitle();
     }
@@ -35,14 +39,14 @@ public class DisplayInventory extends Displayable {
     }
 
     @Override
-    public BaseComponent getInsertion() {
+    public BaseComponent getDisplayComponent() {
         String format = new StringFormatter()
                 .format(ChatItemConfig.CHAT_INVENTORY_FORMAT)
                 .replaceAll("%player%", ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
                         ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
-                        ? ChatColor.stripColor(displayer.getDisplayName())
-                        : displayer.getDisplayName()
-                        : displayer.getRegularName());
+                        ? ChatColor.stripColor(getDisplayer().getDisplayName())
+                        : getDisplayer().getDisplayName()
+                        : getDisplayer().getRegularName());
         return format(format);
     }
 
@@ -77,18 +81,9 @@ public class DisplayInventory extends Displayable {
 
     @Override
     public Inventory onViewDisplay(Player viewer) {
-        Inventory inventoryClone;
-        if (this.inventory.getType() == InventoryType.CHEST) {
-            inventoryClone = Bukkit.createInventory(null, this.inventory.getSize(), this.inventoryTitle);
-        } else {
-            inventoryClone = Bukkit.createInventory(null, this.inventory.getType(), this.inventoryTitle);
-        }
-        for (int i = 0; i < this.inventory.getSize(); i++) {
-            if (this.inventory.getItem(i) != null) inventoryClone.setItem(i, this.inventory.getItem(i).clone());
-        }
-
-        return inventory;
+        return InventorySerializer.cloneInventory(this.inventory, this.inventoryTitle);
     }
+
 
     @Override
     public String getLoggerMessage() {
@@ -96,9 +91,9 @@ public class DisplayInventory extends Displayable {
         String format = ChatItemConfig.CHAT_INVENTORY_FORMAT
                 .replaceAll("%player%", ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
                         ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
-                        ? ChatColor.stripColor(displayer.getDisplayName())
-                        : displayer.getDisplayName()
-                        : displayer.getRegularName());
+                        ? ChatColor.stripColor(getDisplayer().getDisplayName())
+                        : getDisplayer().getDisplayName()
+                        : getDisplayer().getRegularName());
         format = format.replaceAll("%type%", ChatItemDisplay.getInstance().getLang().get("container.inventory").getAsString());
 
         return ChatColor.stripColor(new StringFormatter().format(format));
@@ -114,8 +109,9 @@ public class DisplayInventory extends Displayable {
 
     @Override
     protected void deseralizeData(JsonObject data) {
-        inventoryTitle = data.get("title").getAsString();
-        inventory = new InventorySerializer().deserialize(data.get("data").getAsString());
+        InventoryData inventoryData = new InventorySerializer().deserialize(data.get("data").getAsString());
+        inventory = inventoryData.getInventory();
+        inventoryTitle = inventoryData.getTitle();
     }
 
     @Override
@@ -125,9 +121,9 @@ public class DisplayInventory extends Displayable {
                 .replaceAll("%player%",
                         ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
                                 ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
-                                ? ChatColor.stripColor(displayer.getDisplayName())
-                                : displayer.getDisplayName()
-                                : displayer.getRegularName());
+                                ? ChatColor.stripColor(getDisplayer().getDisplayName())
+                                : getDisplayer().getDisplayName()
+                                : getDisplayer().getRegularName());
 
         Bukkit.spigot().broadcast(format(format));
     }

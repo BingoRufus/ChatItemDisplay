@@ -13,11 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class BungeeCordReceiver implements PluginMessageListener {
-    private final ChatItemDisplay m;
-
-    public BungeeCordReceiver() {
-        m = ChatItemDisplay.getInstance();
-    }
 
 
     @Override
@@ -38,7 +33,7 @@ public class BungeeCordReceiver implements PluginMessageListener {
 
     public void receiveDisplay(String data, ByteArrayDataInput in) {
         Display display = Display.deserialize(data);
-        m.getDisplayedManager().addDisplay(display);
+        ChatItemDisplay.getInstance().getDisplayedManager().addDisplay(display);
 
         if (in.readBoolean()) {
             display.getDisplayable().broadcastDisplayable();

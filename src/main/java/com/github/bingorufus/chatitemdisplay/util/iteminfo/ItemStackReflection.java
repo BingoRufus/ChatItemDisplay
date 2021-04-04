@@ -85,8 +85,7 @@ public class ItemStackReflection {
         try {
             Object nmsItem = nmsItem(item);
             if (nmsItem == null) {
-                throw new IllegalArgumentException(
-                        item.getType().name() + " could not be turned into a net.minecraft item");
+                throw new IllegalArgumentException(item.getType().name() + " could not be turned into a net.minecraft item");
             }
             Method hasTag = nmsItem.getClass().getMethod("hasTag");
 
@@ -103,8 +102,7 @@ public class ItemStackReflection {
         try {
             Object nmsItem = nmsItem(item);
             if (nmsItem == null) {
-                throw new IllegalArgumentException(
-                        item.getType().name() + " could not be turned into a net.minecraft item");
+                throw new IllegalArgumentException(item.getType().name() + " could not be turned into a net.minecraft item");
             }
             Method hasTag = nmsItem.getClass().getMethod("hasTag");
 

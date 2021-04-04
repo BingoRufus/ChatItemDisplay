@@ -30,7 +30,7 @@ public class ViewItemExecutor implements CommandExecutor {
             return true;
         }
 
-        if (args.length < 1)
+        if (args.length == 0)
             return false;
 
         Player p = (Player) sender;
@@ -67,12 +67,8 @@ public class ViewItemExecutor implements CommandExecutor {
         }
 
 
-        Display dis;
-        if (id != null)
-            dis = m.getDisplayedManager().getDisplayed(id);
-        else {
-            dis = m.getDisplayedManager().getMostRecent(target.toUpperCase());
-        }
+        Display dis = id == null ? m.getDisplayedManager().getMostRecent(target.toUpperCase()) : m.getDisplayedManager().getDisplayed(id);
+
         if (dis == null) {
             return false;
         }
@@ -82,8 +78,6 @@ public class ViewItemExecutor implements CommandExecutor {
             p.openInventory(inv);
         }
         return true;
-
-
     }
 
 

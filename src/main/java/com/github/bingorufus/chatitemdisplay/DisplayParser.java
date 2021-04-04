@@ -74,7 +74,7 @@ public class DisplayParser {
             ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(displayables.get(displayType));
             String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(displayables.get(displayType)).getInsertion();
             out = out.replaceAll("(?i)" + Pattern.quote(trigger), ins);
-            System.out.println(out);
+
 
         }
         return out;
@@ -82,30 +82,8 @@ public class DisplayParser {
     }
 
     public void createDisplayables(Player p) {
-        displayTypes.forEach(displayType -> {
-            displayables.put(displayType, displayType.initDisplayable(p));
-        });
+        displayTypes.forEach(displayType -> displayables.put(displayType, displayType.initDisplayable(p)));
 
-//        if (containsItem()) {
-//            ItemStack item = p.getInventory().getItemInMainHand();
-//            this.item = new DisplayItem(item, p.getName(), p.getDisplayName(), p.getUniqueId());
-//        }
-//        if (containsInventory()) {
-//            PlayerInventoryReplicator.InventoryData data = new PlayerInventoryReplicator().replicateInventory(p);
-//            inv = new DisplayInventory(data.getInventory(), data.getTitle(), p.getName(), p.getDisplayName(), p.getUniqueId());
-//        }
-//        if (containsEnderChest()) {
-//            String title = new StringFormatter().format(ChatItemConfig.ENDERCHEST_TITLE.replace("%player%",
-//                    ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui")
-//                            ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
-//                            ? ChatColor.stripColor(p.getDisplayName())
-//                            : p.getDisplayName()
-//                            : p.getName()));
-//            Inventory inv = Bukkit.createInventory(p, InventoryType.ENDER_CHEST, title);
-//            inv.setContents(p.getEnderChest().getContents());
-//            ec = new DisplayInventory(inv, title, p.getName(), p.getDisplayName(),
-//                    p.getUniqueId());
-//        }
     }
 
     public Displayable getDisplayable(DisplayType type) {

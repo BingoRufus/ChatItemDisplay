@@ -28,10 +28,13 @@ import java.util.regex.Matcher;
 public class DisplayItem extends Displayable {
     private ItemStack item;
 
-
     public DisplayItem(Player displayer) {
         super(displayer);
         item = displayer.getInventory().getItemInMainHand().clone();
+    }
+
+    public DisplayItem(JsonObject data) {
+        super(data);
     }
 
     @Override
@@ -40,7 +43,7 @@ public class DisplayItem extends Displayable {
     }
 
     @Override
-    public BaseComponent getInsertion() {
+    public BaseComponent getDisplayComponent() {
         String format = (item.getAmount() > 1
                 ? ChatItemConfig.CHAT_ITEM_FORMAT_MULTIPLE
                 : ChatItemConfig.CHAT_ITEM_FORMAT);
@@ -54,8 +57,8 @@ public class DisplayItem extends Displayable {
         Inventory inventory = Bukkit.createInventory(null, 9,
                 guiName.replaceAll("%player%",
                         ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui") ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
-                                ? ChatColor.stripColor(displayer.getDisplayName())
-                                : displayer.getDisplayName() : displayer.getRegularName()));
+                                ? ChatColor.stripColor(getDisplayer().getDisplayName())
+                                : getDisplayer().getDisplayName() : getDisplayer().getRegularName()));
         inventory.setItem(4, item);
 
         return inventory;
@@ -116,9 +119,9 @@ public class DisplayItem extends Displayable {
         s = s.replaceAll("%player%",
                 ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
                         ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
-                        ? ChatColor.stripColor(displayer.getDisplayName())
-                        : displayer.getDisplayName()
-                        : displayer.getRegularName());
+                        ? ChatColor.stripColor(getDisplayer().getDisplayName())
+                        : getDisplayer().getDisplayName()
+                        : getDisplayer().getRegularName());
 
         s = new StringFormatter().format(s);
 
@@ -203,7 +206,7 @@ public class DisplayItem extends Displayable {
                     new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(item.getType().getKey().toString(),
                             item.getAmount(), ItemTag.ofNbt(itemRetriever.getNBT(item)))));
         }
-        UUID id = ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(this).getId();
+        UUID id = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(this).getId();
         hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                 "/viewitem " + (id)));
 

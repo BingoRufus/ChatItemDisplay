@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public abstract class Displayable {
-    protected final DisplayingPlayer displayer;
+    private final DisplayingPlayer displayer;
 
     public Displayable(Player displayer) {
         if (!displayer.isValid()) {
@@ -22,6 +22,11 @@ public abstract class Displayable {
         this.displayer = new DisplayingPlayer(displayer.getDisplayName(), displayer.getName(), displayer);
     }
 
+    /**
+     * It is required that all children have this constructor and super it.
+     *
+     * @param data The json data that will be deserialized
+     */
     public Displayable(JsonObject data) {
         displayer = new DisplayingPlayer(data.getAsJsonObject("displayer"));
         deseralizeData(data.getAsJsonObject("data"));
@@ -63,7 +68,7 @@ public abstract class Displayable {
         return displayType;
     }
 
-    public abstract BaseComponent getInsertion();
+    public abstract BaseComponent getDisplayComponent();
 
     public abstract Inventory onViewDisplay(Player viewer);
 
@@ -83,7 +88,7 @@ public abstract class Displayable {
         JsonObject jo = new JsonObject();
         jo.addProperty("type", getType().getClass().getCanonicalName());
         jo.add("data", serializeData());
-        jo.add("displayer", displayer.serailze());
+        jo.add("displayer", getDisplayer().serailze());
         return jo;
     }
 

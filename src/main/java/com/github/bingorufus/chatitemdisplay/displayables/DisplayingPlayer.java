@@ -15,6 +15,7 @@ public class DisplayingPlayer {
         this.displayName = displayName;
         this.regularName = regularName;
         this.offlinePlayer = offlinePlayer;
+
     }
 
     public DisplayingPlayer(JsonObject serializedJson) {

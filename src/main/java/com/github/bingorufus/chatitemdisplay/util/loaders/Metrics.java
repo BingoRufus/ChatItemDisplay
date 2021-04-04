@@ -158,7 +158,7 @@ public class Metrics {
             throw new IllegalArgumentException("Data cannot be null!");
         }
         if (Bukkit.isPrimaryThread()) {
-            throw new IllegalAccessException("This method must not be called from the chatItemDisplay thread!");
+            throw new IllegalAccessException("This method must not be called from the ChatItemDisplay thread!");
         }
         if (logSentData) {
             plugin.getLogger().info("Sending data to bStats: " + data);

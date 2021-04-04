@@ -22,6 +22,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 
 public class ChatDisplayListener implements Listener {
 
@@ -115,12 +116,19 @@ public class ChatDisplayListener implements Listener {
     private boolean isMessageTooLong(String message, DisplayParser dp) {
         DisplayedManager dm = ChatItemDisplay.getInstance().getDisplayedManager();
         String edit = message;
+        int numberOfDisplays = 0;
         for (Displayable displayable : dp.getDisplayables()) {
-            edit = edit.replace(dm.getDisplay(displayable).getInsertion(), StringEscapeUtils.unescapeJava(ComponentSerializer.toString(displayable.getInsertion())));
-
+            String displayablePattern = Pattern.quote(dm.getDisplay(displayable).getInsertion());
+            while (edit.matches(".*" + displayablePattern + ".*")) {
+                edit = edit.replaceFirst(Pattern.quote(dm.getDisplay(displayable).getInsertion()), StringEscapeUtils.unescapeJava(ComponentSerializer.toString(displayable.getDisplayComponent())));
+                numberOfDisplays++;
+            }
+        }
+        if (ChatItemConfig.MAXIMUM_DISPLAYS != 0 && numberOfDisplays >= ChatItemConfig.MAXIMUM_DISPLAYS) {
+            return true;
         }
         byte[] bytes = edit.getBytes(StandardCharsets.UTF_8);
-        return bytes.length >= 240000;
+        return bytes.length >= 25000;
     }
 
 

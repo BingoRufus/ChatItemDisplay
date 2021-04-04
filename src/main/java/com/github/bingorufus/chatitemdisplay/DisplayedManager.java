@@ -19,7 +19,6 @@ public class DisplayedManager {
     private final HashMap<String, UUID> mostRecent = new HashMap<>();// <Player,Id>
 
     public DisplayedManager() {
-
     }
 
     public Display addDisplayable(Displayable display) {

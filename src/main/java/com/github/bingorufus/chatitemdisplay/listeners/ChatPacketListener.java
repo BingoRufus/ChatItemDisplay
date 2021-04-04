@@ -151,14 +151,13 @@ public class ChatPacketListener extends PacketAdapter {
                         Displayable display = ChatItemDisplay.getInstance().getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()))
                                 .getDisplayable();
 
-
                         String[] parts = legacyText
                                 .split("((?<=" + Pattern.quote(matcher.group(0)) + ")|(?=" + Pattern.quote(matcher.group(0)) + "))");
                         TextComponent component = new TextComponent();
 
                         for (String part : parts) {
                             if (part.equalsIgnoreCase(matcher.group(0))) {
-                                component.addExtra(display.getInsertion());
+                                component.addExtra(display.getDisplayComponent());
                                 continue;
                             }
                             TextComponent tc = new TextComponent(part);
@@ -203,7 +202,7 @@ public class ChatPacketListener extends PacketAdapter {
     }
 
     private WrappedChatComponent convertToBaseComponent(Object component) {
-        if (component instanceof BaseComponent) {
+        if (component instanceof BaseComponent || component instanceof BaseComponent[]) {
             return WrappedChatComponent.fromJson(ComponentSerializer.toString(component));
         }
         if (component instanceof Component)

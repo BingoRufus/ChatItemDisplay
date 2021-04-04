@@ -180,7 +180,7 @@ public class ChatItemDisplay extends JavaPlugin {
     public DisplayType getDisplayType(Class<? extends DisplayType> displayTypeClass) {
         DisplayType displayType = ChatItemDisplay.getInstance().getRegisteredDisplayables().stream().filter(type -> type.getClass().equals(displayTypeClass)).findFirst().orElse(null);
         if (displayType == null) {
-            System.out.println("Cannot find a displaytype that has the class path of: " + displayTypeClass.getCanonicalName());
+            Bukkit.getLogger().warning("Cannot find a displaytype that has the class path of: " + displayTypeClass.getCanonicalName());
             return null;
         }
         return displayType;

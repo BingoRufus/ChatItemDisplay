@@ -4,6 +4,7 @@ import com.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import com.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
+import com.github.bingorufus.chatitemdisplay.util.iteminfo.InventoryData;
 import com.github.bingorufus.chatitemdisplay.util.iteminfo.InventorySerializer;
 import com.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import com.google.gson.JsonObject;
@@ -25,12 +26,14 @@ public class DisplayEnderChest extends Displayable {
         inventoryTitle = new StringFormatter()
                 .format(ChatItemConfig.ENDERCHEST_TITLE.replace("%player%",
                         ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui") ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
-                                ? ChatColor.stripColor(displayer.getDisplayName())
-                                : displayer.getDisplayName() : displayer.getRegularName()));
+                                ? ChatColor.stripColor(getDisplayer().getDisplayName())
+                                : getDisplayer().getDisplayName() : getDisplayer().getRegularName()));
         inventory = Bukkit.createInventory(player, InventoryType.ENDER_CHEST, inventoryTitle);
         inventory.setContents(player.getEnderChest().getContents().clone());
+    }
 
-
+    public DisplayEnderChest(JsonObject data) {
+        super(data);
     }
 
     @Override
@@ -39,14 +42,14 @@ public class DisplayEnderChest extends Displayable {
     }
 
     @Override
-    public BaseComponent getInsertion() {
+    public BaseComponent getDisplayComponent() {
         String format = new StringFormatter()
                 .format(ChatItemConfig.CHAT_INVENTORY_FORMAT)
                 .replaceAll("%player%", ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
                         ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
-                        ? ChatColor.stripColor(displayer.getDisplayName())
-                        : displayer.getDisplayName()
-                        : displayer.getRegularName());
+                        ? ChatColor.stripColor(getDisplayer().getDisplayName())
+                        : getDisplayer().getDisplayName()
+                        : getDisplayer().getRegularName());
         return format(format);
     }
 
@@ -74,24 +77,14 @@ public class DisplayEnderChest extends Displayable {
             whole.addExtra(tc);
         }
         UUID id = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(this).getId();
-        whole.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + (id)));
+        whole.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + id.toString()));
 
         return whole;
     }
 
     @Override
     public Inventory onViewDisplay(Player viewer) {
-        Inventory inventoryClone;
-        if (this.inventory.getType() == InventoryType.CHEST) {
-            inventoryClone = Bukkit.createInventory(null, this.inventory.getSize(), this.inventoryTitle);
-        } else {
-            inventoryClone = Bukkit.createInventory(null, this.inventory.getType(), this.inventoryTitle);
-        }
-        for (int i = 0; i < this.inventory.getSize(); i++) {
-            if (this.inventory.getItem(i) != null) inventoryClone.setItem(i, this.inventory.getItem(i).clone());
-        }
-
-        return inventory;
+        return InventorySerializer.cloneInventory(this.inventory, this.inventoryTitle);
     }
 
     @Override
@@ -100,9 +93,9 @@ public class DisplayEnderChest extends Displayable {
         String format = ChatItemConfig.CHAT_INVENTORY_FORMAT
                 .replaceAll("%player%", ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
                         ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
-                        ? ChatColor.stripColor(displayer.getDisplayName())
-                        : displayer.getDisplayName()
-                        : displayer.getRegularName());
+                        ? ChatColor.stripColor(getDisplayer().getDisplayName())
+                        : getDisplayer().getDisplayName()
+                        : getDisplayer().getRegularName());
         format = format.replaceAll("%type%", ChatItemDisplay.getInstance().getLang().get("container.enderchest").getAsString());
 
         return ChatColor.stripColor(new StringFormatter().format(format));
@@ -118,8 +111,9 @@ public class DisplayEnderChest extends Displayable {
 
     @Override
     protected void deseralizeData(JsonObject data) {
-        inventoryTitle = data.get("title").getAsString();
-        inventory = new InventorySerializer().deserialize(data.get("data").getAsString());
+        InventoryData inventoryData = new InventorySerializer().deserialize(data.get("data").getAsString());
+        inventory = inventoryData.getInventory();
+        inventoryTitle = inventoryData.getTitle();
     }
 
     @Override
@@ -129,9 +123,9 @@ public class DisplayEnderChest extends Displayable {
                 .replaceAll("%player%",
                         ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
                                 ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
-                                ? ChatColor.stripColor(displayer.getDisplayName())
-                                : displayer.getDisplayName()
-                                : displayer.getRegularName());
+                                ? ChatColor.stripColor(getDisplayer().getDisplayName())
+                                : getDisplayer().getDisplayName()
+                                : getDisplayer().getRegularName());
 
         Bukkit.spigot().broadcast(format(format));
     }
