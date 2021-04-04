@@ -5,13 +5,14 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.AdventureComponentConverter;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import com.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -28,19 +29,22 @@ import java.util.regex.Pattern;
 
 public class ChatPacketListener extends PacketAdapter {
 
-    private final ChatItemDisplay m;
 
     public ChatPacketListener(Plugin plugin, ListenerPriority listenerPriority, PacketType... types) {
         super(plugin, listenerPriority, types);
-        m = (ChatItemDisplay) plugin;
     }
 
+    /**
+     * /Prevents items from being duplicated from displayed furnaces by shift clicking a recipe in the recipe booked
+     *
+     * @param e The PacketEvent
+     */
     @Override
     public void onPacketReceiving(final PacketEvent e) {
-        if (m.getChatItemDisplayInventories().containsKey(e.getPlayer().getOpenInventory().getTopInventory())) {
+        if (ChatItemDisplay.getInstance().getChatItemDisplayInventories().containsKey(e.getPlayer().getOpenInventory().getTopInventory())) {
             e.setCancelled(true);
         }
-        //Prevents items from being duplicated from displayed furnaces by shift clicking a recipe in the recipe booked
+
     }
 
     @Override
@@ -162,7 +166,7 @@ public class ChatPacketListener extends PacketAdapter {
                         }
 
                         JsonObject jo = (JsonObject) new JsonParser().parse(displaying);
-                        Displayable display = m.getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()))
+                        Displayable display = ChatItemDisplay.getInstance().getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()))
                                 .getDisplayable();
 
 
@@ -196,7 +200,7 @@ public class ChatPacketListener extends PacketAdapter {
         if (packet.getModifier().read(1) instanceof BaseComponent) {
             packet.getModifier().write(1,
                     baseComps);
-        } else {
+        } else if (packet.getModifier().read(1) instanceof Component) {
             packet.getModifier().write(1,
                     toAdventureComponent(baseComps));
         }
@@ -211,15 +215,17 @@ public class ChatPacketListener extends PacketAdapter {
         return colored.toLegacyText();
     }
 
-    private Object toAdventureComponent(BaseComponent... bc) {
-        return AdventureComponentConverter.fromWrapper(WrappedChatComponent.fromJson(ComponentSerializer.toString(bc)));
+    private Component toAdventureComponent(BaseComponent... bc) {
+        return GsonComponentSerializer.colorDownsamplingGson().deserialize(ComponentSerializer.toString(bc));
     }
 
     private WrappedChatComponent convertToBaseComponent(Object component) {
         if (component instanceof BaseComponent) {
             return WrappedChatComponent.fromJson(ComponentSerializer.toString(component));
         }
-        return AdventureComponentConverter.fromComponent((net.kyori.adventure.text.Component) component);
+        if (component instanceof Component)
+            return WrappedChatComponent.fromJson(GsonComponentSerializer.gson().serialize((Component) component));
+        return WrappedChatComponent.fromHandle(component);
     }
 
 }
