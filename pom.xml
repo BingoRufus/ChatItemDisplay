@@ -27,12 +27,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <javaplugin.name>ChatItemDisplay</javaplugin.name>
-        <javaplugin.main>com.github.bingorufus.chatitemdisplay.ChatItemDisplay</javaplugin.main>
+        <javaplugin.main>io.github.bingorufus.chatitemdisplay.ChatItemDisplay</javaplugin.main>
         <javaplugin.description>Display items, inventories, and ender chests in chat</javaplugin.description>
 
 
         <bungee.name>ChatItemDisplayBungee</bungee.name>
-        <bungee.main>com.github.bingorufus.chatitemdisplaybungee.ChatItemDisplayBungee</bungee.main>
+        <bungee.main>io.github.bingorufus.chatitemdisplaybungee.ChatItemDisplayBungee</bungee.main>
         <bungee.description>Bungee support for ChatItemDisplay</bungee.description>
 
     </properties>
