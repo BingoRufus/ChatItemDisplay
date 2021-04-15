@@ -9,9 +9,8 @@ import net.md_5.bungee.event.EventPriority;
 
 
 public class DisplayReceiver implements Listener {
-
     @EventHandler(priority = EventPriority.LOWEST)
-    public void on(PluginMessageEvent e) {
+    public void on(final PluginMessageEvent e) {
 
         if (!e.getTag().equalsIgnoreCase("chatitemdisplay:out"))
             return;

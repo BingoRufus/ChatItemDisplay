@@ -23,6 +23,7 @@ import org.spigotmc.SpigotConfig;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -81,7 +82,7 @@ public class DebugExecutor implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "An unexpected error has occurred");
                 return true;
             }
-            log.delete();
+            Files.delete(log.toPath());
 
             TextComponent tc = new TextComponent(ChatColor.GREEN + "A debug log has been successfully generated and has been saved to ");
             TextComponent extra = new TextComponent(ChatColor.GREEN + "" + ChatColor.BOLD + zip.getAbsolutePath());
@@ -112,6 +113,7 @@ public class DebugExecutor implements CommandExecutor {
                     out.close();
                 }
             } catch (Exception ignored) {
+                e.printStackTrace();
             }
             e.printStackTrace();
             sender.sendMessage(ChatColor.RED + "An unexpected error has occurred");
@@ -137,7 +139,7 @@ public class DebugExecutor implements CommandExecutor {
             w.newLine();
 
             for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-                writeLine(w, plugin.getName() + " by " + plugin.getDescription().getAuthors().toString() + " Version: " +
+                writeLine(w, plugin.getName() + " by " + plugin.getDescription().getAuthors() + " Version: " +
                         plugin.getDescription().getVersion() + " - " + (plugin.isEnabled() ? " Enabled" : "Disabled"));
             }
             w.newLine();
@@ -172,18 +174,18 @@ public class DebugExecutor implements CommandExecutor {
             if (!zip.exists()) zip.createNewFile();
             byte[] buffer = new byte[1024];
             FileOutputStream zipFileStream = new FileOutputStream(zip);
-            ZipOutputStream zipStream = new ZipOutputStream(zipFileStream);
-            for (File f : files) {
-                FileInputStream fileInputStream = new FileInputStream(f);
-                zipStream.putNextEntry(new ZipEntry(f.getName()));
-                int length;
-                while ((length = fileInputStream.read(buffer)) > 0) {
-                    zipStream.write(buffer, 0, length);
+            try (ZipOutputStream zipStream = new ZipOutputStream(zipFileStream)) {
+                for (File f : files) {
+                    try (FileInputStream fileInputStream = new FileInputStream(f)) {
+                        zipStream.putNextEntry(new ZipEntry(f.getName()));
+                        int length;
+                        while ((length = fileInputStream.read(buffer)) > 0) {
+                            zipStream.write(buffer, 0, length);
+                        }
+                        zipStream.closeEntry();
+                    }
                 }
-                zipStream.closeEntry();
-                fileInputStream.close();
             }
-            zipStream.close();
             return true;
         } catch (IOException e) {
             e.printStackTrace();

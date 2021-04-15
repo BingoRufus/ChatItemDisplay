@@ -104,8 +104,8 @@ public class ChatDisplayListener implements Listener {
      */
     private boolean isDisplayTooLong(Displayable display) {
         byte[] bytes = display.serialize().toString().getBytes(StandardCharsets.UTF_8);
-        if (ChatItemConfig.BUNGEE && bytes.length >= 30000) return true; //
-        return bytes.length >= 240000;
+        if (ChatItemConfig.BUNGEE && bytes.length >= Short.MAX_VALUE) return true; //
+        return bytes.length >= 240000;// 11 bit max integer
     }
 
     /**
@@ -124,11 +124,7 @@ public class ChatDisplayListener implements Listener {
                 edit = displayMatcher.replaceFirst(StringEscapeUtils.unescapeJava(ComponentSerializer.toString(displayable.getDisplayComponent())));
             }
         }
-        if (ChatItemConfig.MAXIMUM_DISPLAYS != 0 && numberOfDisplays >= ChatItemConfig.MAXIMUM_DISPLAYS) {
-            return true;
-        }
-        byte[] bytes = edit.getBytes(StandardCharsets.UTF_8);
-        return bytes.length >= 25000;
+        return ChatItemConfig.MAXIMUM_DISPLAYS != 0 && numberOfDisplays >= ChatItemConfig.MAXIMUM_DISPLAYS;
     }
 
 
