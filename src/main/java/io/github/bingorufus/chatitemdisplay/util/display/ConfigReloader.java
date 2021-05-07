@@ -58,7 +58,7 @@ public class ConfigReloader {
         if (!m.getConfig().getBoolean("disable-update-checking")) {
             try {
                 new UpdateChecker(77177).getLatestVersion(version -> {
-                    VersionComparator.Status s = new VersionComparator().isRecent(m.getDescription().getVersion(), version);
+                    VersionComparator.Status s = VersionComparator.isRecent(m.getDescription().getVersion(), version);
 
                     if (!s.equals(VersionComparator.Status.BEHIND)) {
                         m.getLogger().info("ChatItemDisplay is up to date");

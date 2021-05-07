@@ -1,16 +1,13 @@
 package io.github.bingorufus.chatitemdisplay.displayables;
 
+import com.google.gson.JsonObject;
 import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
-import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class DisplayInventoryType extends DisplayType {
-    @Override
-    public Class<? extends Displayable> getDisplayableClass() {
-        return DisplayInventory.class;
-    }
+public class DisplayInventoryType extends DisplayType<DisplayInventory> {
 
     @Override
     public List<String> getTriggers() {
@@ -40,5 +37,15 @@ public class DisplayInventoryType extends DisplayType {
     @Override
     public String getMissingPermissionMessage() {
         return ChatItemConfig.MISSING_PERMISSION_INVENTORY;
+    }
+
+    @Override
+    public DisplayInventory initDisplayable(Player player) {
+        return new DisplayInventory(player);
+    }
+
+    @Override
+    public DisplayInventory initDisplayable(JsonObject data) {
+        return new DisplayInventory(data);
     }
 }

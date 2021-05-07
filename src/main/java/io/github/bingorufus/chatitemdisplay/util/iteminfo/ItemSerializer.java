@@ -10,11 +10,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ItemSerializer {
-    private Class<?> craftItemStack;
-    private Class<?> mojangsonParser;
-    private Class<?> nmsItemStack;
+    private static Class<?> craftItemStack;
+    private static Class<?> mojangsonParser;
+    private static Class<?> nmsItemStack;
 
-    public ItemSerializer() {
+    static {
         try {
             String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 
@@ -31,7 +31,11 @@ public class ItemSerializer {
 
     }
 
-    public Object parseNbt(String nbt) {
+    private ItemSerializer() {
+
+    }
+
+    public static Object parseNbt(String nbt) {
         try {
             Method parseNBT = mojangsonParser.getMethod("parse", String.class);
 
@@ -42,7 +46,7 @@ public class ItemSerializer {
         }
     }
 
-    private Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
+    private static Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {
 
         Method asNms = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
@@ -52,7 +56,7 @@ public class ItemSerializer {
 
     }
 
-    public String serialize(ItemStack item) {
+    public static String serialize(ItemStack item) {
         JsonObject itemJson = new JsonObject();
         itemJson.addProperty("id", item.getType().getKey().toString());
         itemJson.addProperty("Count", item.getAmount());
@@ -60,7 +64,7 @@ public class ItemSerializer {
         return itemJson.toString();
     }
 
-    public ItemStack deserialize(String json) {
+    public static ItemStack deserialize(String json) {
         JsonObject itemJson = (JsonObject) new JsonParser().parse(json);
         Material mat = Material.matchMaterial(itemJson.get("id").getAsString());
         mat = mat == null ? Material.STONE : mat; // If the item type does not exist (If the version changed)
@@ -92,7 +96,7 @@ public class ItemSerializer {
 
     }
 
-    private String getNBT(ItemStack item) {
+    private static String getNBT(ItemStack item) {
 
         try {
             Object nmsItem = nmsItem(item);

@@ -1,4 +1,4 @@
-package io.github.bingorufus.chatitemdisplay.listeners;
+package io.github.bingorufus.chatitemdisplay.listeners.packet;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
@@ -11,8 +11,8 @@ import com.google.gson.JsonParser;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import io.github.bingorufus.chatitemdisplay.util.logger.DebugLogger;
+import io.github.bingorufus.chatitemdisplay.util.string.ComponentConverter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -28,22 +28,10 @@ import java.util.regex.Pattern;
 public class ChatPacketListener extends PacketAdapter {
     private final static Pattern displayPattern = Pattern.compile("\\acid(.*?)\\a");
 
-    public ChatPacketListener(ListenerPriority listenerPriority, PacketType... types) {
-        super(ChatItemDisplay.getInstance(), listenerPriority, types);
+    public ChatPacketListener() {
+        super(ChatItemDisplay.getInstance(), ListenerPriority.LOWEST, PacketType.Play.Server.CHAT);
     }
 
-    /**
-     * /Prevents items from being duplicated from displayed furnaces by shift clicking a recipe in the recipe booked
-     *
-     * @param e The PacketEvent
-     */
-    @Override
-    public void onPacketReceiving(final PacketEvent e) {
-        if (ChatItemDisplay.getInstance().getChatItemDisplayInventories().containsKey(e.getPlayer().getOpenInventory().getTopInventory())) {
-            e.setCancelled(true);
-        }
-
-    }
 
     @Override
     public void onPacketSending(final PacketEvent e) {
@@ -56,7 +44,7 @@ public class ChatPacketListener extends PacketAdapter {
             WrappedChatComponent chat = packet.getChatComponents().read(0);
             if (chat == null) {
                 if (packet.getModifier().read(1) != null) {
-                    originalComps = new BaseComponent[]{new TextComponent(ComponentSerializer.parse(convertToBaseComponent(packet.getModifier().read(1)).getJson()))};
+                    originalComps = new BaseComponent[]{new TextComponent(ComponentSerializer.parse(ComponentConverter.convertToWrappedComponent(packet.getModifier().read(1)).getJson()))};
                     field = 1;
                 }
             } else {
@@ -180,7 +168,7 @@ public class ChatPacketListener extends PacketAdapter {
                     baseComps);
         } else if (packet.getModifier().read(1) instanceof Component) {
             packet.getModifier().write(1,
-                    toAdventureComponent(baseComps));
+                    ComponentConverter.toAdventureComponent(baseComps));
         }
 
 
@@ -193,17 +181,5 @@ public class ChatPacketListener extends PacketAdapter {
         return colored.toLegacyText();
     }
 
-    private Component toAdventureComponent(BaseComponent... bc) {
-        return GsonComponentSerializer.colorDownsamplingGson().deserialize(ComponentSerializer.toString(bc));
-    }
-
-    private WrappedChatComponent convertToBaseComponent(Object component) {
-        if (component instanceof BaseComponent || component instanceof BaseComponent[]) {
-            return WrappedChatComponent.fromJson(ComponentSerializer.toString(component));
-        }
-        if (component instanceof Component)
-            return WrappedChatComponent.fromJson(GsonComponentSerializer.gson().serialize((Component) component));
-        return WrappedChatComponent.fromHandle(component);
-    }
 
 }

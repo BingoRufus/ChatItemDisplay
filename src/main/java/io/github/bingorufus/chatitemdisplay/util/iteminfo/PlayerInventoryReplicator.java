@@ -26,7 +26,7 @@ public class PlayerInventoryReplicator {
     }
 
     public InventoryData replicateInventory(Player p) {
-        String invTitle = new StringFormatter()
+        String invTitle = StringFormatter
                 .format(m.getConfig().getString("display-messages.displayed-inventory-title").replaceAll("%player%",
                         m.getConfig().getBoolean("use-nicks-in-gui") ? m.getConfig().getBoolean("strip-nick-colors-gui")
                                 ? ChatColor.stripColor(p.getDisplayName())
@@ -44,7 +44,6 @@ public class PlayerInventoryReplicator {
         for (int num = 0; num < contents.length; num++) {
             inv.setItem(num < 9 ? num + 36 : num, contents[num]);
         }
-        ItemStackReflection util = new ItemStackReflection();
 
 
         ItemStack playerStats = new ItemStack(Material.COOKED_BEEF);
@@ -60,8 +59,8 @@ public class PlayerInventoryReplicator {
         xp.addWith(p.getLevel() + "");
         xp.setColor(ChatColor.GREEN);
         xp.setItalic(false);
-        playerStats = util.setLore(playerStats, health, food, xp);
-        playerStats = util.setItemName(playerStats, statName);
+        playerStats = ItemStackReflection.setLore(playerStats, health, food, xp);
+        playerStats = ItemStackReflection.setItemName(playerStats, statName);
         inv.setItem(5, playerStats);
 
 
@@ -82,9 +81,9 @@ public class PlayerInventoryReplicator {
             burning.setBold(false);
             burning.setItalic(false);
             burning.setColor(ChatColor.GOLD);
-            potionEffects = util.setLore(potionEffects, burning);
+            potionEffects = ItemStackReflection.setLore(potionEffects, burning);
         }
-        potionEffects = util.setItemName(potionEffects, potionName);
+        potionEffects = ItemStackReflection.setItemName(potionEffects, potionName);
         inv.setItem(6, potionEffects);
 
 

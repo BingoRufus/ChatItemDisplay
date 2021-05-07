@@ -23,7 +23,7 @@ public class DisplayEnderChest extends Displayable {
 
     public DisplayEnderChest(Player player) {
         super(player);
-        inventoryTitle = new StringFormatter()
+        inventoryTitle = StringFormatter
                 .format(ChatItemConfig.ENDERCHEST_TITLE.replace("%player%",
                         ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui") ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
                                 ? ChatColor.stripColor(getDisplayer().getDisplayName())
@@ -37,13 +37,13 @@ public class DisplayEnderChest extends Displayable {
     }
 
     @Override
-    protected Class<? extends DisplayType> getTypeClass() {
+    protected Class<? extends DisplayType<?>> getTypeClass() {
         return DisplayEnderChestType.class;
     }
 
     @Override
     public BaseComponent getDisplayComponent() {
-        String format = new StringFormatter()
+        String format = StringFormatter
                 .format(ChatItemConfig.CHAT_INVENTORY_FORMAT)
                 .replaceAll("%player%", ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
                         ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
@@ -98,27 +98,26 @@ public class DisplayEnderChest extends Displayable {
                         : getDisplayer().getRegularName());
         format = format.replaceAll("%type%", ChatItemDisplay.getInstance().getLang().get("container.enderchest").getAsString());
 
-        return ChatColor.stripColor(new StringFormatter().format(format));
+        return ChatColor.stripColor(StringFormatter.format(format));
     }
 
     @Override
     protected JsonObject serializeData() {
         JsonObject jo = new JsonObject();
-        InventorySerializer inventorySerializer = new InventorySerializer();
-        jo.addProperty("data", inventorySerializer.serialize(inventory, inventoryTitle));
+        jo.addProperty("data", InventorySerializer.serialize(inventory, inventoryTitle));
         return jo;
     }
 
     @Override
     protected void deseralizeData(JsonObject data) {
-        InventoryData inventoryData = new InventorySerializer().deserialize(data.get("data").getAsString());
+        InventoryData inventoryData = InventorySerializer.deserialize(data.get("data").getAsString());
         inventory = inventoryData.getInventory();
         inventoryTitle = inventoryData.getTitle();
     }
 
     @Override
     public void broadcastDisplayable() {
-        String format = new StringFormatter()
+        String format = StringFormatter
                 .format(ChatItemConfig.COMMAND_INVENTORY_FORMAT)
                 .replaceAll("%player%",
                         ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")

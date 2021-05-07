@@ -3,6 +3,7 @@ package io.github.bingorufus.chatitemdisplay.listeners;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import io.github.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff;
+import io.github.bingorufus.chatitemdisplay.util.iteminfo.MapGiver;
 import io.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import io.github.bingorufus.chatitemdisplay.util.string.VersionComparator;
 import org.bukkit.Bukkit;
@@ -31,18 +32,16 @@ import java.util.*;
 public class InventoryClick implements Listener {
     final io.github.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff ItemStackStuff;
     final List<PlayerInteractEvent> pies = new ArrayList<>();
-    private final ChatItemDisplay m;
 
     public InventoryClick() {
         ItemStackStuff = new ItemStackStuff();
-        this.m = ChatItemDisplay.getInstance();
 
     }
 
 
     @EventHandler
     public void onClick(final InventoryClickEvent e) {
-        if (m.getChatItemDisplayInventories().containsKey(e.getInventory())) {
+        if (ChatItemDisplay.getInstance().getChatItemDisplayInventories().containsKey(e.getInventory())) {
             e.setCancelled(true);
             if (e.getClickedInventory() == null)
                 return;
@@ -56,7 +55,7 @@ public class InventoryClick implements Listener {
             if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
                 BlockStateMeta bsm = ((BlockStateMeta) e.getCurrentItem().getItemMeta());
                 if (bsm.getBlockState() instanceof Container) {
-                    container(e.getCurrentItem().clone(), p, m.getChatItemDisplayInventories().get(e.getInventory()));
+                    container(e.getCurrentItem().clone(), p, ChatItemDisplay.getInstance().getChatItemDisplayInventories().get(e.getInventory()));
                     return;
                 }
 
@@ -64,8 +63,8 @@ public class InventoryClick implements Listener {
 
             switch (e.getCurrentItem().getType()) {
                 case FILLED_MAP:
-                    map(e.getCurrentItem(), p);
-                    break;
+                    MapGiver.giveMap(p, e.getCurrentItem());
+                    return;
                 case WRITTEN_BOOK:
                 case WRITABLE_BOOK:
                     book(e.getCurrentItem(), p);
@@ -101,8 +100,7 @@ public class InventoryClick implements Listener {
     }
 
     public void map(ItemStack item, Player p) {
-        m.getMapViewers().put(p, p.getInventory().getItemInMainHand());
-        p.sendMessage(new StringFormatter().format(ChatItemConfig.MAP));
+        p.sendMessage(StringFormatter.format(ChatItemConfig.MAP));
         p.closeInventory();
         p.getInventory().setItemInMainHand(item);
     }
@@ -123,7 +121,7 @@ public class InventoryClick implements Listener {
             containerInv = Bukkit.createInventory(null, container.getType(), ItemStackStuff.itemName(item));
         containerInv.setContents(container.getContents());
 
-        m.getChatItemDisplayInventories().put(containerInv, owner);
+        ChatItemDisplay.getInstance().getChatItemDisplayInventories().put(containerInv, owner);
         p.openInventory(containerInv);
 
     }
@@ -131,7 +129,7 @@ public class InventoryClick implements Listener {
 
     public void book(ItemStack item, Player p) {
         // The player.openBook() method was added in 1.14.2, this makes sure the version is atleast 1.14.2
-        if (new VersionComparator().isRecent(ChatItemDisplay.MINECRAFT_VERSION, "1.14.2") == VersionComparator.Status.BEHIND)
+        if (VersionComparator.isRecent(ChatItemDisplay.MINECRAFT_VERSION, "1.14.2") == VersionComparator.Status.BEHIND)
             return;
 
         if (!item.hasItemMeta()) return;

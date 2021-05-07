@@ -13,14 +13,13 @@ import java.io.IOException;
 
 public class BungeeCordSender {
 
-    final ChatItemDisplay m;
 
-    public BungeeCordSender() {
-        this.m = ChatItemDisplay.getInstance();
+    private BungeeCordSender() {
+
     }
 
-    public void send(Displayable displayable, boolean isCmd) {
-        Display dis = m.getDisplayedManager().getDisplay(displayable);
+    public static void send(Displayable displayable, boolean isCmd) {
+        Display dis = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(displayable);
         String data = null;
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(b);
@@ -34,7 +33,7 @@ public class BungeeCordSender {
         } catch (IOException ignored) {
         }
         DebugLogger.log("Sent data: " + data);
-        Bukkit.getServer().sendPluginMessage(m, "chatitemdisplay:out", b.toByteArray());
+        Bukkit.getServer().sendPluginMessage(ChatItemDisplay.getInstance(), "chatitemdisplay:out", b.toByteArray());
     }
 
 

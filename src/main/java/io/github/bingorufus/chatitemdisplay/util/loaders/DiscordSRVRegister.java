@@ -5,15 +5,14 @@ import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.listeners.DiscordSRVModifier;
 
 public class DiscordSRVRegister {
-    final ChatItemDisplay m;
     DiscordSRVModifier mod;
 
-    public DiscordSRVRegister(ChatItemDisplay m) {
-        this.m = m;
+    public DiscordSRVRegister() {
+
     }
 
     public void register() {
-        mod = new DiscordSRVModifier(m);
+        mod = new DiscordSRVModifier(ChatItemDisplay.getInstance());
         DiscordSRV.api.subscribe(mod);
 
     }

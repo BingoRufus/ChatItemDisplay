@@ -7,24 +7,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringFormatter {
-    final VersionComparator.Status hasHex;
-    private final Pattern pat = Pattern.compile("#[a-fA-F0-9]{6}");
 
-    public StringFormatter() {
-        hasHex = new VersionComparator().isRecent(
-                ChatItemDisplay.MINECRAFT_VERSION,
-                "1.16");
+    public final static boolean HEX_AVAILABLE = VersionComparator.isRecent(
+            ChatItemDisplay.MINECRAFT_VERSION,
+            "1.16") != VersionComparator.Status.BEHIND;
+    private final static Pattern PATTERN = Pattern.compile("#[a-fA-F0-9]{6}");
+
+    private StringFormatter() {
     }
 
-    public String format(String s) {
-        if (hasHex.equals(VersionComparator.Status.BEHIND))
+    public static String format(String s) {
+        if (HEX_AVAILABLE)
             return ChatColor.translateAlternateColorCodes('&', s);
-        Matcher match = pat.matcher(s);
+        Matcher match = PATTERN.matcher(s);
         while (match.find()) {
             String color = s.substring(match.start(), match.end());
             s = s.replaceAll(color, ChatColor.of(color) + "");
 
-            match = pat.matcher(s);
+            match = PATTERN.matcher(s);
 
         }
         return ChatColor.translateAlternateColorCodes('&', s);

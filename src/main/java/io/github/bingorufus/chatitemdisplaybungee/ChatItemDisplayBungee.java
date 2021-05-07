@@ -20,7 +20,7 @@ public class ChatItemDisplayBungee extends Plugin {
         getProxy().registerChannel("chatitemdisplay:out");
         getProxy().registerChannel("chatitemdisplay:in");
 
-        getProxy().getPluginManager().registerListener(this, new DisplayReceiver());
+        getProxy().getPluginManager().registerListener(this, new DisplayRelay());
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ChatItemDisplayBungee extends Plugin {
         getProxy().getScheduler().runAsync(this, () -> {
             try {
                 new UpdateChecker(77177).getLatestVersion(ver -> {
-                    VersionComparator.Status s = new VersionComparator().isRecent(this.getDescription().getVersion(), ver);
+                    VersionComparator.Status s = VersionComparator.isRecent(this.getDescription().getVersion(), ver);
 
                     if (s.equals(VersionComparator.Status.BEHIND)) {
                         UpdateDownloader downloader = new UpdateDownloader();

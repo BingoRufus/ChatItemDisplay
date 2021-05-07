@@ -21,7 +21,7 @@ public class ViewItemExecutor implements CommandExecutor {
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (m.getConfig().getBoolean("disable-gui")) {
-            sender.sendMessage(new StringFormatter().format(ChatItemConfig.FEATURE_DISABLED));
+            sender.sendMessage(StringFormatter.format(ChatItemConfig.FEATURE_DISABLED));
             return true;
 
         }
@@ -46,7 +46,7 @@ public class ViewItemExecutor implements CommandExecutor {
 
         if (invalidPlayer && usePlayer) {
             sender.sendMessage(
-                    new StringFormatter().format(ChatItemConfig.EMPTY_DISPLAY));
+                    StringFormatter.format(ChatItemConfig.EMPTY_DISPLAY));
             return true;
         }
 
@@ -55,12 +55,12 @@ public class ViewItemExecutor implements CommandExecutor {
                 id = UUID.fromString(args[0]);
 
             } catch (IllegalArgumentException e) {
-                sender.sendMessage(new StringFormatter()
+                sender.sendMessage(StringFormatter
                         .format(ChatItemConfig.EMPTY_DISPLAY));
                 return true;
             }
             if (m.getDisplayedManager().getDisplayed(id) == null) {
-                sender.sendMessage(new StringFormatter().format(ChatItemConfig.INVALID_ID));
+                sender.sendMessage(StringFormatter.format(ChatItemConfig.INVALID_ID));
                 return true;
             }
 

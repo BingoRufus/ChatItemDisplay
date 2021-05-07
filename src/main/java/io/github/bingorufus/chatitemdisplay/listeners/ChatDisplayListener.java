@@ -12,7 +12,6 @@ import io.github.bingorufus.chatitemdisplay.util.bungee.BungeeCordSender;
 import io.github.bingorufus.chatitemdisplay.util.logger.DebugLogger;
 import io.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,14 +39,14 @@ public class ChatDisplayListener implements Listener {
             Cooldown<Player> cooldown = ChatItemDisplay.getInstance().getDisplayCooldown();
             if (cooldown.isOnCooldown(p)) {
                 double secondsRemaining = (double) (Math.round((double) cooldown.getTimeRemaining(p) / 100)) / 10;
-                p.sendMessage(new StringFormatter().format(ChatItemConfig.COOLDOWN.replace("%seconds%", "" + secondsRemaining)));
+                p.sendMessage(StringFormatter.format(ChatItemConfig.COOLDOWN.replace("%seconds%", "" + secondsRemaining)));
                 e.setCancelled(true);
                 return; // Is on cooldown
             }
         }
-        for (DisplayType displayType : dp.getDisplayedTypes()) {
+        for (DisplayType<?> displayType : dp.getDisplayedTypes()) {
             if (!p.hasPermission(displayType.getPermission())) {
-                p.sendMessage(new StringFormatter().format(displayType.getMissingPermissionMessage()));
+                p.sendMessage(StringFormatter.format(displayType.getMissingPermissionMessage()));
                 e.setCancelled(true);
                 return;
             }
@@ -57,14 +56,14 @@ public class ChatDisplayListener implements Listener {
         if (dp.getDisplayable(ChatItemDisplay.getInstance().getDisplayType(DisplayItemType.class)) != null) {
             ItemStack item = p.getInventory().getItemInMainHand();
             if (item.getType() == Material.AIR) {
-                p.sendMessage(new StringFormatter().format(ChatItemConfig.EMPTY_HAND));
+                p.sendMessage(StringFormatter.format(ChatItemConfig.EMPTY_HAND));
                 return;
             }
         }
         if (!p.hasPermission("chatitemdisplay.blacklistbypass")) {
             for (Displayable displayable : dp.getDisplayables()) {
                 if (displayable.hasBlacklistedItem()) {
-                    p.sendMessage(new StringFormatter().format(ChatItemConfig.CONTAINS_BLACKLIST));
+                    p.sendMessage(StringFormatter.format(ChatItemConfig.CONTAINS_BLACKLIST));
                     e.setCancelled(true);
                     return; //Inventory, Item, or Enderchest contains a blacklisted item
                 }
@@ -77,14 +76,14 @@ public class ChatDisplayListener implements Listener {
         String message = dp.format(p);
         for (Displayable displayable : dp.getDisplayables()) {
             if (isDisplayTooLong(displayable)) {
-                p.sendMessage(displayable.getType().getTooLargeMessage());
+                p.sendMessage(StringFormatter.format(displayable.getType().getTooLargeMessage()));
                 e.setCancelled(true);
                 return;
             }
         }
 
         if (isMessageTooLong(message, dp)) {
-            p.sendMessage(new StringFormatter().format(ChatItemConfig.TOO_LARGE_MESSAGE));
+            p.sendMessage(StringFormatter.format(ChatItemConfig.TOO_LARGE_MESSAGE));
             e.setCancelled(true);
             return;
         }
@@ -93,8 +92,7 @@ public class ChatDisplayListener implements Listener {
 
         //Send stuff to bungee
         if (ChatItemConfig.BUNGEE) {
-            BungeeCordSender sender = new BungeeCordSender();
-            dp.getDisplayables().forEach(display -> sender.send(display, false));
+            dp.getDisplayables().forEach(display -> BungeeCordSender.send(display, false));
         }
     }
 
@@ -121,7 +119,7 @@ public class ChatDisplayListener implements Listener {
             Matcher displayMatcher = displayPattern.matcher(edit);
             while (displayMatcher.find()) {
                 numberOfDisplays++;
-                edit = displayMatcher.replaceFirst(StringEscapeUtils.unescapeJava(ComponentSerializer.toString(displayable.getDisplayComponent())));
+                edit = displayMatcher.replaceFirst(ComponentSerializer.toString(displayable.getDisplayComponent()));
             }
         }
         return ChatItemConfig.MAXIMUM_DISPLAYS != 0 && numberOfDisplays >= ChatItemConfig.MAXIMUM_DISPLAYS;

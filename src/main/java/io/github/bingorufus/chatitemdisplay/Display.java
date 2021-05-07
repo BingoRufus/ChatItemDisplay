@@ -27,7 +27,7 @@ public class Display {
         JsonObject displayableJSON = jo.getAsJsonObject("displayable");
         Displayable displayable;
         try {
-            DisplayType displayType = ChatItemDisplay.getInstance().getDisplayType((Class<? extends DisplayType>) Class.forName(displayableJSON.get("type").getAsString()));
+            DisplayType<?> displayType = ChatItemDisplay.getInstance().getDisplayType((Class<? extends DisplayType<?>>) Class.forName(displayableJSON.get("type").getAsString()));
             if (displayType == null) {
                 return null;
             }

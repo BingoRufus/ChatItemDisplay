@@ -34,13 +34,13 @@ public class DisplayInventory extends Displayable {
     }
 
     @Override
-    protected Class<? extends DisplayType> getTypeClass() {
+    protected Class<? extends DisplayType<?>> getTypeClass() {
         return DisplayInventoryType.class;
     }
 
     @Override
     public BaseComponent getDisplayComponent() {
-        String format = new StringFormatter()
+        String format = StringFormatter
                 .format(ChatItemConfig.CHAT_INVENTORY_FORMAT)
                 .replaceAll("%player%", ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
                         ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
@@ -96,27 +96,26 @@ public class DisplayInventory extends Displayable {
                         : getDisplayer().getRegularName());
         format = format.replaceAll("%type%", ChatItemDisplay.getInstance().getLang().get("container.inventory").getAsString());
 
-        return ChatColor.stripColor(new StringFormatter().format(format));
+        return ChatColor.stripColor(StringFormatter.format(format));
     }
 
     @Override
     protected JsonObject serializeData() {
         JsonObject jo = new JsonObject();
-        InventorySerializer inventorySerializer = new InventorySerializer();
-        jo.addProperty("data", inventorySerializer.serialize(inventory, inventoryTitle));
+        jo.addProperty("data", InventorySerializer.serialize(inventory, inventoryTitle));
         return jo;
     }
 
     @Override
     protected void deseralizeData(JsonObject data) {
-        InventoryData inventoryData = new InventorySerializer().deserialize(data.get("data").getAsString());
+        InventoryData inventoryData = InventorySerializer.deserialize(data.get("data").getAsString());
         inventory = inventoryData.getInventory();
         inventoryTitle = inventoryData.getTitle();
     }
 
     @Override
     public void broadcastDisplayable() {
-        String format = new StringFormatter()
+        String format = StringFormatter
                 .format(ChatItemConfig.COMMAND_INVENTORY_FORMAT)
                 .replaceAll("%player%",
                         ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")

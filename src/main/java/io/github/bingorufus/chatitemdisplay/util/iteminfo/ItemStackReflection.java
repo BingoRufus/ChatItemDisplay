@@ -16,6 +16,7 @@ import java.util.Optional;
 
 public class ItemStackReflection {
 
+    public static String VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
     private static Class<?> craftPotionUtil = null;
     private static Class<?> craftItemStack = null;
     private static Class<?> chatSerializer = null;
@@ -24,33 +25,31 @@ public class ItemStackReflection {
     private static Class<?> nbtTagList = null;
     private static Class<?> nbtTagString = null;
     private static Class<?> nbtBase = null;
-
     private static Class<?> nmsItemStack;
 
     static {
         try {
-            String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
             craftPotionUtil = Class
-                    .forName("org.bukkit.craftbukkit.{v}.potion.CraftPotionUtil".replace("{v}", version));
+                    .forName("org.bukkit.craftbukkit.{v}.potion.CraftPotionUtil".replace("{v}", VERSION));
 
             craftItemStack = Class
-                    .forName("org.bukkit.craftbukkit.{v}.inventory.CraftItemStack".replace("{v}", version));
+                    .forName("org.bukkit.craftbukkit.{v}.inventory.CraftItemStack".replace("{v}", VERSION));
             chatSerializer = Class
-                    .forName("net.minecraft.server.{v}.IChatBaseComponent$ChatSerializer".replace("{v}", version));
-            iChatBase = Class.forName("net.minecraft.server.{v}.IChatBaseComponent".replace("{v}", version));
+                    .forName("net.minecraft.server.{v}.IChatBaseComponent$ChatSerializer".replace("{v}", VERSION));
+            iChatBase = Class.forName("net.minecraft.server.{v}.IChatBaseComponent".replace("{v}", VERSION));
 
-            nbtTagCompound = Class.forName("net.minecraft.server.{v}.NBTTagCompound".replace("{v}", version));
-            nbtTagList = Class.forName("net.minecraft.server.{v}.NBTTagList".replace("{v}", version));
-            nbtTagString = Class.forName("net.minecraft.server.{v}.NBTTagString".replace("{v}", version));
-            nbtBase = Class.forName("net.minecraft.server.{v}.NBTBase".replace("{v}", version));
-            nmsItemStack = Class.forName("net.minecraft.server.{v}.ItemStack".replace("{v}", version));
+            nbtTagCompound = Class.forName("net.minecraft.server.{v}.NBTTagCompound".replace("{v}", VERSION));
+            nbtTagList = Class.forName("net.minecraft.server.{v}.NBTTagList".replace("{v}", VERSION));
+            nbtTagString = Class.forName("net.minecraft.server.{v}.NBTTagString".replace("{v}", VERSION));
+            nbtBase = Class.forName("net.minecraft.server.{v}.NBTBase".replace("{v}", VERSION));
+            nmsItemStack = Class.forName("net.minecraft.server.{v}.ItemStack".replace("{v}", VERSION));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
     }
 
-    private Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
+    private static Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {
 
         Method asNms = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
@@ -59,18 +58,18 @@ public class ItemStackReflection {
 
     }
 
-    private Object toChatComponent(BaseComponent... component) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private static Object toChatComponent(BaseComponent... component) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method toString = chatSerializer.getDeclaredMethod("a", String.class);
         return toString.invoke(chatSerializer, ComponentSerializer.toString(component));
     }
 
-    public BaseComponent getOldHover(ItemStack item) {
+    public static BaseComponent getOldHover(ItemStack item) {
         try {
             Object nmsItem = nmsItem(item);
-            Method getChatComponent = nmsItem.getClass().getMethod("B");
+            Method getChatComponent = Arrays.stream(nmsItem.getClass().getMethods()).filter(method -> method.getReturnType().equals(iChatBase)).filter(method -> method.getParameterCount() == 0).filter(method -> !method.getName().equals("getName")).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot find method to convert item to basecomponent"));
             Object chatComponent = getChatComponent.invoke(nmsItem);
 
-            Method serialze = chatSerializer.getMethod("a", iChatBase);
+            Method serialze = Arrays.stream(chatSerializer.getMethods()).filter(method -> method.getParameterCount() == 1).filter(method -> method.getReturnType().equals(String.class)).filter(method -> method.getParameterTypes()[0].equals(iChatBase)).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot find method to serialize basecomponent"));
             String s = (String) serialze.invoke(chatSerializer, iChatBase.cast(chatComponent));
             return ComponentSerializer.parse(s)[0];
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
@@ -81,7 +80,7 @@ public class ItemStackReflection {
         return new TextComponent();
     }
 
-    public boolean hasNbt(ItemStack item) {
+    public static boolean hasNbt(ItemStack item) {
         try {
             Object nmsItem = nmsItem(item);
             if (nmsItem == null) {
@@ -98,14 +97,13 @@ public class ItemStackReflection {
 
     }
 
-    public String getNBT(ItemStack item) {
+    public static String getNBT(ItemStack item) {
         try {
             Object nmsItem = nmsItem(item);
             if (nmsItem == null) {
                 throw new IllegalArgumentException(item.getType().name() + " could not be turned into a net.minecraft item");
             }
             Method hasTag = nmsItem.getClass().getMethod("hasTag");
-
 
             if ((boolean) hasTag.invoke(nmsItem)) {
                 Method getTag = nmsItem.getClass().getMethod("getTag");
@@ -124,7 +122,7 @@ public class ItemStackReflection {
     }
 
 
-    public String translateItemStack(ItemStack holding) {
+    public static String translateItemStack(ItemStack holding) {
         try {
             Object item = nmsItem(holding);
             if (item == null) {
@@ -158,13 +156,13 @@ public class ItemStackReflection {
 
     }
 
-    private ItemStack fromNMS(Object nmsItem) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private static ItemStack fromNMS(Object nmsItem) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method fromNMS = craftItemStack.getMethod("asBukkitCopy", nmsItemStack);
         fromNMS.setAccessible(true);
         return (ItemStack) fromNMS.invoke(craftItemStack, nmsItem);
     }
 
-    public ItemStack setItemName(final ItemStack item, final BaseComponent name) {
+    public static ItemStack setItemName(final ItemStack item, final BaseComponent name) {
         try {
             Object nms = nmsItem(item);
             Optional<Method> setNameOptional = Arrays.stream(nms.getClass().getDeclaredMethods()).filter(method -> method.getReturnType().equals(nms.getClass())).filter(method -> method.getParameterCount() == 1).filter(method -> method.getParameterTypes()[0].equals(iChatBase)).findFirst();
@@ -179,7 +177,7 @@ public class ItemStackReflection {
     }
 
 
-    public ItemStack setLore(final ItemStack item, final BaseComponent... lore) {
+    public static ItemStack setLore(final ItemStack item, final BaseComponent... lore) {
         try {
             Object nms = nmsItem(item);
             if (!nms.getClass().equals(nmsItemStack)) return item;

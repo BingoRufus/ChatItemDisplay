@@ -21,11 +21,10 @@ public class DisplayedManager {
     public DisplayedManager() {
     }
 
-    public Display addDisplayable(Displayable display) {
+    public void addDisplayable(Displayable display) {
         Display dis = new Display(display, UUID.randomUUID());
         displayId.put(dis.getId(), dis);
         mostRecent.put(display.getDisplayer().getRegularName().toUpperCase(), dis.getId());
-        return dis;
     }
 
     public void addDisplay(Display d) {

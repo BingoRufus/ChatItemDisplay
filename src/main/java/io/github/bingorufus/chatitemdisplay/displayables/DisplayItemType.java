@@ -1,7 +1,7 @@
 package io.github.bingorufus.chatitemdisplay.displayables;
 
+import com.google.gson.JsonObject;
 import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
-import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import io.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import org.bukkit.Material;
@@ -9,11 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class DisplayItemType extends DisplayType {
-    @Override
-    public Class<? extends Displayable> getDisplayableClass() {
-        return DisplayItem.class;
-    }
+public class DisplayItemType extends DisplayType<DisplayItem> {
 
     @Override
     public List<String> getTriggers() {
@@ -36,6 +32,11 @@ public class DisplayItemType extends DisplayType {
     }
 
     @Override
+    public String[] getAliases() {
+        return new String[]{"display1", "display2"};
+    }
+
+    @Override
     public String getTooLargeMessage() {
         return ChatItemConfig.TOO_LARGE_ITEM;
     }
@@ -46,9 +47,19 @@ public class DisplayItemType extends DisplayType {
     }
 
     @Override
+    public DisplayItem initDisplayable(Player player) {
+        return new DisplayItem(player);
+    }
+
+    @Override
+    public DisplayItem initDisplayable(JsonObject data) {
+        return new DisplayItem(data);
+    }
+
+    @Override
     public boolean canBeCreated(Player p) {
         if (p.getInventory().getItemInMainHand().getType() == Material.AIR) {
-            p.sendMessage(new StringFormatter().format(ChatItemConfig.EMPTY_HAND));
+            p.sendMessage(StringFormatter.format(ChatItemConfig.EMPTY_HAND));
             return false;
         }
         return true;

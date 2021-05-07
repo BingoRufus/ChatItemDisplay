@@ -19,11 +19,9 @@ commands:
   displayitem:
     usage: /<command>
     description: Display your items in chat
-    aliases: [ display ]
   displayinventory:
     usage: /<command>
     description: Display your inventory
-    aliases: [ displayinv ]
   displayenderchest:
     usage: /<command>
     description: Display your ender chest

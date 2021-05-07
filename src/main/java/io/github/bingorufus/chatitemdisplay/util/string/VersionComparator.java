@@ -2,8 +2,10 @@ package io.github.bingorufus.chatitemdisplay.util.string;
 
 public class VersionComparator {
 
+    private VersionComparator() {
+    }
 
-    private int[] toIntArray(String version) {
+    private static int[] toIntArray(String version) {
         int[] out = new int[20];
         String[] splitVer = version.split("[.]");
         for (int i = 0; i < splitVer.length; i++) {
@@ -13,11 +15,11 @@ public class VersionComparator {
         return out;
     }
 
-    public Status isRecent(String current, String updated) {
+    public static Status isRecent(String current, String updated) {
         return compare(toIntArray(current), toIntArray(updated), 0);
     }
 
-    private Status compare(int[] array1, int[] array2, int section) {
+    private static Status compare(int[] array1, int[] array2, int section) {
 
         if (array1.length == section || array2.length == section) {
             if (array1.length == array2.length)

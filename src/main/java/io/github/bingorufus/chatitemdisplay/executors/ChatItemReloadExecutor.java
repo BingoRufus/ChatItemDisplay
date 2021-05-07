@@ -20,7 +20,7 @@ public class ChatItemReloadExecutor implements CommandExecutor {
             }
 
 
-            sender.sendMessage(new StringFormatter().format(
+            sender.sendMessage(StringFormatter.format(
                     ChatItemConfig.MISSING_PERMISSION_GENERIC));
             return true;
         }

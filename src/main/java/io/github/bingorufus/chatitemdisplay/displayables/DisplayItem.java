@@ -8,13 +8,11 @@ import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import io.github.bingorufus.chatitemdisplay.util.iteminfo.ItemSerializer;
 import io.github.bingorufus.chatitemdisplay.util.iteminfo.ItemStackReflection;
 import io.github.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff;
-import io.github.bingorufus.chatitemdisplay.util.logger.DebugLogger;
 import io.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import io.github.bingorufus.chatitemdisplay.util.string.VersionComparator;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Item;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
@@ -39,7 +37,7 @@ public class DisplayItem extends Displayable {
     }
 
     @Override
-    protected Class<? extends DisplayType> getTypeClass() {
+    protected Class<? extends DisplayType<?>> getTypeClass() {
         return DisplayItemType.class;
     }
 
@@ -54,7 +52,7 @@ public class DisplayItem extends Displayable {
 
     @Override
     public Inventory onViewDisplay(Player viewer) {
-        String guiName = new StringFormatter().format(ChatItemDisplay.getInstance().getConfig().getString("messages.gui-format"));
+        String guiName = StringFormatter.format(ChatItemDisplay.getInstance().getConfig().getString("messages.gui-format"));
         Inventory inventory = Bukkit.createInventory(null, 9,
                 guiName.replaceAll("%player%",
                         ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui") ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
@@ -77,25 +75,25 @@ public class DisplayItem extends Displayable {
 
         format = format.replaceAll("%item%", Matcher.quoteReplacement(new ItemStackStuff().getLangName(item)));
 
-        return ChatColor.stripColor(new StringFormatter().format(format));
+        return ChatColor.stripColor(StringFormatter.format(format));
     }
 
     @Override
     public JsonObject serializeData() {
         JsonObject jo = new JsonObject();
-        jo.addProperty("item", new ItemSerializer().serialize(item));
+        jo.addProperty("item", ItemSerializer.serialize(item));
         return jo;
     }
 
     @Override
     public void deseralizeData(JsonObject data) {
         String nbt = data.get("item").getAsString();
-        item = new ItemSerializer().deserialize(nbt);
+        item = ItemSerializer.deserialize(nbt);
     }
 
     @Override
     public void broadcastDisplayable() {
-        String format = new StringFormatter().format(item.getAmount() > 1
+        String format = StringFormatter.format(item.getAmount() > 1
                 ? ChatItemConfig.COMMAND_ITEM_FORMAT_MULTIPLE
                 : ChatItemConfig.COMMAND_ITEM_FORMAT);
         Bukkit.spigot().broadcast(format(format));
@@ -124,7 +122,7 @@ public class DisplayItem extends Displayable {
                         : getDisplayer().getDisplayName()
                         : getDisplayer().getRegularName());
 
-        s = new StringFormatter().format(s);
+        s = StringFormatter.format(s);
 
         String[] parts = s.split("((?<=%item%)|(?=%item%)|(?<=%amount%)|(?=%amount%))");
         TextComponent whole = new TextComponent();
@@ -158,52 +156,25 @@ public class DisplayItem extends Displayable {
     }
 
     public TextComponent baseHover() {
-        String color = new StringFormatter().format(ChatItemDisplay.getInstance().getConfig().getString("messages.item-color"));
-        ItemStackStuff itemStuff = new ItemStackStuff();
-        ItemStackReflection itemRetriever = new ItemStackReflection();
-        BaseComponent bc = itemStuff.getName(item, color,
+        String color = StringFormatter.format(ChatItemDisplay.getInstance().getConfig().getString("messages.item-color"));
+        BaseComponent bc = ItemStackStuff.getName(item, color,
                 ChatItemDisplay.getInstance().getConfig().getBoolean("messages.force-item-colors"));
 
 
         TextComponent hover = new TextComponent(bc);
 
 
-        VersionComparator.Status s = new VersionComparator().isRecent(ChatItemDisplay.MINECRAFT_VERSION,
+        VersionComparator.Status s = VersionComparator.isRecent(ChatItemDisplay.MINECRAFT_VERSION,
                 "1.16");
 
         if (s.equals(VersionComparator.Status.BEHIND)) {
-            JsonObject itemJson = new JsonObject();
-
-            itemJson.addProperty("id", item.getType().getKey().toString());
-            itemJson.addProperty("Count", item.getAmount());
-            boolean hasNbt = itemRetriever.hasNbt(item);
-            if (hasNbt)
-                itemJson.addProperty("tag", itemRetriever.getNBT(item)); // Only adds the nbt data if there
-            // is nbt data
-
-            String jsonString = itemJson.toString();
-            jsonString = jsonString.replaceAll("\"id\"", "id").replaceAll("\"Count\"", "Count")
-
-                    .replaceAll("\\\\", "");
-            if (hasNbt) {
-                jsonString = jsonString.replaceAll("\"tag\":\"", "tag:").replaceFirst("(?s)\"(?!.*?\")", "");
-            }
-
-
-            DebugLogger.log(
-                    "From NMS: " + ComponentSerializer
-                            .toString(itemRetriever.getOldHover(item).getHoverEvent().getValue()));
-            DebugLogger.log(
-                    "Created:  " + ComponentSerializer.toString(new ComponentBuilder(jsonString).create()));
-
-
-            hover.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new ComponentBuilder(jsonString).create()));
+            hover.setHoverEvent(ItemStackReflection.getOldHover(item).getHoverEvent());
 
         } else {
 
             hover.setHoverEvent(
                     new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(item.getType().getKey().toString(),
-                            item.getAmount(), ItemTag.ofNbt(itemRetriever.getNBT(item)))));
+                            item.getAmount(), ItemTag.ofNbt(ItemStackReflection.getNBT(item)))));
         }
         UUID id = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(this).getId();
         hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,

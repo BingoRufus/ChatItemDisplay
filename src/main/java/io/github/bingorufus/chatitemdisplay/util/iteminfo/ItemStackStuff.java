@@ -18,6 +18,58 @@ import java.util.Objects;
 
 public class ItemStackStuff {
 
+    public static BaseComponent getName(ItemStack item, String color, boolean forceColor) {
+        ItemRarity rarity = ItemRarity.getRarity(item);
+        String colorPrefix = color + rarity.getColor();
+        BaseComponent legacy = TextComponent.fromLegacyText(forceColor ? color : colorPrefix)[0];
+        if (Objects.requireNonNull(item.getItemMeta()).hasDisplayName()) {
+            colorPrefix += ChatColor.ITALIC;
+            TextComponent itemName = new TextComponent(TextComponent.fromLegacyText(colorPrefix + item.getItemMeta().getDisplayName()));
+            if (forceColor) {
+                itemName = (TextComponent) TextComponent.fromLegacyText(color + ChatColor.stripColor(item.getItemMeta().getDisplayName()))[0];
+                itemName.copyFormatting(legacy, FormatRetention.FORMATTING, true);
+
+            }
+            return itemName;
+        }
+
+        if (item.getItemMeta() instanceof SkullMeta) {
+            SkullMeta sm = (SkullMeta) item.getItemMeta();
+            if (sm.hasOwner() && sm.getOwningPlayer() != null && sm.getOwningPlayer().getName() != null) {
+                TranslatableComponent translatable = new TranslatableComponent("block.minecraft.player_head.named");
+                translatable.addWith(new TextComponent(sm.getOwningPlayer().getName()));
+                translatable.setColor(TextComponent.fromLegacyText(colorPrefix)[0].getColor());
+                if (forceColor) {
+                    translatable.copyFormatting(legacy, FormatRetention.FORMATTING, true);
+
+                }
+                return translatable;
+            }
+        }
+
+        if (item.getItemMeta() instanceof BookMeta) {
+            BookMeta bm = (BookMeta) item.getItemMeta();
+            if (bm.hasTitle()) {
+                TextComponent book = new TextComponent(colorPrefix + bm.getTitle());
+                book.copyFormatting(legacy, FormatRetention.FORMATTING, false);
+
+                if (forceColor) {
+                    book.copyFormatting(legacy, FormatRetention.FORMATTING, true);
+                }
+                return book;
+            }
+        }
+
+        TranslatableComponent tr = new TranslatableComponent(new ItemStackReflection().translateItemStack(item));
+        tr.copyFormatting(legacy, FormatRetention.FORMATTING, false);
+
+        if (forceColor) {
+            tr.copyFormatting(legacy, FormatRetention.FORMATTING, true);
+        }
+        return tr;
+
+    }
+
     public String makeStringPretty(String s) {
 
         StringBuilder out = new StringBuilder();
@@ -85,58 +137,6 @@ public class ItemStackStuff {
 
         }
         return out + makeStringPretty(item.getType().name());
-
-    }
-
-    public BaseComponent getName(ItemStack item, String color, boolean forceColor) {
-        ItemRarity rarity = ItemRarity.getRarity(item);
-        String colorPrefix = color + rarity.getColor();
-        BaseComponent legacy = TextComponent.fromLegacyText(forceColor ? color : colorPrefix)[0];
-        if (Objects.requireNonNull(item.getItemMeta()).hasDisplayName()) {
-            colorPrefix += ChatColor.ITALIC;
-            TextComponent itemName = new TextComponent(TextComponent.fromLegacyText(colorPrefix + item.getItemMeta().getDisplayName()));
-            if (forceColor) {
-                itemName = (TextComponent) TextComponent.fromLegacyText(color + ChatColor.stripColor(item.getItemMeta().getDisplayName()))[0];
-                itemName.copyFormatting(legacy, FormatRetention.FORMATTING, true);
-
-            }
-            return itemName;
-        }
-
-        if (item.getItemMeta() instanceof SkullMeta) {
-            SkullMeta sm = (SkullMeta) item.getItemMeta();
-            if (sm.hasOwner() && sm.getOwningPlayer() != null && sm.getOwningPlayer().getName() != null) {
-                TranslatableComponent translatable = new TranslatableComponent("block.minecraft.player_head.named");
-                translatable.addWith(new TextComponent(sm.getOwningPlayer().getName()));
-                translatable.setColor(TextComponent.fromLegacyText(colorPrefix)[0].getColor());
-                if (forceColor) {
-                    translatable.copyFormatting(legacy, FormatRetention.FORMATTING, true);
-
-                }
-                return translatable;
-            }
-        }
-
-        if (item.getItemMeta() instanceof BookMeta) {
-            BookMeta bm = (BookMeta) item.getItemMeta();
-            if (bm.hasTitle()) {
-                TextComponent book = new TextComponent(colorPrefix + bm.getTitle());
-                book.copyFormatting(legacy, FormatRetention.FORMATTING, false);
-
-                if (forceColor) {
-                    book.copyFormatting(legacy, FormatRetention.FORMATTING, true);
-                }
-                return book;
-            }
-        }
-
-        TranslatableComponent tr = new TranslatableComponent(new ItemStackReflection().translateItemStack(item));
-        tr.copyFormatting(legacy, FormatRetention.FORMATTING, false);
-
-        if (forceColor) {
-            tr.copyFormatting(legacy, FormatRetention.FORMATTING, true);
-        }
-        return tr;
 
     }
 

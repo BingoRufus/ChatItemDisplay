@@ -15,6 +15,8 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class InventorySerializer {
+    private InventorySerializer() {
+    }
 
     @NotNull
     public static Inventory cloneInventory(Inventory inventory, String inventoryTitle) {
@@ -31,7 +33,7 @@ public class InventorySerializer {
         return inventory;
     }
 
-    public String serialize(Inventory inv, @Nullable String name) {
+    public static String serialize(Inventory inv, @Nullable String name) {
         if (name == null)
             return serialize(inv);
         JsonObject invJson = serializeInventory(inv);
@@ -43,7 +45,7 @@ public class InventorySerializer {
 
     }
 
-    private JsonObject serializeInventory(Inventory inv) {
+    private static JsonObject serializeInventory(Inventory inv) {
         JsonObject invJson = new JsonObject();
         if (inv.getType().getDefaultSize() == inv.getSize())
             invJson.addProperty("type", inv.getType().name());
@@ -55,24 +57,23 @@ public class InventorySerializer {
         return invJson;
     }
 
-    private JsonElement getContents(@NotNull Inventory inv) {
+    private static JsonElement getContents(@NotNull Inventory inv) {
         JsonObject con = new JsonObject();
-        ItemSerializer serializer = new ItemSerializer();
         for (int i = 0; i < inv.getSize(); i++) {
             ItemStack item = inv.getItem(i);
             if (item == null || item.getItemMeta() == null)
                 continue;
-            con.addProperty(i + "", serializer.serialize(item));
+            con.addProperty(i + "", ItemSerializer.serialize(item));
         }
         return con;
     }
 
-    public String serialize(Inventory inv) {
+    public static String serialize(Inventory inv) {
         return serializeInventory(inv).toString();
 
     }
 
-    public InventoryData deserialize(String json) {
+    public static InventoryData deserialize(String json) {
         JsonObject invJson = (JsonObject) new JsonParser().parse(json);
         OfflinePlayer owner = invJson.get("owner").getAsString().equals("") ? null : Bukkit.getOfflinePlayer(UUID.fromString(invJson.get("owner").getAsString()));
         String title = invJson.has("title") ? invJson.get("title").getAsString() : null;
@@ -86,13 +87,12 @@ public class InventorySerializer {
         }
 
         JsonObject items = invJson.get("contents").getAsJsonObject();
-        ItemSerializer serialzer = new ItemSerializer();
         if (inv == null) return null;
         for (int i = 0; i < inv.getSize(); i++) {
             if (!items.has(i + ""))
                 continue;
 
-            inv.setItem(i, serialzer.deserialize(items.get(i + "").getAsString()));
+            inv.setItem(i, ItemSerializer.deserialize(items.get(i + "").getAsString()));
         }
         return new InventoryData(inv, title);
 

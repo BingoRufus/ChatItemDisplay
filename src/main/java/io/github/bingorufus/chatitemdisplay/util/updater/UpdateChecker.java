@@ -9,9 +9,9 @@ import java.util.function.Consumer;
 
 public class UpdateChecker {
 
-    private final Integer id;
+    private final int id;
 
-    public UpdateChecker(Integer i) {
+    public UpdateChecker(int i) {
         this.id = i;
     }
 

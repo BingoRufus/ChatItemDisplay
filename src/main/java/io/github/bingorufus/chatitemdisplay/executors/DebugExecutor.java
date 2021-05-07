@@ -3,7 +3,6 @@ package io.github.bingorufus.chatitemdisplay.executors;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import io.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
-import io.github.bingorufus.chatitemdisplay.util.string.VersionComparator;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -38,7 +37,7 @@ public class DebugExecutor implements CommandExecutor {
 
 
         if (!sender.hasPermission("chatitemdisplay.command.debug")) {
-            sender.sendMessage(new StringFormatter().format(
+            sender.sendMessage(StringFormatter.format(
                     ChatItemConfig.MISSING_PERMISSION_GENERIC));
             return true;
         }
@@ -87,10 +86,7 @@ public class DebugExecutor implements CommandExecutor {
             TextComponent tc = new TextComponent(ChatColor.GREEN + "A debug log has been successfully generated and has been saved to ");
             TextComponent extra = new TextComponent(ChatColor.GREEN + "" + ChatColor.BOLD + zip.getAbsolutePath());
 
-            VersionComparator.Status s = new VersionComparator().isRecent(ChatItemDisplay.MINECRAFT_VERSION,
-                    "1.16");
-
-            if (s.equals(VersionComparator.Status.BEHIND)) {
+            if (!StringFormatter.HEX_AVAILABLE) {
                 extra.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to copy the file path").create()));
                 extra.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, zip.getAbsolutePath()));
 

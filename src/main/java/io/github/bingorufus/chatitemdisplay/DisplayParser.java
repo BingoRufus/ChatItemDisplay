@@ -13,8 +13,8 @@ import java.util.regex.Pattern;
 
 public class DisplayParser {
     private final String message;
-    private final List<DisplayType> displayTypes = new ArrayList<>();
-    private final HashMap<DisplayType, Displayable> displayables = new HashMap<>();
+    private final List<DisplayType<?>> displayTypes = new ArrayList<>();
+    private final HashMap<DisplayType<?>, Displayable> displayables = new HashMap<>();
 
     public DisplayParser(String message) {
         this.message = message;
@@ -22,7 +22,7 @@ public class DisplayParser {
     }
 
     private void read() {
-        for (DisplayType displayType : ChatItemDisplay.getInstance().getRegisteredDisplayables()) {
+        for (DisplayType<?> displayType : ChatItemDisplay.getInstance().getRegisteredDisplayables()) {
             for (String trigger : displayType.getTriggers()) {
                 if (message.toUpperCase().contains(trigger.toUpperCase())) {
                     displayTypes.add(displayType);
@@ -40,21 +40,21 @@ public class DisplayParser {
         return new ArrayList<>(displayables.values());
     }
 
-    public List<DisplayType> getDisplayedTypes() {
+    public List<DisplayType<?>> getDisplayedTypes() {
         return displayTypes;
     }
 
     public String format(Player p) {
         if (displayables.size() == 0) createDisplayables(p);
         String out = message;
-        for (DisplayType displayType : ChatItemDisplay.getInstance().getRegisteredDisplayables()) {
+        for (DisplayType<?> displayType : ChatItemDisplay.getInstance().getRegisteredDisplayables()) {
             out = replaceTrigger(out, p, displayType);
         }
 
         return out;
     }
 
-    private String replaceTrigger(String message, Player p, DisplayType displayType) {
+    private String replaceTrigger(String message, Player p, DisplayType<?> displayType) {
         String out = message;
         boolean sentEvent = false;
 
@@ -86,7 +86,7 @@ public class DisplayParser {
 
     }
 
-    public Displayable getDisplayable(DisplayType type) {
+    public Displayable getDisplayable(DisplayType<?> type) {
         return displayables.get(type);
     }
 

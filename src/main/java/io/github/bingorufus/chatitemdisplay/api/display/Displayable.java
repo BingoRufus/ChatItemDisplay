@@ -57,10 +57,10 @@ public abstract class Displayable {
         return false;
     }
 
-    protected abstract Class<? extends DisplayType> getTypeClass();
+    protected abstract Class<? extends DisplayType<?>> getTypeClass();
 
-    public DisplayType getType() {
-        DisplayType displayType = ChatItemDisplay.getInstance().getRegisteredDisplayables().stream().filter(type -> type.getClass().equals(getTypeClass())).findFirst().orElse(null);
+    public DisplayType<?> getType() {
+        DisplayType<?> displayType = ChatItemDisplay.getInstance().getRegisteredDisplayables().stream().filter(type -> type.getClass().equals(getTypeClass())).findFirst().orElse(null);
         if (displayType == null) {
             System.out.println("Cannot find a displaytype that has the class path of: " + getTypeClass().getCanonicalName());
             return null;
