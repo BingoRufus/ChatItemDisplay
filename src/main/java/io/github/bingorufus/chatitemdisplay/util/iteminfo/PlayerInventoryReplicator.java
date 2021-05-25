@@ -1,6 +1,7 @@
 package io.github.bingorufus.chatitemdisplay.util.iteminfo;
 
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.displayables.DisplayInventoryType;
 import io.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -27,7 +28,7 @@ public class PlayerInventoryReplicator {
 
     public InventoryData replicateInventory(Player p) {
         String invTitle = StringFormatter
-                .format(m.getConfig().getString("display-messages.displayed-inventory-title").replaceAll("%player%",
+                .format(ChatItemDisplay.getInstance().getRegisteredDisplayables().stream().filter(DisplayInventoryType.class::isInstance).findFirst().get().getInventoryTitle().replaceAll("%player%",
                         m.getConfig().getBoolean("use-nicks-in-gui") ? m.getConfig().getBoolean("strip-nick-colors-gui")
                                 ? ChatColor.stripColor(p.getDisplayName())
                                 : p.getDisplayName() : p.getName()));

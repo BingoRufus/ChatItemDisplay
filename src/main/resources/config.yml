@@ -21,9 +21,59 @@ triggers: #These will determine when the objects are displayed, they are not cas
     - "[displaychest]"
     - "[displayec]"
 
+display-types:
+
+  item:
+    command: "displayitem" # A server restart is required to change commands and aliases
+    command-enabled: true
+    aliases: # A server restart is required to change commands and aliases
+      - "displayitems"
+      - "showitem"
+      - "display"
+    triggers:
+      - "[i]"
+      - "[item]"
+      - "[itemdisplay]"
+      - "[displayitem]"
+    missing-permission: "&cYou do not have permission to display items"
+    too-much-nbt: "&cThe item you are trying to display has too much nbt data to be displayed"
+    inventory-title: "%player%'s %name%"
+
+  inventory:
+    command: "displayinventory" # A server restart is required to change commands and aliases
+    command-enabled: true
+    aliases: # A server restart is required to change commands and aliases
+      - "displayinv"
+      - "showinv"
+    triggers:
+      - "[inv]"
+      - "[inventory]"
+      - "[invdisplay]"
+      - "[displayinv]"
+    missing-permission: "&cYou do not have permission to display your inventory"
+    too-much-nbt: "&cThe inventory you are trying to display has too much nbt data to be displayed"
+    inventory-title: "%player%'s Inventory"
+
+  enderchest:
+    command: "displayenderchest" # A server restart is required to change commands and aliases
+    command-enabled: true
+    aliases: # A server restart is required to change commands and aliases
+      - "displayec"
+      - "showendenderchest"
+    triggers:
+      - "[ec]"
+      - "[enderchest]"
+      - "[displaychest]"
+      - "[displayec]"
+    missing-permission: "&cYou do not have permission to display your Ender Chest"
+    too-much-nbt: "&cThe EnderChest you are trying to display has too much nbt data to be displayed"
+    inventory-title: "%player%'s EnderChest"
+
+
+
+
 
 disable-gui: false #Disable all the GUIs
-disable-commands: false #Disable display commands
 message-command: # This allows players to display items in private messages
   - "/msg"
   - "/t"
@@ -33,14 +83,7 @@ message-command: # This allows players to display items in private messages
   - "/tell"
   - "/whisper"
 messages:
-  gui-format: "&a%player%&a's &cDisplayed Item"
   missing-permission: "&cYou do not have permission to do that"
-  missing-permission-item: "&cYou do not have permission to display items"
-  missing-permission-inventory: "&cYou do not have permission to display your inventory"
-  missing-permission-enderchest: "&cYou do not have permission to display your Ender Chest"
-  display-too-large-item: "&cThe item you are trying to display has too much nbt data to be displayed"
-  display-too-large-inventory: "&cThe inventory you are trying to display has too much nbt data to be displayed"
-  display-too-large-enderchest: "&cThe EnderChest you are trying to display has too much nbt data to be displayed"
   too-large-display: "§cYour message is too long, try displaying less things"
   blacklisted-item: "&cYou cannot display this at item as it is blacklisted"
   contains-blacklist: "&cYou cannot display this inventory as it is contains a blacklisted item"
@@ -62,8 +105,7 @@ display-messages:
   item-display-format: "&6%player%&6 is displaying their &f%item%"
   item-display-format-multiple: "&6%player%&6 is displaying their &f%item% x%amount%"
   inventory-display-format: "&6%player%&6 is displaying their &f%type%"
-  displayed-inventory-title: "%player%'s Inventory"
-  displayed-enderchest-title: "%player%'s EnderChest"
+
 
 use-nicks-in-display-message: true #Will also use any custom colors. This is used in the command message
 
@@ -76,10 +118,9 @@ strip-nick-colors-gui: false #Removes the nick colors from the gui
 send-to-bungee: true # send displayed items/inventories to bungee
 
 
-show-item-amount: true #Will add x2 if a player is displaying 2 items
 display-cooldown: 0 #Measured in milliseconds. Use 0 for no cooldown.
 
-maximum-displays: 0 # The maximum number of times a player can display something in a single message. Set to 0 for no limit
+maximum-displays: -1 # The maximum number of times a player can display something in a single message. Set to -1 for no limit
 
 blacklisted-items: #for help visit https://minecraftitemids.com/
 #- "minecraft:bedrock"

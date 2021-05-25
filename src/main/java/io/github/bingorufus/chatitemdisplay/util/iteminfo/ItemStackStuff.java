@@ -60,7 +60,7 @@ public class ItemStackStuff {
             }
         }
 
-        TranslatableComponent tr = new TranslatableComponent(new ItemStackReflection().translateItemStack(item));
+        TranslatableComponent tr = new TranslatableComponent(ItemStackReflection.translateItemStack(item));
         tr.copyFormatting(legacy, FormatRetention.FORMATTING, false);
 
         if (forceColor) {
@@ -70,7 +70,7 @@ public class ItemStackStuff {
 
     }
 
-    public String makeStringPretty(String s) {
+    public static String makeStringPretty(String s) {
 
         StringBuilder out = new StringBuilder();
         String[] nameParts = s.toLowerCase().split("_");
@@ -89,7 +89,7 @@ public class ItemStackStuff {
 
     }
 
-    private String getItemKey(ItemStack item) {
+    private static String getItemKey(ItemStack item) {
         String itemKey = item.getType().getKey().getKey().toLowerCase();
         if (item.getType().name().equalsIgnoreCase("CROSSBOW")) {
             CrossbowMeta cm = (CrossbowMeta) item.getItemMeta();
@@ -104,13 +104,13 @@ public class ItemStackStuff {
 
     }
 
-    public BufferedImage getImage(ItemStack item, int... size) {
+    public static BufferedImage getImage(ItemStack item, int... size) {
         return null;
 
 
     }
 
-    private BufferedImage resizeImage(BufferedImage bi, int[] size) {
+    private static BufferedImage resizeImage(BufferedImage bi, int[] size) {
         BufferedImage resizeImage = new BufferedImage(size[0], size[1], BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2D = resizeImage.createGraphics();
         g2D.drawImage(bi, 0, 0, size[0], size[1], null);
@@ -118,14 +118,14 @@ public class ItemStackStuff {
         return resizeImage;
     }
 
-    public String getLangName(ItemStack item) {
+    public static String getLangName(ItemStack item) {
         if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) return item.getItemMeta().getDisplayName();
         JsonObject jo = ChatItemDisplay.getInstance().getLang();
-        String translationKey = new ItemStackReflection().translateItemStack(item);
+        String translationKey = ItemStackReflection.translateItemStack(item);
         return jo.has(translationKey) ? jo.get(translationKey).getAsString() : itemName(item);
     }
 
-    public String itemName(ItemStack item) {
+    public static String itemName(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return "";
 
         String out = "";

@@ -24,7 +24,7 @@ public class DisplayPreProcessEvent extends Event implements Cancellable {
     private boolean cancelled;
     @Getter
     @Setter
-    private String cancellationMessage = ChatItemConfig.MISSING_PERMISSION_GENERIC;
+    private String cancellationMessage = ChatItemConfig.MISSING_PERMISSION_GENERIC.getCachedValue();
 
     public DisplayPreProcessEvent(Player player, Displayable displayable, boolean fromChat) {
         super(!Bukkit.isPrimaryThread());

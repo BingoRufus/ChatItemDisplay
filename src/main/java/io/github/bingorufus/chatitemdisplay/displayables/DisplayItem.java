@@ -44,18 +44,18 @@ public class DisplayItem extends Displayable {
     @Override
     public BaseComponent getDisplayComponent() {
         String format = (item.getAmount() > 1
-                ? ChatItemConfig.CHAT_ITEM_FORMAT_MULTIPLE
-                : ChatItemConfig.CHAT_ITEM_FORMAT);
+                ? ChatItemConfig.CHAT_ITEM_FORMAT_MULTIPLE.getCachedValue()
+                : ChatItemConfig.CHAT_ITEM_FORMAT.getCachedValue());
 
         return format(format);
     }
 
     @Override
     public Inventory onViewDisplay(Player viewer) {
-        String guiName = StringFormatter.format(ChatItemDisplay.getInstance().getConfig().getString("messages.gui-format"));
+        String guiName = StringFormatter.format(getType().getInventoryTitle()).replace("%name%", Matcher.quoteReplacement(ItemStackStuff.getLangName(item)));
         Inventory inventory = Bukkit.createInventory(null, 9,
                 guiName.replaceAll("%player%",
-                        ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-gui") ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-gui")
+                        ChatItemConfig.getConfig().getBoolean("use-nicks-in-gui") ? ChatItemConfig.getConfig().getBoolean("strip-nick-colors-gui")
                                 ? ChatColor.stripColor(getDisplayer().getDisplayName())
                                 : getDisplayer().getDisplayName() : getDisplayer().getRegularName()));
         inventory.setItem(4, item);
@@ -68,12 +68,11 @@ public class DisplayItem extends Displayable {
     public String getLoggerMessage() {
 
         String format = (item.getAmount() > 1
-                ? ChatItemConfig.CHAT_ITEM_FORMAT_MULTIPLE
-                : ChatItemConfig.CHAT_ITEM_FORMAT);
+                ? ChatItemConfig.CHAT_ITEM_FORMAT_MULTIPLE.getCachedValue()
+                : ChatItemConfig.CHAT_ITEM_FORMAT.getCachedValue());
         if (format == null) return "";
         format = format.replaceAll("%amount%", item.getAmount() + "");
-
-        format = format.replaceAll("%item%", Matcher.quoteReplacement(new ItemStackStuff().getLangName(item)));
+        format = format.replaceAll("%item%", Matcher.quoteReplacement(ItemStackStuff.getLangName(item)));
 
         return ChatColor.stripColor(StringFormatter.format(format));
     }
@@ -94,8 +93,8 @@ public class DisplayItem extends Displayable {
     @Override
     public void broadcastDisplayable() {
         String format = StringFormatter.format(item.getAmount() > 1
-                ? ChatItemConfig.COMMAND_ITEM_FORMAT_MULTIPLE
-                : ChatItemConfig.COMMAND_ITEM_FORMAT);
+                ? ChatItemConfig.COMMAND_ITEM_FORMAT_MULTIPLE.getCachedValue()
+                : ChatItemConfig.COMMAND_ITEM_FORMAT.getCachedValue());
         Bukkit.spigot().broadcast(format(format));
     }
 
@@ -116,8 +115,8 @@ public class DisplayItem extends Displayable {
 
     private TextComponent format(String s) {
         s = s.replaceAll("%player%",
-                ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
-                        ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
+                ChatItemConfig.getConfig().getBoolean("use-nicks-in-display-message")
+                        ? ChatItemConfig.getConfig().getBoolean("strip-nick-colors-message")
                         ? ChatColor.stripColor(getDisplayer().getDisplayName())
                         : getDisplayer().getDisplayName()
                         : getDisplayer().getRegularName());
@@ -156,9 +155,9 @@ public class DisplayItem extends Displayable {
     }
 
     public TextComponent baseHover() {
-        String color = StringFormatter.format(ChatItemDisplay.getInstance().getConfig().getString("messages.item-color"));
+        String color = StringFormatter.format(ChatItemConfig.getConfig().getString("messages.item-color"));
         BaseComponent bc = ItemStackStuff.getName(item, color,
-                ChatItemDisplay.getInstance().getConfig().getBoolean("messages.force-item-colors"));
+                ChatItemConfig.getConfig().getBoolean("messages.force-item-colors"));
 
 
         TextComponent hover = new TextComponent(bc);

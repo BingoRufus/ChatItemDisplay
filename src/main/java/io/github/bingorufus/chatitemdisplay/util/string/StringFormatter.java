@@ -17,7 +17,7 @@ public class StringFormatter {
     }
 
     public static String format(String s) {
-        if (HEX_AVAILABLE)
+        if (!HEX_AVAILABLE)
             return ChatColor.translateAlternateColorCodes('&', s);
         Matcher match = PATTERN.matcher(s);
         while (match.find()) {

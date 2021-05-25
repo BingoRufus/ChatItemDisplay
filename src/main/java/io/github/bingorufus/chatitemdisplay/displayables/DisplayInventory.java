@@ -41,9 +41,9 @@ public class DisplayInventory extends Displayable {
     @Override
     public BaseComponent getDisplayComponent() {
         String format = StringFormatter
-                .format(ChatItemConfig.CHAT_INVENTORY_FORMAT)
-                .replaceAll("%player%", ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
-                        ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
+                .format(ChatItemConfig.CHAT_INVENTORY_FORMAT.getCachedValue())
+                .replaceAll("%player%", ChatItemConfig.getConfig().getBoolean("use-nicks-in-display-message")
+                        ? ChatItemConfig.getConfig().getBoolean("strip-nick-colors-message")
                         ? ChatColor.stripColor(getDisplayer().getDisplayName())
                         : getDisplayer().getDisplayName()
                         : getDisplayer().getRegularName());
@@ -88,9 +88,9 @@ public class DisplayInventory extends Displayable {
     @Override
     public String getLoggerMessage() {
 
-        String format = ChatItemConfig.CHAT_INVENTORY_FORMAT
-                .replaceAll("%player%", ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
-                        ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
+        String format = ChatItemConfig.CHAT_INVENTORY_FORMAT.getCachedValue()
+                .replaceAll("%player%", ChatItemConfig.getConfig().getBoolean("use-nicks-in-display-message")
+                        ? ChatItemConfig.getConfig().getBoolean("strip-nick-colors-message")
                         ? ChatColor.stripColor(getDisplayer().getDisplayName())
                         : getDisplayer().getDisplayName()
                         : getDisplayer().getRegularName());
@@ -116,10 +116,10 @@ public class DisplayInventory extends Displayable {
     @Override
     public void broadcastDisplayable() {
         String format = StringFormatter
-                .format(ChatItemConfig.COMMAND_INVENTORY_FORMAT)
+                .format(ChatItemConfig.COMMAND_INVENTORY_FORMAT.getCachedValue())
                 .replaceAll("%player%",
-                        ChatItemDisplay.getInstance().getConfig().getBoolean("use-nicks-in-display-message")
-                                ? ChatItemDisplay.getInstance().getConfig().getBoolean("strip-nick-colors-message")
+                        ChatItemConfig.getConfig().getBoolean("use-nicks-in-display-message")
+                                ? ChatItemConfig.getConfig().getBoolean("strip-nick-colors-message")
                                 ? ChatColor.stripColor(getDisplayer().getDisplayName())
                                 : getDisplayer().getDisplayName()
                                 : getDisplayer().getRegularName());

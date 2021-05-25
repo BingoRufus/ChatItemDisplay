@@ -38,7 +38,7 @@ public class DebugExecutor implements CommandExecutor {
 
         if (!sender.hasPermission("chatitemdisplay.command.debug")) {
             sender.sendMessage(StringFormatter.format(
-                    ChatItemConfig.MISSING_PERMISSION_GENERIC));
+                    ChatItemConfig.MISSING_PERMISSION_GENERIC.getCachedValue()));
             return true;
         }
 
@@ -140,7 +140,7 @@ public class DebugExecutor implements CommandExecutor {
             }
             w.newLine();
             w.newLine();
-            writeLine(w, ChatItemDisplay.getInstance().getConfig().saveToString());
+            writeLine(w, ChatItemConfig.getConfig().saveToString());
             w.newLine();
             writeLine(w, "Displays:");
 
@@ -189,4 +189,5 @@ public class DebugExecutor implements CommandExecutor {
         }
 
     }
+
 }

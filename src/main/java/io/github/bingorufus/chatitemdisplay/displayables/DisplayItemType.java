@@ -1,20 +1,14 @@
 package io.github.bingorufus.chatitemdisplay.displayables;
 
 import com.google.gson.JsonObject;
-import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import io.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
+import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+public class DisplayItemType extends SerializedDisplayType<DisplayItem> {
 
-public class DisplayItemType extends DisplayType<DisplayItem> {
-
-    @Override
-    public List<String> getTriggers() {
-        return ChatItemConfig.ITEM_TRIGGERS;
-    }
 
     @Override
     public String getPermission() {
@@ -26,25 +20,6 @@ public class DisplayItemType extends DisplayType<DisplayItem> {
         return "chatitemdisplay.command.display.item";
     }
 
-    @Override
-    public String getCommand() {
-        return "displayitem";
-    }
-
-    @Override
-    public String[] getAliases() {
-        return new String[]{"display1", "display2"};
-    }
-
-    @Override
-    public String getTooLargeMessage() {
-        return ChatItemConfig.TOO_LARGE_ITEM;
-    }
-
-    @Override
-    public String getMissingPermissionMessage() {
-        return ChatItemConfig.MISSING_PERMISSION_ITEM;
-    }
 
     @Override
     public DisplayItem initDisplayable(Player player) {
@@ -57,9 +32,14 @@ public class DisplayItemType extends DisplayType<DisplayItem> {
     }
 
     @Override
+    public @NonNull String dataPath() {
+        return "display-types.item";
+    }
+
+    @Override
     public boolean canBeCreated(Player p) {
         if (p.getInventory().getItemInMainHand().getType() == Material.AIR) {
-            p.sendMessage(StringFormatter.format(ChatItemConfig.EMPTY_HAND));
+            p.sendMessage(StringFormatter.format(ChatItemConfig.EMPTY_HAND.getCachedValue()));
             return false;
         }
         return true;

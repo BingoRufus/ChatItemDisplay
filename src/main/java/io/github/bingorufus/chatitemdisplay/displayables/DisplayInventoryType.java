@@ -1,18 +1,11 @@
 package io.github.bingorufus.chatitemdisplay.displayables;
 
 import com.google.gson.JsonObject;
-import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
-import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
+import lombok.NonNull;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+public class DisplayInventoryType extends SerializedDisplayType<DisplayInventory> {
 
-public class DisplayInventoryType extends DisplayType<DisplayInventory> {
-
-    @Override
-    public List<String> getTriggers() {
-        return ChatItemConfig.INVENTORY_TRIGGERS;
-    }
 
     @Override
     public String getPermission() {
@@ -25,18 +18,13 @@ public class DisplayInventoryType extends DisplayType<DisplayInventory> {
     }
 
     @Override
-    public String getCommand() {
-        return "displayinventory";
+    public @NonNull String dataPath() {
+        return "display-types.inventory";
     }
 
     @Override
-    public String getTooLargeMessage() {
-        return ChatItemConfig.TOO_LARGE_INVENTORY;
-    }
-
-    @Override
-    public String getMissingPermissionMessage() {
-        return ChatItemConfig.MISSING_PERMISSION_INVENTORY;
+    public String getCommandDescription() {
+        return "Display inventories";
     }
 
     @Override
@@ -48,4 +36,6 @@ public class DisplayInventoryType extends DisplayType<DisplayInventory> {
     public DisplayInventory initDisplayable(JsonObject data) {
         return new DisplayInventory(data);
     }
+
+
 }

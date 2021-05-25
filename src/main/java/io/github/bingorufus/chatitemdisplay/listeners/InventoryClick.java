@@ -100,7 +100,7 @@ public class InventoryClick implements Listener {
     }
 
     public void map(ItemStack item, Player p) {
-        p.sendMessage(StringFormatter.format(ChatItemConfig.MAP));
+        p.sendMessage(StringFormatter.format(ChatItemConfig.MAP.getCachedValue()));
         p.closeInventory();
         p.getInventory().setItemInMainHand(item);
     }

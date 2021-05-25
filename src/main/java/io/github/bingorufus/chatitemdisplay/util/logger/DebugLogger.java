@@ -9,7 +9,7 @@ public class DebugLogger {
     }
 
     public static void log(String message) {
-        if (ChatItemConfig.DEBUG_MODE)
+        if (ChatItemConfig.DEBUG_MODE.getCachedValue())
             Bukkit.getLogger().info(message);
     }
 }

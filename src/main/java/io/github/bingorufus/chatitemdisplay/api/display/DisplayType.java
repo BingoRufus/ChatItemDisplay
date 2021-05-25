@@ -15,13 +15,21 @@ public abstract class DisplayType<T extends Displayable> {
 
     public abstract String getCommand();
 
+    public abstract String getInventoryTitle();
+
+    public abstract boolean isCommandEnabled();
+
     /**
      * These commands will be registered automatically, so do not register them in your plugin.yml
      *
      * @return the aliases
      */
-    public String[] getAliases() {
+    public List<String> getAliases() {
         return null;
+    }
+
+    public String getCommandDescription() {
+        return "This command displays something";
     }
 
     public abstract String getTooLargeMessage();
@@ -35,5 +43,6 @@ public abstract class DisplayType<T extends Displayable> {
     public boolean canBeCreated(Player p) {
         return true;
     }
+
 
 }

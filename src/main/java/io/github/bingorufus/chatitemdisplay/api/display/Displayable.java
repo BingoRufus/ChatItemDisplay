@@ -33,7 +33,7 @@ public abstract class Displayable {
     }
 
     protected static boolean isBlacklisted(ItemStack item) {
-        return ChatItemConfig.BLACKLISTED_ITEMS.contains(item.getType());
+            return ChatItemConfig.BLACKLISTED_ITEMS.getCachedValue().contains(item.getType());
     }
 
     protected static boolean containsBlacklistedItem(Inventory inventory) {

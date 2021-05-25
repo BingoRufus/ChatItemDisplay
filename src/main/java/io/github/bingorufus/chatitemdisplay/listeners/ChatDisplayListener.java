@@ -39,11 +39,12 @@ public class ChatDisplayListener implements Listener {
             Cooldown<Player> cooldown = ChatItemDisplay.getInstance().getDisplayCooldown();
             if (cooldown.isOnCooldown(p)) {
                 double secondsRemaining = (double) (Math.round((double) cooldown.getTimeRemaining(p) / 100)) / 10;
-                p.sendMessage(StringFormatter.format(ChatItemConfig.COOLDOWN.replace("%seconds%", "" + secondsRemaining)));
+                p.sendMessage(StringFormatter.format(ChatItemConfig.COOLDOWN.getCachedValue().replace("%seconds%", "" + secondsRemaining)));
                 e.setCancelled(true);
                 return; // Is on cooldown
             }
         }
+        DebugLogger.log("Display is present");
         for (DisplayType<?> displayType : dp.getDisplayedTypes()) {
             if (!p.hasPermission(displayType.getPermission())) {
                 p.sendMessage(StringFormatter.format(displayType.getMissingPermissionMessage()));
@@ -53,17 +54,19 @@ public class ChatDisplayListener implements Listener {
         }
 
         dp.createDisplayables(p);
+
         if (dp.getDisplayable(ChatItemDisplay.getInstance().getDisplayType(DisplayItemType.class)) != null) {
             ItemStack item = p.getInventory().getItemInMainHand();
             if (item.getType() == Material.AIR) {
-                p.sendMessage(StringFormatter.format(ChatItemConfig.EMPTY_HAND));
+                p.sendMessage(StringFormatter.format(ChatItemConfig.EMPTY_HAND.getCachedValue()));
                 return;
             }
         }
+
         if (!p.hasPermission("chatitemdisplay.blacklistbypass")) {
             for (Displayable displayable : dp.getDisplayables()) {
                 if (displayable.hasBlacklistedItem()) {
-                    p.sendMessage(StringFormatter.format(ChatItemConfig.CONTAINS_BLACKLIST));
+                    p.sendMessage(StringFormatter.format(ChatItemConfig.CONTAINS_BLACKLIST.getCachedValue()));
                     e.setCancelled(true);
                     return; //Inventory, Item, or Enderchest contains a blacklisted item
                 }
@@ -73,7 +76,9 @@ public class ChatDisplayListener implements Listener {
 
         // At this point, all checks should be passed, and the user should be able to display their item/inventory
         ChatItemDisplay.getInstance().getDisplayCooldown().addToCooldown(p);
+
         String message = dp.format(p);
+
         for (Displayable displayable : dp.getDisplayables()) {
             if (isDisplayTooLong(displayable)) {
                 p.sendMessage(StringFormatter.format(displayable.getType().getTooLargeMessage()));
@@ -83,15 +88,14 @@ public class ChatDisplayListener implements Listener {
         }
 
         if (isMessageTooLong(message, dp)) {
-            p.sendMessage(StringFormatter.format(ChatItemConfig.TOO_LARGE_MESSAGE));
+            p.sendMessage(StringFormatter.format(ChatItemConfig.TOO_LARGE_MESSAGE.getCachedValue()));
             e.setCancelled(true);
             return;
         }
-
         e.setMessage(message);
 
         //Send stuff to bungee
-        if (ChatItemConfig.BUNGEE) {
+        if (ChatItemConfig.BUNGEE.getCachedValue()) {
             dp.getDisplayables().forEach(display -> BungeeCordSender.send(display, false));
         }
     }
@@ -102,7 +106,7 @@ public class ChatDisplayListener implements Listener {
      */
     private boolean isDisplayTooLong(Displayable display) {
         byte[] bytes = display.serialize().toString().getBytes(StandardCharsets.UTF_8);
-        if (ChatItemConfig.BUNGEE && bytes.length >= Short.MAX_VALUE) return true; //
+        if (ChatItemConfig.BUNGEE.getCachedValue() && bytes.length >= Short.MAX_VALUE) return true; //
         return bytes.length >= 240000;// 11 bit max integer
     }
 
@@ -120,9 +124,13 @@ public class ChatDisplayListener implements Listener {
             while (displayMatcher.find()) {
                 numberOfDisplays++;
                 edit = displayMatcher.replaceFirst(ComponentSerializer.toString(displayable.getDisplayComponent()));
+                displayMatcher = displayPattern.matcher(edit);
+                if (numberOfDisplays >= 512)
+                    throw new StackOverflowError("This wasn't supposed to happen... Please do /generatedebuglogs and send the file to the developer of ChatItemDisplay");
+
             }
         }
-        return ChatItemConfig.MAXIMUM_DISPLAYS != 0 && numberOfDisplays >= ChatItemConfig.MAXIMUM_DISPLAYS;
+        return ChatItemConfig.MAX_DISPLAYS.getCachedValue() != -1 && numberOfDisplays >= ChatItemConfig.MAX_DISPLAYS.getCachedValue();
     }
 
 

@@ -1,99 +1,111 @@
 package io.github.bingorufus.chatitemdisplay.util;
 
+import com.comphenix.protocol.reflect.FieldAccessException;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("unused")
 public class ChatItemConfig {
-    public static String COOLDOWN,
-            BLACKLISTED_ITEM,
-            GUI_FORMAT,
-            MISSING_PERMISSION_GENERIC,
-            MISSING_PERMISSION_ITEM,
-            MISSING_PERMISSION_INVENTORY,
-            MISSING_PERMISSION_ENDERCHEST,
-            EMPTY_DISPLAY,
-            INVALID_ID,
-            FEATURE_DISABLED,
-            MAP,
-            EMPTY_HAND,
-            CHAT_ITEM_FORMAT,
-            CHAT_ITEM_FORMAT_MULTIPLE,
-            CHAT_INVENTORY_FORMAT,
-            COMMAND_ITEM_FORMAT,
-            COMMAND_ITEM_FORMAT_MULTIPLE,
-            COMMAND_INVENTORY_FORMAT,
-            INVENTORY_TITLE,
-            ENDERCHEST_TITLE,
-            CONTAINS_BLACKLIST,
-            TOO_LARGE_ITEM,
-            TOO_LARGE_INVENTORY,
-            TOO_LARGE_ENDERCHEST,
-            TOO_LARGE_MESSAGE;
-
-    public static boolean DEBUG_MODE,
-            BUNGEE, COMMANDS_DISABLED;
-
-    public static List<String> ITEM_TRIGGERS,
-            ENDERCHEST_TRIGGERS,
-            INVENTORY_TRIGGERS;
-    public static List<Material> BLACKLISTED_ITEMS;
-
-    public static int MAXIMUM_DISPLAYS;
+    public static final ConfigOption<String> COOLDOWN = new ConfigOption<>("messages.cooldown", String.class);
+    public static final ConfigOption<String> MISSING_PERMISSION_GENERIC = new ConfigOption<>("messages.missing-permission", String.class);
+    public static final ConfigOption<String> INVALID_ID = new ConfigOption<>("messages.invalid-id", String.class);
+    public static final ConfigOption<String> EMPTY_DISPLAY = new ConfigOption<>("messages.player-not-displaying-anything", String.class);
+    public static final ConfigOption<String> FEATURE_DISABLED = new ConfigOption<>("messages.feature-disabled", String.class);
+    public static final ConfigOption<String> MAP = new ConfigOption<>("messages.map-notification", String.class);
+    public static final ConfigOption<String> CONTAINS_BLACKLIST = new ConfigOption<>("messages.contains-blacklist", String.class);
+    public static final ConfigOption<String> TOO_LARGE_MESSAGE = new ConfigOption<>("messages.too-large-display", String.class);
+    public static final ConfigOption<String> EMPTY_HAND = new ConfigOption<>("messages.empty-hand", String.class);
+    public static final ConfigOption<String> CHAT_ITEM_FORMAT = new ConfigOption<>("display-messages.inchat-item-format", String.class);
+    public static final ConfigOption<String> CHAT_ITEM_FORMAT_MULTIPLE = new ConfigOption<>("display-messages.inchat-item-format-multiple", String.class);
+    public static final ConfigOption<String> CHAT_INVENTORY_FORMAT = new ConfigOption<>("display-messages.inchat-inventory-format", String.class);
+    public static final ConfigOption<String> COMMAND_ITEM_FORMAT = new ConfigOption<>("display-messages.item-display-format", String.class);
+    public static final ConfigOption<String> COMMAND_ITEM_FORMAT_MULTIPLE = new ConfigOption<>("display-messages.item-display-format-multiple", String.class);
+    public static final ConfigOption<String> COMMAND_INVENTORY_FORMAT = new ConfigOption<>("display-messages.inventory-display-format", String.class);
+    public static final ConfigOption<Boolean> BUNGEE = new ConfigOption<>("send-to-bungee", Boolean.class);
+    public static final ConfigOption<Boolean> DEBUG_MODE = new ConfigOption<>("debug-mode", Boolean.class);
+    public static final ConfigOption<Integer> MAX_DISPLAYS = new ConfigOption<>("maximum-displays", Integer.class);
+    private static FileConfiguration config;
+    private static long cacheTime;
+    private static final LoadingCache<ConfigOption<?>, Object> configCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .build(
+                    new CacheLoader<ConfigOption<?>, Object>() {
+                        @Override
+                        public Object load(@NotNull ConfigOption<?> configOption) {
+                            refreshConfig();
+                            if (!getConfig().contains(configOption.path)) {
+                                if (configOption.type.isAssignableFrom(List.class)) {
+                                    return new ArrayList<>();
+                                }
+                                throw new FieldAccessException("Cannot find a value at " + configOption.path);
+                            }
+                            return configOption.getValue();
+                        }
+                    });
+    public static final ConfigOption<List<Material>> BLACKLISTED_ITEMS = new ConfigOption("blacklisted-items", List.class) {
+        @Override
+        protected List<Material> getValue() {
+            ArrayList<Material> out = new ArrayList<>();
+            for (String s : getConfig().getStringList(this.path)) {
+                Material mat = Material.matchMaterial(s);
+                if (mat == null) continue;
+                out.add(mat);
+            }
+            return out;
+        }
+    };
 
     public static void reloadMessages() {
-        FileConfiguration c = ChatItemDisplay.getInstance().getConfig();
-        ConfigurationSection m = c.getConfigurationSection("messages");
-        assert m != null;
-        GUI_FORMAT = m.getString("gui-format");
-        MISSING_PERMISSION_GENERIC = m.getString("missing-permission");
-        MISSING_PERMISSION_ITEM = m.getString("missing-permission-item");
-        MISSING_PERMISSION_ENDERCHEST = m.getString("missing-permission-enderchest");
-        MISSING_PERMISSION_INVENTORY = m.getString("missing-permission-inventory");
-        BLACKLISTED_ITEM = m.getString("blacklisted-item");
-        EMPTY_DISPLAY = m.getString("player-not-displaying-anything");
-        INVALID_ID = m.getString("invalid-id");
-        COOLDOWN = m.getString("cooldown");
-        FEATURE_DISABLED = m.getString("feature-disabled");
-        MAP = m.getString("map-notification");
-        CONTAINS_BLACKLIST = m.getString("contains-blacklist");
-        TOO_LARGE_ITEM = m.getString("display-too-large-item");
-        TOO_LARGE_ENDERCHEST = m.getString("display-too-large-enderchest");
-        TOO_LARGE_INVENTORY = m.getString("display-too-large-inventory");
-        TOO_LARGE_MESSAGE = m.getString("too-large-display");
+        configCache.asMap().values().forEach(System.out::println);
+        configCache.invalidateAll();
+        refreshConfig();
+    }
 
-        EMPTY_HAND = m.getString("empty-hand");
+    public static FileConfiguration getConfig() {
+        if (cacheTime == 0 || System.currentTimeMillis() - cacheTime >= 300000) refreshConfig();
+        return config;
+    }
 
-        COMMANDS_DISABLED = c.getBoolean("disable-commands");
-        MAXIMUM_DISPLAYS = c.getInt("maximum-displays");
+    public static void refreshConfig() {
 
+        ChatItemDisplay.getInstance().saveDefaultConfig();
+        ChatItemDisplay.getInstance().reloadConfig();
+        config = ChatItemDisplay.getInstance().getConfig();
+        cacheTime = System.currentTimeMillis();
+    }
 
-        ConfigurationSection d = c.getConfigurationSection("display-messages");
-        assert d != null;
-        CHAT_ITEM_FORMAT = d.getString("inchat-item-format");
-        CHAT_ITEM_FORMAT_MULTIPLE = d.getString("inchat-item-format-multiple");
-        CHAT_INVENTORY_FORMAT = d.getString("inchat-inventory-format");
-        COMMAND_ITEM_FORMAT = d.getString("item-display-format");
-        COMMAND_ITEM_FORMAT_MULTIPLE = d.getString("item-display-format-multiple");
-        COMMAND_INVENTORY_FORMAT = d.getString("inventory-display-format");
-        INVENTORY_TITLE = d.getString("displayed-inventory-title");
-        ENDERCHEST_TITLE = d.getString("displayed-enderchest-title");
-        DEBUG_MODE = c.getBoolean("debug-mode");
-        BUNGEE = c.getBoolean("send-to-bungee");
-        ITEM_TRIGGERS = c.getStringList("triggers.item");
-        ENDERCHEST_TRIGGERS = c.getStringList("triggers.enderchest");
-        INVENTORY_TRIGGERS = c.getStringList("triggers.inventory");
-        BLACKLISTED_ITEMS = new ArrayList<>();
-        for (String s : c.getStringList("blacklisted-items")) {
-            Material mat = Material.matchMaterial(s);
-            if (mat == null) continue;
-            BLACKLISTED_ITEMS.add(mat);
+    public static class ConfigOption<T> {
+
+        protected final String path;
+        private final Class<T> type;
+
+        public ConfigOption(String path, Class<T> type) {
+            this.path = path;
+            this.type = type;
         }
+
+        public T getCachedValue() {
+            try {
+                return (T) configCache.get(this);
+            } catch (ExecutionException e) {
+                return null;
+            }
+        }
+
+        protected T getValue() {
+
+            return getConfig().getObject(path, type);
+        }
+
     }
 
 }

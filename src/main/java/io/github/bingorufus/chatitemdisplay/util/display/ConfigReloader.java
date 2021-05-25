@@ -1,21 +1,20 @@
 package io.github.bingorufus.chatitemdisplay.util.display;
 
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.displayables.SerializedDisplayType;
 import io.github.bingorufus.chatitemdisplay.listeners.NewVersionDisplayer;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
-import io.github.bingorufus.chatitemdisplay.util.bungee.BungeeCordReceiver;
 import io.github.bingorufus.chatitemdisplay.util.string.VersionComparator;
 import io.github.bingorufus.chatitemdisplay.util.updater.UpdateChecker;
 import io.github.bingorufus.chatitemdisplay.util.updater.UpdateDownloader;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.InvalidDescriptionException;
-import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.io.File;
+import java.util.Objects;
 
 public class ConfigReloader {
-    private static PluginMessageListener bungeeIn;
     private static NewVersionDisplayer newVer;
     private final ChatItemDisplay m;
 
@@ -25,21 +24,15 @@ public class ConfigReloader {
 
 
     public void reload() {
-        m.saveDefaultConfig();
-        m.reloadConfig();
-
         ChatItemConfig.reloadMessages();
+        ChatItemDisplay.getInstance().getRegisteredDisplayables().forEach(displayType -> {
+            if (displayType instanceof SerializedDisplayType) {
+                SerializedDisplayType<?> type = (SerializedDisplayType<?>) displayType;
+                if (ChatItemConfig.getConfig().isConfigurationSection(type.dataPath()))
+                    type.loadData(Objects.requireNonNull(ChatItemConfig.getConfig().getConfigurationSection(type.dataPath())));
+            }
+        });
 
-        if (bungeeIn != null) {
-            Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(m, "chatitemdisplay:in", bungeeIn);
-        }
-
-        if (ChatItemConfig.BUNGEE) {
-            bungeeIn = new BungeeCordReceiver();
-            Bukkit.getServer().getMessenger().registerIncomingPluginChannel(m, "chatitemdisplay:in", bungeeIn);
-            Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(m, "chatitemdisplay:out");
-
-        }
 
         m.loadLang();
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -48,7 +41,6 @@ public class ConfigReloader {
             }
 
         }
-        m.reloadListeners();
         Bukkit.getScheduler().runTaskAsynchronously(ChatItemDisplay.getInstance(), this::update);
 
     }

@@ -16,16 +16,6 @@ commands:
   chatitemreload:
     usage: /<command>
     description: Reload the ChatItemDisplay config
-  displayitem:
-    usage: /<command>
-    description: Display your items in chat
-  displayinventory:
-    usage: /<command>
-    description: Display your inventory
-  displayenderchest:
-    usage: /<command>
-    description: Display your ender chest
-    aliases: [ displayec, displayendchest ]
   generatedebuglog:
     usage: /<command>
     description: Generate a debug log, used for creating bug reports
