@@ -51,7 +51,6 @@ public class ChatItemDisplay extends JavaPlugin {
     }
 
     /*TODO:
-     * Auto config updating
      * Images sent to discordSRV
      * PlayerVaults
      */

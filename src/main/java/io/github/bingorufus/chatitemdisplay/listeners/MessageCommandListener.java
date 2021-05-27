@@ -9,7 +9,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import java.util.List;
 
 public class MessageCommandListener implements Listener {
-    final List<String> msgCmds;
+    private final List<String> msgCmds;
     public MessageCommandListener() {
 
         msgCmds = ChatItemConfig.getConfig().getStringList("message-command");

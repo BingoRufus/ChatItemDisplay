@@ -8,7 +8,7 @@ import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 
 public class RecipeSelector extends PacketAdapter {
     public RecipeSelector() {
-        super(ChatItemDisplay.getInstance(), ListenerPriority.LOWEST, PacketType.Play.Server.AUTO_RECIPE);
+        super(ChatItemDisplay.getInstance(), ListenerPriority.LOWEST, PacketType.Play.Client.AUTO_RECIPE);
     }
 
     /**
