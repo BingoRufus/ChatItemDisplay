@@ -123,7 +123,7 @@ public class ChatDisplayListener implements Listener {
             Matcher displayMatcher = displayPattern.matcher(edit);
             while (displayMatcher.find()) {
                 numberOfDisplays++;
-                edit = displayMatcher.replaceFirst(ComponentSerializer.toString(displayable.getDisplayComponent()));
+                edit = edit.replace(displayMatcher.group(), ComponentSerializer.toString(displayable.getDisplayComponent()));
                 displayMatcher = displayPattern.matcher(edit);
                 if (numberOfDisplays >= 512)
                     throw new StackOverflowError("This wasn't supposed to happen... Please do /generatedebuglogs and send the file to the developer of ChatItemDisplay");

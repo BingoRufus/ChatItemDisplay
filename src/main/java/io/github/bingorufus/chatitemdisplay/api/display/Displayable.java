@@ -5,6 +5,7 @@ import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.displayables.DisplayingPlayer;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -62,7 +63,7 @@ public abstract class Displayable {
     public DisplayType<?> getType() {
         DisplayType<?> displayType = ChatItemDisplay.getInstance().getRegisteredDisplayables().stream().filter(type -> type.getClass().equals(getTypeClass())).findFirst().orElse(null);
         if (displayType == null) {
-            System.out.println("Cannot find a displaytype that has the class path of: " + getTypeClass().getCanonicalName());
+            Bukkit.getLogger().warning("Cannot find a displaytype that has the class path of: " + getTypeClass().getCanonicalName());
             return null;
         }
         return displayType;
