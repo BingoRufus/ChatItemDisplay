@@ -1,10 +1,13 @@
 package io.github.bingorufus.chatitemdisplay;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class DisplayedManager {
@@ -16,7 +19,7 @@ public class DisplayedManager {
      * PlayerName -> ID
      * Displayable -> Display
      */
-    private final HashMap<String, UUID> mostRecent = new HashMap<>();// <Player,Id>
+    private final Cache<String, UUID> mostRecent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build(); // <Player,Id>
 
     public DisplayedManager() {
     }
@@ -39,11 +42,11 @@ public class DisplayedManager {
     @Nullable
     public Display getMostRecent(@Nullable String player) {
         if (player == null) return null;
-        if (!mostRecent.containsKey(player.toUpperCase())) {
-            return getMostRecent(mostRecent.keySet().stream().filter(name -> name.toUpperCase().startsWith(player.toUpperCase())).sorted().findFirst().orElse(null));
+        if (!mostRecent.asMap().containsKey(player.toUpperCase())) {
+            return getMostRecent(mostRecent.asMap().keySet().stream().filter(name -> name.toUpperCase().startsWith(player.toUpperCase())).sorted().findFirst().orElse(null));
 
         }
-        UUID recent = mostRecent.get(player.toUpperCase());
+        UUID recent = mostRecent.asMap().get(player.toUpperCase());
 
         return displayId.get(recent);
     }
