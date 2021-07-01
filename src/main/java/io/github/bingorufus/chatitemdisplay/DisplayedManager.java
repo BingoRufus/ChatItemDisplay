@@ -5,13 +5,12 @@ import com.google.common.cache.CacheBuilder;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class DisplayedManager {
-    private final HashMap<UUID, Display> displayId = new HashMap<>();
+    private final Cache<UUID, Display> displayId = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build();
 
     /*
      * PlayerName -> Display
@@ -36,7 +35,7 @@ public class DisplayedManager {
     }
 
     public Display getDisplayed(UUID id) {
-        return displayId.get(id);
+        return displayId.asMap().get(id);
     }
 
     @Nullable
@@ -48,18 +47,18 @@ public class DisplayedManager {
         }
         UUID recent = mostRecent.asMap().get(player.toUpperCase());
 
-        return displayId.get(recent);
+        return displayId.asMap().get(recent);
     }
 
     @Nullable
     public Display getDisplay(Displayable dis) {
 
-        return displayId.values().stream().filter(display -> display.getDisplayable().equals(dis)).findFirst().orElse(null);
+        return displayId.asMap().values().stream().filter(display -> display.getDisplayable().equals(dis)).findFirst().orElse(null);
 
     }
 
     public void forEach(Consumer<Display> displayConsumer) {
-        for (Display d : displayId.values()) {
+        for (Display d : displayId.asMap().values()) {
             displayConsumer.accept(d);
         }
     }

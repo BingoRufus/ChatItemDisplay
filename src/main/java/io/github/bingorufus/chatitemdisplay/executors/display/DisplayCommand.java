@@ -63,6 +63,8 @@ public class DisplayCommand extends Command {
             p.sendMessage(ChatItemConfig.COOLDOWN.getCachedValue().replace("%seconds%", "" + secondsRemaining));
             return true;
         }
+
+        c.ensureRemoved(p);
         return false;
     }
 

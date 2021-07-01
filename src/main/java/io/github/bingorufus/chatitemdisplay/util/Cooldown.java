@@ -14,12 +14,15 @@ public class Cooldown<T> {
     public boolean isOnCooldown(T t) {
         if (!cooldowns.containsKey(t)) return false;
         return getTimeRemaining(t) > 0;
-
     }
 
     public long getTimeRemaining(T t) {
         if (!cooldowns.containsKey(t)) return -1;
         return cooldownTime - (System.currentTimeMillis() - cooldowns.get(t));
+    }
+
+    public void ensureRemoved(T t) {
+        cooldowns.remove(t);
     }
 
     public void addToCooldown(T t) {
