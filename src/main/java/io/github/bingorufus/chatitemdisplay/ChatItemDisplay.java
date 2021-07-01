@@ -2,6 +2,8 @@ package io.github.bingorufus.chatitemdisplay;
 
 
 import com.comphenix.protocol.ProtocolLibrary;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.gson.JsonObject;
 import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import io.github.bingorufus.chatitemdisplay.displayables.DisplayEnderChestType;
@@ -30,9 +32,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class ChatItemDisplay extends JavaPlugin {
     public static final String MINECRAFT_VERSION = Bukkit.getServer().getVersion().substring(Bukkit.getServer().getVersion().indexOf("(MC: ") + 5,
@@ -40,7 +43,7 @@ public class ChatItemDisplay extends JavaPlugin {
 
     private static final LinkedList<DisplayType<?>> registeredDisplayables = new LinkedList<>();
     private static ChatItemDisplay INSTANCE;
-    private final HashMap<Inventory, UUID> chatItemDisplayInventories = new HashMap<>(); //Inventories and the UUIDs of the owners
+    private final Cache<Inventory, UUID> chatItemDisplayInventories = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build(); //Inventories and the UUIDs of the owners
     private final Cooldown<Player> displayCooldown = new Cooldown<>(0);
     private DiscordSRVRegister discordReg;
     private DisplayedManager dm;
@@ -77,8 +80,12 @@ public class ChatItemDisplay extends JavaPlugin {
         registerDisplayable(new DisplayItemType());
         registerDisplayable(new DisplayInventoryType());
         registerDisplayable(new DisplayEnderChestType());
-        ProtocolLibrary.getProtocolManager().addPacketListener(new ChatPacketListener());
-        ProtocolLibrary.getProtocolManager().addPacketListener(new RecipeSelector());
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this, () -> {
+            ProtocolLibrary.getProtocolManager().addPacketListener(new ChatPacketListener());
+            ProtocolLibrary.getProtocolManager().addPacketListener(new RecipeSelector());
+        }, 1L);
+
 
         Metrics metrics = new Metrics(this, 7229);
         getRegisteredDisplayables().forEach(CommandRegistry::registerAlias);
@@ -140,8 +147,8 @@ public class ChatItemDisplay extends JavaPlugin {
     }
 
 
-    public HashMap<Inventory, UUID> getChatItemDisplayInventories() {
-        return chatItemDisplayInventories;
+    public Map<Inventory, UUID> getChatItemDisplayInventories() {
+        return chatItemDisplayInventories.asMap();
     }
 
 

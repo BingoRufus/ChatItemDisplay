@@ -43,6 +43,8 @@ public class ChatDisplayListener implements Listener {
                 e.setCancelled(true);
                 return; // Is on cooldown
             }
+
+            cooldown.ensureRemoved(p);
         }
         DebugLogger.log("Display is present");
         for (DisplayType<?> displayType : dp.getDisplayedTypes()) {
