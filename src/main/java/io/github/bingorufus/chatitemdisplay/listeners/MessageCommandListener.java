@@ -27,6 +27,7 @@ public class MessageCommandListener implements Listener {
 
         if (!dp.containsDisplay())
             return;
+        //TODO: Check permissions
         e.setMessage(dp.format(e.getPlayer()));
     }
 

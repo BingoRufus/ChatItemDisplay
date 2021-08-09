@@ -60,7 +60,7 @@ public class DisplayCommand extends Command {
 
         if (c.isOnCooldown(p)) {
             double secondsRemaining = (double) (Math.round((double) c.getTimeRemaining(p) / 100)) / 10;
-            p.sendMessage(ChatItemConfig.COOLDOWN.getCachedValue().replace("%seconds%", "" + secondsRemaining));
+            p.sendMessage(StringFormatter.format(ChatItemConfig.COOLDOWN.getCachedValue().replace("%seconds%", "" + secondsRemaining)));
             return true;
         }
 

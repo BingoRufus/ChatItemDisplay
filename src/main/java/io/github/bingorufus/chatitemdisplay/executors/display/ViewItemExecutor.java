@@ -74,7 +74,7 @@ public class ViewItemExecutor implements CommandExecutor {
         }
         Inventory inv = dis.getDisplayable().onViewDisplay(p);
         if (inv != null) {
-            ChatItemDisplay.getInstance().getChatItemDisplayInventories().put(inv, null);
+            ChatItemDisplay.getInstance().getDisplayedManager().getChatItemDisplayInventories().put(inv, null);
             p.openInventory(inv);
         }
         return true;

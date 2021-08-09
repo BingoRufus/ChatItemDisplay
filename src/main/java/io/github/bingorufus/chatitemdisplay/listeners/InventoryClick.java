@@ -30,18 +30,13 @@ import org.bukkit.inventory.meta.BookMeta;
 import java.util.*;
 
 public class InventoryClick implements Listener {
-    final io.github.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff ItemStackStuff;
     final List<PlayerInteractEvent> pies = new ArrayList<>();
 
-    public InventoryClick() {
-        ItemStackStuff = new ItemStackStuff();
-
-    }
 
 
     @EventHandler
     public void onClick(final InventoryClickEvent e) {
-        if (ChatItemDisplay.getInstance().getChatItemDisplayInventories().containsKey(e.getInventory())) {
+        if (ChatItemDisplay.getInstance().getDisplayedManager().getChatItemDisplayInventories().containsKey(e.getInventory())) {
             e.setCancelled(true);
             if (e.getClickedInventory() == null)
                 return;
@@ -55,7 +50,7 @@ public class InventoryClick implements Listener {
             if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
                 BlockStateMeta bsm = ((BlockStateMeta) e.getCurrentItem().getItemMeta());
                 if (bsm.getBlockState() instanceof Container) {
-                    container(e.getCurrentItem().clone(), p, ChatItemDisplay.getInstance().getChatItemDisplayInventories().get(e.getInventory()));
+                    container(e.getCurrentItem().clone(), p, ChatItemDisplay.getInstance().getDisplayedManager().getChatItemDisplayInventories().get(e.getInventory()));
                     return;
                 }
 
@@ -121,7 +116,7 @@ public class InventoryClick implements Listener {
             containerInv = Bukkit.createInventory(null, container.getType(), ItemStackStuff.itemName(item));
         containerInv.setContents(container.getContents());
 
-        ChatItemDisplay.getInstance().getChatItemDisplayInventories().put(containerInv, owner);
+        ChatItemDisplay.getInstance().getDisplayedManager().getChatItemDisplayInventories().put(containerInv, owner);
         p.openInventory(containerInv);
 
     }

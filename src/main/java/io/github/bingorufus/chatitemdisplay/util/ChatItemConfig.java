@@ -33,6 +33,8 @@ public class ChatItemConfig {
     public static final ConfigOption<Boolean> BUNGEE = new ConfigOption<>("send-to-bungee", Boolean.class);
     public static final ConfigOption<Boolean> DEBUG_MODE = new ConfigOption<>("debug-mode", Boolean.class);
     public static final ConfigOption<Integer> MAX_DISPLAYS = new ConfigOption<>("maximum-displays", Integer.class);
+    public static final ConfigOption<Long> EXPIRATION_TIME = new ConfigOption<>("display_expiration", Long.class);
+
     private static FileConfiguration config;
     private static long cacheTime;
     private static final LoadingCache<ConfigOption<?>, Object> configCache = CacheBuilder.newBuilder()
@@ -81,6 +83,7 @@ public class ChatItemConfig {
         ChatItemDisplay.getInstance().reloadConfig();
         config = ChatItemDisplay.getInstance().getConfig();
         cacheTime = System.currentTimeMillis();
+        ChatItemDisplay.getInstance().getDisplayedManager().updateExpirationTime();
     }
 
     public static class ConfigOption<T> {

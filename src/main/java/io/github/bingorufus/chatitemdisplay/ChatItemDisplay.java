@@ -2,8 +2,6 @@ package io.github.bingorufus.chatitemdisplay;
 
 
 import com.comphenix.protocol.ProtocolLibrary;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.gson.JsonObject;
 import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import io.github.bingorufus.chatitemdisplay.displayables.DisplayEnderChestType;
@@ -28,14 +26,13 @@ import io.github.bingorufus.chatitemdisplay.util.loaders.LangReader;
 import io.github.bingorufus.chatitemdisplay.util.loaders.Metrics;
 import io.github.bingorufus.chatitemdisplay.util.logger.ConsoleFilter;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.Range;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class ChatItemDisplay extends JavaPlugin {
     public static final String MINECRAFT_VERSION = Bukkit.getServer().getVersion().substring(Bukkit.getServer().getVersion().indexOf("(MC: ") + 5,
@@ -43,7 +40,6 @@ public class ChatItemDisplay extends JavaPlugin {
 
     private static final LinkedList<DisplayType<?>> registeredDisplayables = new LinkedList<>();
     private static ChatItemDisplay INSTANCE;
-    private final Cache<Inventory, UUID> chatItemDisplayInventories = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build(); //Inventories and the UUIDs of the owners
     private final Cooldown<Player> displayCooldown = new Cooldown<>(0);
     private DiscordSRVRegister discordReg;
     private DisplayedManager dm;
@@ -56,6 +52,8 @@ public class ChatItemDisplay extends JavaPlugin {
     /*TODO:
      * Images sent to discordSRV
      * PlayerVaults
+     * Create "Module" plugins for above
+     * Rewrite DebugLogExecutor
      */
 
     @Override
@@ -88,6 +86,21 @@ public class ChatItemDisplay extends JavaPlugin {
 
 
         Metrics metrics = new Metrics(this, 7229);
+        HashMap<String, Range<Integer>> playerCountRanges = new HashMap<>();
+        playerCountRanges.put("≤ 5", Range.between(0, 5));
+        playerCountRanges.put("6-10", Range.between(6, 10));
+        playerCountRanges.put("11-25", Range.between(11, 25));
+        playerCountRanges.put("26-50", Range.between(26, 50));
+        playerCountRanges.put("51-100", Range.between(51, 100));
+
+
+        metrics.addCustomChart(new Metrics.DrilldownPie("player_count", () -> {
+            HashMap<String, Map<String, Integer>> mainMap = new HashMap<>();
+            HashMap<String, Integer> playerCount = new HashMap<>();
+            playerCount.put(Bukkit.getOnlinePlayers().size() + "", 1);
+            mainMap.put(playerCountRanges.keySet().stream().filter(title -> playerCountRanges.get(title).contains(Bukkit.getOnlinePlayers().size())).findFirst().orElse("> 100"), playerCount);
+            return mainMap;
+        }));
         getRegisteredDisplayables().forEach(CommandRegistry::registerAlias);
 
         Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this, "chatitemdisplay:in", new BungeeCordReceiver());
@@ -100,7 +113,7 @@ public class ChatItemDisplay extends JavaPlugin {
             discordReg.unregister();
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (getChatItemDisplayInventories().containsKey(p.getOpenInventory().getTopInventory())) {
+            if (getDisplayedManager().getChatItemDisplayInventories().containsKey(p.getOpenInventory().getTopInventory())) {
                 p.closeInventory();
             }
 
@@ -147,20 +160,31 @@ public class ChatItemDisplay extends JavaPlugin {
     }
 
 
-    public Map<Inventory, UUID> getChatItemDisplayInventories() {
-        return chatItemDisplayInventories.asMap();
-    }
-
 
     public LinkedList<DisplayType<?>> getRegisteredDisplayables() {
         return registeredDisplayables;
     }
 
+    /**
+     * Register an instance of a {@link DisplayType} so that it can be displayed.
+     *
+     * @param displayType an instance of {@link DisplayType}
+     * @apiNote This method must be called upon server startup.
+     */
     public void registerDisplayable(DisplayType<?> displayType) {
         registeredDisplayables.add(displayType);
         CommandRegistry.registerAlias(displayType);
     }
 
+    /**
+     * Gets an instance of a display type from the class path of the display type.
+     * An instance has to be registered for this to return an instance.
+     * If none has been registered with the specified class path the instance will return null
+     *
+     * @param displayTypeClass The class of the display type
+     * @return An instance of the display type with the given class path.
+     * @see #registerDisplayable(DisplayType)
+     */
     public DisplayType<?> getDisplayType(Class<? extends DisplayType<?>> displayTypeClass) {
         DisplayType<?> displayType = ChatItemDisplay.getInstance().getRegisteredDisplayables().stream().filter(type -> type.getClass().equals(displayTypeClass)).findFirst().orElse(null);
         if (displayType == null) {

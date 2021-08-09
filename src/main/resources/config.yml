@@ -1,10 +1,9 @@
-debug-mode: false #Can possibly determine why players aren't able to display items. Will send console messages.
-
 disable-update-checking: false
+#   Automatically download updates
+auto-update: true
 
-auto-update: true # Automatically download updates
-
-triggers: #These will determine when the objects are displayed, they are not case sensitive
+#   These will determine when the objects are displayed, they are not case-sensitive
+triggers:
   item:
     - "[i]"
     - "[item]"
@@ -24,9 +23,11 @@ triggers: #These will determine when the objects are displayed, they are not cas
 display-types:
 
   item:
-    command: "displayitem" # A server restart is required to change commands and aliases
+    #   A server restart is required to change commands and aliases
+    command: "displayitem"
     command-enabled: true
-    aliases: # A server restart is required to change commands and aliases
+    #   A server restart is required to change commands and aliases
+    aliases:
       - "displayitems"
       - "showitem"
       - "display"
@@ -40,9 +41,11 @@ display-types:
     inventory-title: "%player%'s %name%"
 
   inventory:
-    command: "displayinventory" # A server restart is required to change commands and aliases
+    #   A server restart is required to change commands and aliase
+    command: "displayinventory" s
     command-enabled: true
-    aliases: # A server restart is required to change commands and aliases
+    #   A server restart is required to change commands and aliases
+    aliases:
       - "displayinv"
       - "showinv"
     triggers:
@@ -55,9 +58,11 @@ display-types:
     inventory-title: "%player%'s Inventory"
 
   enderchest:
-    command: "displayenderchest" # A server restart is required to change commands and aliases
+    #   A server restart is required to change commands and aliases
+    command: "displayenderchest"
     command-enabled: true
-    aliases: # A server restart is required to change commands and aliases
+    #   A server restart is required to change commands and aliases
+    aliases:
       - "displayec"
       - "showendenderchest"
     triggers:
@@ -69,12 +74,10 @@ display-types:
     too-much-nbt: "&cThe EnderChest you are trying to display has too much nbt data to be displayed"
     inventory-title: "%player%'s EnderChest"
 
-
-
-
-
-disable-gui: false #Disable all the GUIs
-message-command: # This allows players to display items in private messages
+#   Disable all the GUIs
+disable-gui: false
+#   This allows players to display items in private messages
+message-command:
   - "/msg"
   - "/t"
   - "/w"
@@ -87,16 +90,22 @@ messages:
   too-large-display: "§cYour message is too long, try displaying less things"
   blacklisted-item: "&cYou cannot display this at item as it is blacklisted"
   contains-blacklist: "&cYou cannot display this inventory as it is contains a blacklisted item"
-  player-not-displaying-anything: "&cThat player isn't displaying anything" #when someone does /viewitem <player> and the <player> isn't displaying anything
-  invalid-id: "&cThere is nothing displayed with that id" #When someone does /viewitem <id> and the id does not exist
+  #   When someone does /viewitem <player> and the <player> isn't displaying anything
+  player-not-displaying-anything: "&cThat player isn't displaying anything"
+  #   When someone does /viewitem <id> and the id does not exist
+  invalid-id: "&cThere is nothing displayed with that id"
   cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
   feature-disabled: "&cThis feature has been disabled"
   map-notification: "&eDrop or click on the map to receive your item back"
 
-  empty-hand: "&cYou are not holding anything" # Sent when a player tries to display an item that does not exist
-  force-item-colors: false #Will set items with already existing colors to the item-color
-  item-color: "" #The item's color will be set to this if item colors are removed or the item has no color to begin with
-  logger-lang: "en" #The language key that the logger will be using, view the spigot page for more details.
+  #   Sent when a player tries to display an item that does not exist
+  empty-hand: "&cYou are not holding anything"
+  #   Will set items with already existing colors to the item-color
+  force-item-colors: false
+  #   The item's color will be set to this if item colors are removed or the item has no color to begin with
+  item-color: ""
+  #   The language key that the logger will be using, view the spigot page for more details.
+  logger-lang: "en"
 
 display-messages:
   inchat-item-format: "&r[%item%&r]"
@@ -114,13 +123,23 @@ strip-nick-colors-message: false #Removes the nick colors in the display message
 use-nicks-in-gui: true #Will also use any custom colors
 
 strip-nick-colors-gui: false #Removes the nick colors from the gui
+#   Send displayed items/inventories to bungee
+send-to-bungee: true
 
-send-to-bungee: true # send displayed items/inventories to bungee
+#   Measured in milliseconds. Use 0 for no cooldown.
+display-cooldown: 0
 
+#   The amount of time (Seconds) before a display expires and no longer can be viewed.
+display-expiration: 900
 
-display-cooldown: 0 #Measured in milliseconds. Use 0 for no cooldown.
+#   The maximum number of times a player can display something in a single message. Set to -1 for no limit
+maximum-displays: -1
 
-maximum-displays: -1 # The maximum number of times a player can display something in a single message. Set to -1 for no limit
+#  This is mostly used for testing and debugging purposes.
+#  Enabling this option before making a debug log may make it easier to find the issue
+debug-mode: false
 
-blacklisted-items: #for help visit https://minecraftitemids.com/
+#   Items of this time can not be displayed nor inventories containing this item.
+#   For help visit https://minecraftitemids.com/
+blacklisted-items:
 #- "minecraft:bedrock"

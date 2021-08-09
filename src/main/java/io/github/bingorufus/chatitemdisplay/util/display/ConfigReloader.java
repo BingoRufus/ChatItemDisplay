@@ -36,7 +36,7 @@ public class ConfigReloader {
 
         m.loadLang();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (m.getChatItemDisplayInventories().containsKey(p.getOpenInventory().getTopInventory())) {
+            if (m.getDisplayedManager().getChatItemDisplayInventories().containsKey(p.getOpenInventory().getTopInventory())) {
                 p.closeInventory();
             }
 

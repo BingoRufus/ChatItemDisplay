@@ -3,22 +3,28 @@ package io.github.bingorufus.chatitemdisplay;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
+import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
+import org.bukkit.Bukkit;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class DisplayedManager {
-    private final Cache<UUID, Display> displayId = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build();
+    private long expirationTime = ChatItemConfig.EXPIRATION_TIME.getCachedValue();
 
-    /*
-     * PlayerName -> Display
-     * Id -> Display
-     * PlayerName -> ID
-     * Displayable -> Display
-     */
-    private final Cache<String, UUID> mostRecent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build(); // <Player,Id>
+    private Cache<UUID, Display> displayId = CacheBuilder.newBuilder().expireAfterWrite(expirationTime, TimeUnit.SECONDS).build();
+
+    private Cache<String, UUID> mostRecent = CacheBuilder.newBuilder().expireAfterWrite(expirationTime, TimeUnit.SECONDS).build(); // <Player,Id>
+
+    private Cache<Inventory, UUID> chatItemDisplayInventories = CacheBuilder.newBuilder().expireAfterWrite(expirationTime, TimeUnit.SECONDS).build(); //Inventories and the UUIDs of the owners
+
+    public Map<Inventory, UUID> getChatItemDisplayInventories() {
+        return chatItemDisplayInventories.asMap();
+    }
 
     public DisplayedManager() {
     }
@@ -63,5 +69,22 @@ public class DisplayedManager {
         }
     }
 
+    public void updateExpirationTime() {
+        long newTime = ChatItemConfig.EXPIRATION_TIME.getCachedValue();
+        if (expirationTime == newTime) return;
+        expirationTime = newTime;
+        Bukkit.getScheduler().runTaskAsynchronously(ChatItemDisplay.getInstance(), () -> {
+            displayId = copyToCache(displayId);
+            mostRecent = copyToCache(mostRecent);
+            chatItemDisplayInventories = copyToCache(chatItemDisplayInventories);
+        });
+    }
+
+    public Cache copyToCache(Cache<?, ?> from) {
+        Cache<Object, Object> newCache = CacheBuilder.newBuilder().expireAfterWrite(expirationTime, TimeUnit.SECONDS).build();
+        from.asMap().forEach(newCache::put);
+        from.asMap().clear();
+        return newCache;
+    }
 
 }
