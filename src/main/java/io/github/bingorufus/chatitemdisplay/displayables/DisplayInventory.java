@@ -2,6 +2,7 @@ package io.github.bingorufus.chatitemdisplay.displayables;
 
 import com.google.gson.JsonObject;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
@@ -73,7 +74,7 @@ public class DisplayInventory extends Displayable {
 
             whole.addExtra(tc);
         }
-        UUID id = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(this).getId();
+        UUID id = ChatItemDisplayAPI.getDisplayedManager().getDisplay(this).getId();
         whole.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + (id)));
 
         return whole;

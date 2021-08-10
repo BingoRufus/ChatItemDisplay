@@ -6,22 +6,18 @@ import com.google.gson.JsonParser;
 import github.scarsz.discordsrv.api.ListenerPriority;
 import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.GameChatMessagePostProcessEvent;
-import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.Display;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DiscordSRVModifier {
-    final ChatItemDisplay m;
     final char bell = '\u0007';
 
     final String displayRegex = "(?s).*" + bell + "cid.*" + bell + ".*";
 
-    public DiscordSRVModifier(ChatItemDisplay m) {
-        this.m = m;
-    }
 
     @Subscribe(priority = ListenerPriority.MONITOR)
     public void onSend(GameChatMessagePostProcessEvent e) {
@@ -31,15 +27,13 @@ public class DiscordSRVModifier {
         Pattern pattern = Pattern.compile("\u0007cid(.*?)\u0007");
 
         Matcher matcher = pattern.matcher(msg);
-        //  List<Display> displays = new ArrayList<>();
         while (matcher.find()) {
 
             String json = matcher.group(1);
 
             JsonObject jo = (JsonObject) new JsonParser().parse(json);
 
-            Display dis = m.getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()));
-            //   displays.add(dis);
+            Display dis = ChatItemDisplayAPI.getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()));
             msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
                     dis.getDisplayable().getLoggerMessage());
             matcher = pattern.matcher(msg);

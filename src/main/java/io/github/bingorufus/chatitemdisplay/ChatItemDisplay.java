@@ -3,47 +3,50 @@ package io.github.bingorufus.chatitemdisplay;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.google.gson.JsonObject;
-import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.displayables.DisplayEnderChestType;
 import io.github.bingorufus.chatitemdisplay.displayables.DisplayInventoryType;
 import io.github.bingorufus.chatitemdisplay.displayables.DisplayItemType;
+import io.github.bingorufus.chatitemdisplay.displayables.SerializedDisplayType;
 import io.github.bingorufus.chatitemdisplay.executors.ChatItemReloadExecutor;
 import io.github.bingorufus.chatitemdisplay.executors.DebugExecutor;
 import io.github.bingorufus.chatitemdisplay.executors.display.ViewItemExecutor;
-import io.github.bingorufus.chatitemdisplay.listeners.ChatDisplayListener;
-import io.github.bingorufus.chatitemdisplay.listeners.InventoryClick;
-import io.github.bingorufus.chatitemdisplay.listeners.LoggerListener;
-import io.github.bingorufus.chatitemdisplay.listeners.MessageCommandListener;
+import io.github.bingorufus.chatitemdisplay.listeners.*;
 import io.github.bingorufus.chatitemdisplay.listeners.packet.ChatPacketListener;
 import io.github.bingorufus.chatitemdisplay.listeners.packet.RecipeSelector;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import io.github.bingorufus.chatitemdisplay.util.CommandRegistry;
-import io.github.bingorufus.chatitemdisplay.util.Cooldown;
 import io.github.bingorufus.chatitemdisplay.util.bungee.BungeeCordReceiver;
-import io.github.bingorufus.chatitemdisplay.util.display.ConfigReloader;
-import io.github.bingorufus.chatitemdisplay.util.loaders.DiscordSRVRegister;
+import io.github.bingorufus.chatitemdisplay.util.loaders.DependencyLoader;
 import io.github.bingorufus.chatitemdisplay.util.loaders.LangReader;
 import io.github.bingorufus.chatitemdisplay.util.loaders.Metrics;
 import io.github.bingorufus.chatitemdisplay.util.logger.ConsoleFilter;
+import io.github.bingorufus.chatitemdisplay.util.string.VersionComparator;
+import io.github.bingorufus.common.updater.UpdateChecker;
+import io.github.bingorufus.common.updater.UpdateDownloader;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.Range;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 
 public class ChatItemDisplay extends JavaPlugin {
     public static final String MINECRAFT_VERSION = Bukkit.getServer().getVersion().substring(Bukkit.getServer().getVersion().indexOf("(MC: ") + 5,
             Bukkit.getServer().getVersion().indexOf(")"));
 
-    private static final LinkedList<DisplayType<?>> registeredDisplayables = new LinkedList<>();
     private static ChatItemDisplay INSTANCE;
-    private final Cooldown<Player> displayCooldown = new Cooldown<>(0);
-    private DiscordSRVRegister discordReg;
-    private DisplayedManager dm;
+    private final DependencyLoader dependencyLoader = new DependencyLoader();
     private JsonObject lang;
+    private boolean deleteOnDisable = false;
 
     public static ChatItemDisplay getInstance() {
         return INSTANCE;
@@ -58,9 +61,10 @@ public class ChatItemDisplay extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Bukkit.getScheduler().runTaskAsynchronously(this, this::checkUpdate);
+
         INSTANCE = this;
         this.saveDefaultConfig();
-        this.dm = new DisplayedManager();
         this.getCommand("generatedebuglog").setExecutor(new DebugExecutor());
         this.getCommand("viewitem").setExecutor(new ViewItemExecutor());
         this.getCommand("chatitemreload").setExecutor(new ChatItemReloadExecutor());
@@ -69,15 +73,16 @@ public class ChatItemDisplay extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new LoggerListener(), this);
         Bukkit.getPluginManager().registerEvents(new InventoryClick(), this);
         Bukkit.getPluginManager().registerEvents(new ChatDisplayListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ReloadListener(), this);
 
         new ConsoleFilter().register();
 
-        reloadListeners();
+        ChatItemConfig.reloadConfig();
 
-        new ConfigReloader().reload();
-        registerDisplayable(new DisplayItemType());
-        registerDisplayable(new DisplayInventoryType());
-        registerDisplayable(new DisplayEnderChestType());
+
+        ChatItemDisplayAPI.registerDisplayable(new DisplayItemType());
+        ChatItemDisplayAPI.registerDisplayable(new DisplayInventoryType());
+        ChatItemDisplayAPI.registerDisplayable(new DisplayEnderChestType());
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(this, () -> {
             ProtocolLibrary.getProtocolManager().addPacketListener(new ChatPacketListener());
@@ -85,6 +90,43 @@ public class ChatItemDisplay extends JavaPlugin {
         }, 1L);
 
 
+        registerMetrics();
+
+        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this, "chatitemdisplay:in", new BungeeCordReceiver());
+        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "chatitemdisplay:out");
+
+
+        ChatItemDisplayAPI.getRegisteredDisplayables().forEach(displayType -> {
+            if (displayType instanceof SerializedDisplayType) {
+                SerializedDisplayType<?> type = (SerializedDisplayType<?>) displayType;
+                if (ChatItemConfig.getConfig().isConfigurationSection(type.dataPath()))
+                    type.loadData(Objects.requireNonNull(ChatItemConfig.getConfig().getConfigurationSection(type.dataPath())));
+            }
+        });
+        ChatItemDisplayAPI.getRegisteredDisplayables().forEach(CommandRegistry::registerAlias);
+
+
+        dependencyLoader.loadDependencies();
+
+
+    }
+
+    @Override
+    public void onDisable() {
+        for (Inventory inventory : ChatItemDisplayAPI.getDisplayedManager().getChatItemDisplayInventories()) {
+            for (HumanEntity he : inventory.getViewers()) {
+                if (!he.isValid()) continue;
+                he.closeInventory();
+            }
+        }
+        dependencyLoader.unLoadDependencies();
+        if (deleteOnDisable) {
+            UpdateDownloader.deletePlugin(this);
+        }
+    }
+
+
+    private void registerMetrics() {
         Metrics metrics = new Metrics(this, 7229);
         HashMap<String, Range<Integer>> playerCountRanges = new HashMap<>();
         playerCountRanges.put("≤ 5", Range.between(0, 5));
@@ -101,45 +143,7 @@ public class ChatItemDisplay extends JavaPlugin {
             mainMap.put(playerCountRanges.keySet().stream().filter(title -> playerCountRanges.get(title).contains(Bukkit.getOnlinePlayers().size())).findFirst().orElse("> 100"), playerCount);
             return mainMap;
         }));
-        getRegisteredDisplayables().forEach(CommandRegistry::registerAlias);
-
-        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this, "chatitemdisplay:in", new BungeeCordReceiver());
-        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "chatitemdisplay:out");
     }
-
-    @Override
-    public void onDisable() {
-        if (discordReg != null) {
-            discordReg.unregister();
-        }
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (getDisplayedManager().getChatItemDisplayInventories().containsKey(p.getOpenInventory().getTopInventory())) {
-                p.closeInventory();
-            }
-
-        }
-    }
-
-    public DisplayedManager getDisplayedManager() {
-        return dm;
-    }
-
-
-    public void reloadListeners() {
-        displayCooldown.setCooldownTime((long) getConfig().getDouble("display-cooldown"));
-
-        if (discordReg != null)
-            discordReg.unregister();
-        if (Bukkit.getPluginManager().getPlugin("DiscordSRV") != null) {
-            if (discordReg == null) {
-                discordReg = new DiscordSRVRegister();
-            }
-
-            discordReg.register();
-        }
-        ChatItemConfig.reloadMessages();
-    }
-
 
     public void loadLang() {
         try {
@@ -155,43 +159,66 @@ public class ChatItemDisplay extends JavaPlugin {
         return lang;
     }
 
-    public Cooldown<Player> getDisplayCooldown() {
-        return displayCooldown;
-    }
+    private void checkUpdate() {
+        if (ChatItemConfig.getConfig().getBoolean("disable-update-checking")) return;
+        try {
+            new UpdateChecker(77177).getLatestVersion(version -> {
+                switch (VersionComparator.isRecent(getDescription().getVersion(), version)) {
+                    case AHEAD:
+                    case SAME:
+                        getLogger().info("ChatItemDisplay is up to date");
+                        return;
+                    case BEHIND:
+                        getLogger().warning("ChatItemDisplay is currently running version "
+                                + getDescription().getVersion() + " and can be updated to " + version);
+                        if (!getConfig().getBoolean("auto-update")) {
+                            //Update downloading is not enabled, just printing a warning
+                            getLogger().warning(
+                                    "Download the newest version at: //https://www.spigotmc.org/resources/chat-item-display.77177/");
+                            getLogger().warning("or enable \"auto-update\" in your config.yml");
+                            return;
+                        }
 
+                        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+                            File pluginDownload = new File("plugins/ChatItemDisplay " + version + ".jar");
+                            try {
+                                UpdateDownloader.download(pluginDownload);
+                                //Check if plugin was downloaded properly. If download was incomplete this will throw InvalidDescriptionException
+                                ChatItemDisplay.getInstance().getPluginLoader().getPluginDescription(pluginDownload);
+                                deleteOnDisable = true;
+                                getLogger().info("The newest version of ChatItemDisplay has been downloaded automatically, it will be loaded upon the next startup");
 
-
-    public LinkedList<DisplayType<?>> getRegisteredDisplayables() {
-        return registeredDisplayables;
-    }
-
-    /**
-     * Register an instance of a {@link DisplayType} so that it can be displayed.
-     *
-     * @param displayType an instance of {@link DisplayType}
-     * @apiNote This method must be called upon server startup.
-     */
-    public void registerDisplayable(DisplayType<?> displayType) {
-        registeredDisplayables.add(displayType);
-        CommandRegistry.registerAlias(displayType);
-    }
-
-    /**
-     * Gets an instance of a display type from the class path of the display type.
-     * An instance has to be registered for this to return an instance.
-     * If none has been registered with the specified class path the instance will return null
-     *
-     * @param displayTypeClass The class of the display type
-     * @return An instance of the display type with the given class path.
-     * @see #registerDisplayable(DisplayType)
-     */
-    public DisplayType<?> getDisplayType(Class<? extends DisplayType<?>> displayTypeClass) {
-        DisplayType<?> displayType = ChatItemDisplay.getInstance().getRegisteredDisplayables().stream().filter(type -> type.getClass().equals(displayTypeClass)).findFirst().orElse(null);
-        if (displayType == null) {
-            Bukkit.getLogger().warning("Cannot find a displaytype that has the class path of: " + displayTypeClass.getCanonicalName());
-            return null;
+                            } catch (InvalidDescriptionException e) {
+                                Bukkit.getLogger().warning("The downloaded version of ChatItemDisplay does not contain a valid plugin description. The download most likely failed. Try downloading the plugin manually");
+                                if (pluginDownload.exists() && !pluginDownload.delete()) {
+                                    getLogger().warning("The downloaded file could not be deleted at " + pluginDownload.getAbsolutePath());
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Bukkit.getLogger().severe("Unable to download the newest version of ChatItemDisplay (" + e.getMessage() + ")");
+                            }
+                        });
+                }
+            });
+        } catch (IOException e) {
+            getLogger().warning(String.format("Unable to retrieve the latest version of ChatItemDisplay ({%s})", e.getMessage()));
         }
-        return displayType;
+
     }
 
+    @NotNull
+    @Override
+    public FileConfiguration getConfig() {
+        return ChatItemConfig.getConfig();
+    }
+
+    /**
+     * This method uses spigot's Built in {@link JavaPlugin#getConfig()}
+     * It is recommended to use {@link ChatItemDisplay#getConfig()} when getting cached values.
+     *
+     * @return Bukkit's config
+     */
+    public FileConfiguration getConfigSuper() {
+        return super.getConfig();
+    }
 }

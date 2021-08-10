@@ -1,4 +1,4 @@
-package io.github.bingorufus.chatitemdisplay.util.updater;
+package io.github.bingorufus.common.updater;
 
 import java.io.IOException;
 import java.io.InputStream;

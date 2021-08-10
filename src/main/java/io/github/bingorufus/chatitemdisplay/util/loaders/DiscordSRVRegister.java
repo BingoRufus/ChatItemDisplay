@@ -1,7 +1,6 @@
 package io.github.bingorufus.chatitemdisplay.util.loaders;
 
 import github.scarsz.discordsrv.DiscordSRV;
-import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.listeners.DiscordSRVModifier;
 
 public class DiscordSRVRegister {
@@ -12,7 +11,7 @@ public class DiscordSRVRegister {
     }
 
     public void register() {
-        mod = new DiscordSRVModifier(ChatItemDisplay.getInstance());
+        mod = new DiscordSRVModifier();
         DiscordSRV.api.subscribe(mod);
 
     }

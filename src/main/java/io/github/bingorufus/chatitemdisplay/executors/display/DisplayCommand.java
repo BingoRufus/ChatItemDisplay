@@ -1,6 +1,6 @@
 package io.github.bingorufus.chatitemdisplay.executors.display;
 
-import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import io.github.bingorufus.chatitemdisplay.api.event.DisplayPreProcessEvent;
@@ -56,7 +56,7 @@ public class DisplayCommand extends Command {
     }
 
     protected boolean isOnCooldown(Player p) {
-        Cooldown<Player> c = ChatItemDisplay.getInstance().getDisplayCooldown();
+        Cooldown<Player> c = ChatItemDisplayAPI.getDisplayCooldown();
 
         if (c.isOnCooldown(p)) {
             double secondsRemaining = (double) (Math.round((double) c.getTimeRemaining(p) / 100)) / 10;
@@ -112,12 +112,12 @@ public class DisplayCommand extends Command {
         }
 
         if (isEventCancelled(p, displayable)) return true;
-        ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(displayable);
+        ChatItemDisplayAPI.getDisplayedManager().addDisplayable(displayable);
         if (ChatItemConfig.BUNGEE.getCachedValue())
             BungeeCordSender.send(displayable, true);
 
         if (!p.hasPermission("chatitemdisplay.cooldownbypass"))
-            ChatItemDisplay.getInstance().getDisplayCooldown().addToCooldown(p);
+            ChatItemDisplayAPI.getDisplayCooldown().addToCooldown(p);
         displayable.broadcastDisplayable();
         return true;
     }

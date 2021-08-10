@@ -42,7 +42,7 @@ display-types:
 
   inventory:
     #   A server restart is required to change commands and aliase
-    command: "displayinventory" s
+    command: "displayinventory"
     command-enabled: true
     #   A server restart is required to change commands and aliases
     aliases:
@@ -85,6 +85,9 @@ message-command:
   - "/message"
   - "/tell"
   - "/whisper"
+  - "/bc"
+  - "/broadcast"
+  - "/tellall"
 messages:
   missing-permission: "&cYou do not have permission to do that"
   too-large-display: "§cYour message is too long, try displaying less things"

@@ -2,6 +2,7 @@ package io.github.bingorufus.chatitemdisplay;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import io.github.bingorufus.chatitemdisplay.displayables.DisplayingPlayer;
@@ -27,7 +28,7 @@ public class Display {
         JsonObject displayableJSON = jo.getAsJsonObject("displayable");
         Displayable displayable;
         try {
-            DisplayType<?> displayType = ChatItemDisplay.getInstance().getDisplayType((Class<? extends DisplayType<?>>) Class.forName(displayableJSON.get("type").getAsString()));
+            DisplayType<?> displayType = ChatItemDisplayAPI.getDisplayType((Class<? extends DisplayType<?>>) Class.forName(displayableJSON.get("type").getAsString()));
             if (displayType == null) {
                 return null;
             }

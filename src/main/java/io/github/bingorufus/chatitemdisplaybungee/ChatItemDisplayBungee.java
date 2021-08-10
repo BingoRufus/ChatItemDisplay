@@ -1,8 +1,8 @@
 package io.github.bingorufus.chatitemdisplaybungee;
 
 import io.github.bingorufus.chatitemdisplay.util.string.VersionComparator;
-import io.github.bingorufus.chatitemdisplay.util.updater.UpdateChecker;
-import io.github.bingorufus.chatitemdisplay.util.updater.UpdateDownloader;
+import io.github.bingorufus.common.updater.UpdateChecker;
+import io.github.bingorufus.common.updater.UpdateDownloader;
 import lombok.Getter;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -36,15 +36,14 @@ public class ChatItemDisplayBungee extends Plugin {
                     VersionComparator.Status s = VersionComparator.isRecent(this.getDescription().getVersion(), ver);
 
                     if (s.equals(VersionComparator.Status.BEHIND)) {
-                        UpdateDownloader downloader = new UpdateDownloader();
                         try {
-                            downloader
+                            UpdateDownloader
                                     .download(new File(
 
                                             "plugins/ChatItemDisplay " + ver + ".jar"));
                             getLogger().info(
                                     "The newest version of ChatItemDisplay has been downloaded automatically, it will be loaded upon the next startup");
-                            downloader.deletePlugin(this);
+                            UpdateDownloader.deletePlugin(this);
                         } catch (IOException e) {
                             e.printStackTrace();
                             getLogger().warning(

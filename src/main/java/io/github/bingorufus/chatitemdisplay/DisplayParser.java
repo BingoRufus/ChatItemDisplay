@@ -1,5 +1,6 @@
 package io.github.bingorufus.chatitemdisplay;
 
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import io.github.bingorufus.chatitemdisplay.api.event.DisplayPreProcessEvent;
@@ -22,7 +23,7 @@ public class DisplayParser {
     }
 
     private void read() {
-        for (DisplayType<?> displayType : ChatItemDisplay.getInstance().getRegisteredDisplayables()) {
+        for (DisplayType<?> displayType : ChatItemDisplayAPI.getRegisteredDisplayables()) {
             for (String trigger : displayType.getTriggers()) {
                 if (message.toUpperCase().contains(trigger.toUpperCase())) {
                     displayTypes.add(displayType);
@@ -47,7 +48,7 @@ public class DisplayParser {
     public String format(Player p) {
         if (displayables.size() == 0) createDisplayables(p);
         String out = message;
-        for (DisplayType<?> displayType : ChatItemDisplay.getInstance().getRegisteredDisplayables()) {
+        for (DisplayType<?> displayType : ChatItemDisplayAPI.getRegisteredDisplayables()) {
             out = replaceTrigger(out, p, displayType);
         }
 
@@ -71,8 +72,9 @@ public class DisplayParser {
                 sentEvent = true;
             }
 
-            ChatItemDisplay.getInstance().getDisplayedManager().addDisplayable(displayables.get(displayType));
-            String ins = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(displayables.get(displayType)).getInsertion();
+            ChatItemDisplayAPI.getDisplayedManager().addDisplayable(displayables.get(displayType));
+
+            String ins = ChatItemDisplayAPI.getDisplayedManager().getDisplay(displayables.get(displayType)).getInsertion();
             out = out.replaceAll("(?i)" + Pattern.quote(trigger), ins);
 
 

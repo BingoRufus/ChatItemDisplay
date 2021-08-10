@@ -5,6 +5,7 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 
 public class RecipeSelector extends PacketAdapter {
     public RecipeSelector() {
@@ -18,7 +19,7 @@ public class RecipeSelector extends PacketAdapter {
      */
     @Override
     public void onPacketReceiving(final PacketEvent e) {
-        if (ChatItemDisplay.getInstance().getDisplayedManager().getChatItemDisplayInventories().containsKey(e.getPlayer().getOpenInventory().getTopInventory())) {
+        if (ChatItemDisplayAPI.getDisplayedManager().getChatItemDisplayInventories().contains(e.getPlayer().getOpenInventory().getTopInventory())) {
             e.setCancelled(true);
         }
 

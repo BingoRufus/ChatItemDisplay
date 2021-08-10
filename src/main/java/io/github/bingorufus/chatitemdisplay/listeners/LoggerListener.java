@@ -2,8 +2,8 @@ package io.github.bingorufus.chatitemdisplay.listeners;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.Display;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.util.logger.ConsoleLogEvent;
 import org.apache.logging.log4j.message.SimpleMessage;
 import org.bukkit.event.EventHandler;
@@ -34,7 +34,7 @@ public class LoggerListener implements Listener {
 
             JsonObject jo = (JsonObject) new JsonParser().parse(json);
 
-            Display dis = ChatItemDisplay.getInstance().getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()));
+            Display dis = ChatItemDisplayAPI.getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()));
 
             msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
                     dis.getDisplayable().getLoggerMessage());

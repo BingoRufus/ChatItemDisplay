@@ -3,8 +3,8 @@ package io.github.bingorufus.chatitemdisplay.util.bungee;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
-import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.Display;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.util.logger.DebugLogger;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -28,7 +28,7 @@ public class BungeeCordReceiver implements PluginMessageListener {
 
     public void receiveDisplay(String data, ByteArrayDataInput in) {
         Display display = Display.deserialize(data);
-        ChatItemDisplay.getInstance().getDisplayedManager().addDisplay(display);
+        ChatItemDisplayAPI.getDisplayedManager().addDisplay(display);
 
         if (in.readBoolean()) {
             display.getDisplayable().broadcastDisplayable();

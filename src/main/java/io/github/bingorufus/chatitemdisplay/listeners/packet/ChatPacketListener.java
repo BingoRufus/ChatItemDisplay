@@ -9,6 +9,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import io.github.bingorufus.chatitemdisplay.util.logger.DebugLogger;
 import io.github.bingorufus.chatitemdisplay.util.string.ComponentConverter;
@@ -132,7 +133,7 @@ public class ChatPacketListener extends PacketAdapter {
                         DebugLogger.log(matcher.group(1) + " is being displayed");
 
                         JsonObject jo = (JsonObject) new JsonParser().parse(matcher.group(1));
-                        Displayable display = ChatItemDisplay.getInstance().getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()))
+                        Displayable display = ChatItemDisplayAPI.getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()))
                                 .getDisplayable();
 
                         String[] parts = legacyText

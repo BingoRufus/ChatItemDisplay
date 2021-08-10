@@ -1,6 +1,7 @@
 package io.github.bingorufus.chatitemdisplay.executors;
 
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import io.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -144,7 +145,7 @@ public class DebugExecutor implements CommandExecutor {
             w.newLine();
             writeLine(w, "Displays:");
 
-            ChatItemDisplay.getInstance().getDisplayedManager().forEach(display -> {
+            ChatItemDisplayAPI.getDisplayedManager().forEach(display -> {
                 try {
                     writeLine(w, StringEscapeUtils.unescapeJava(StringEscapeUtils.unescapeJava(StringEscapeUtils.unescapeJava(display.serialize()))));
                 } catch (IOException e) {

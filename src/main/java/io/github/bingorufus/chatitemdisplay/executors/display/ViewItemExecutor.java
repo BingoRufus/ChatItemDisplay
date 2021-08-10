@@ -1,7 +1,7 @@
 package io.github.bingorufus.chatitemdisplay.executors.display;
 
-import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.Display;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import io.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
@@ -16,11 +16,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class ViewItemExecutor implements CommandExecutor {
-    final ChatItemDisplay m = ChatItemDisplay.getInstance();
 
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
-        if (m.getConfig().getBoolean("disable-gui")) {
+        if (ChatItemConfig.GUI_DISABLED.getCachedValue()) {
             sender.sendMessage(StringFormatter.format(ChatItemConfig.FEATURE_DISABLED.getCachedValue()));
             return true;
 
@@ -42,7 +41,7 @@ public class ViewItemExecutor implements CommandExecutor {
             target = Bukkit.getPlayer(args[0]).getName();
             usePlayer = true;
         }
-        invalidPlayer = m.getDisplayedManager().getMostRecent(target.toUpperCase()) == null;
+        invalidPlayer = ChatItemDisplayAPI.getDisplayedManager().getMostRecent(target.toUpperCase()) == null;
 
         if (invalidPlayer && usePlayer) {
             sender.sendMessage(
@@ -59,7 +58,7 @@ public class ViewItemExecutor implements CommandExecutor {
                         .format(ChatItemConfig.EMPTY_DISPLAY.getCachedValue()));
                 return true;
             }
-            if (m.getDisplayedManager().getDisplayed(id) == null) {
+            if (ChatItemDisplayAPI.getDisplayedManager().getDisplayed(id) == null) {
                 sender.sendMessage(StringFormatter.format(ChatItemConfig.INVALID_ID.getCachedValue()));
                 return true;
             }
@@ -67,14 +66,14 @@ public class ViewItemExecutor implements CommandExecutor {
         }
 
 
-        Display dis = id == null ? m.getDisplayedManager().getMostRecent(target.toUpperCase()) : m.getDisplayedManager().getDisplayed(id);
+        Display dis = id == null ? ChatItemDisplayAPI.getDisplayedManager().getMostRecent(target.toUpperCase()) : ChatItemDisplayAPI.getDisplayedManager().getDisplayed(id);
 
         if (dis == null) {
             return false;
         }
         Inventory inv = dis.getDisplayable().onViewDisplay(p);
         if (inv != null) {
-            ChatItemDisplay.getInstance().getDisplayedManager().getChatItemDisplayInventories().put(inv, null);
+            ChatItemDisplayAPI.getDisplayedManager().addInventory(inv);
             p.openInventory(inv);
         }
         return true;

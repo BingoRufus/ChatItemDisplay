@@ -1,6 +1,7 @@
 package io.github.bingorufus.chatitemdisplay.listeners;
 
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import io.github.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff;
 import io.github.bingorufus.chatitemdisplay.util.iteminfo.MapGiver;
@@ -27,7 +28,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class InventoryClick implements Listener {
     final List<PlayerInteractEvent> pies = new ArrayList<>();
@@ -36,7 +40,7 @@ public class InventoryClick implements Listener {
 
     @EventHandler
     public void onClick(final InventoryClickEvent e) {
-        if (ChatItemDisplay.getInstance().getDisplayedManager().getChatItemDisplayInventories().containsKey(e.getInventory())) {
+        if (ChatItemDisplayAPI.getDisplayedManager().getChatItemDisplayInventories().contains(e.getInventory())) {
             e.setCancelled(true);
             if (e.getClickedInventory() == null)
                 return;
@@ -50,7 +54,7 @@ public class InventoryClick implements Listener {
             if (e.getCurrentItem().getItemMeta() instanceof BlockStateMeta) {
                 BlockStateMeta bsm = ((BlockStateMeta) e.getCurrentItem().getItemMeta());
                 if (bsm.getBlockState() instanceof Container) {
-                    container(e.getCurrentItem().clone(), p, ChatItemDisplay.getInstance().getDisplayedManager().getChatItemDisplayInventories().get(e.getInventory()));
+                    container(e.getCurrentItem().clone(), p);
                     return;
                 }
 
@@ -100,7 +104,7 @@ public class InventoryClick implements Listener {
         p.getInventory().setItemInMainHand(item);
     }
 
-    public void container(ItemStack item, Player p, UUID owner) {
+    public void container(ItemStack item, Player p) {
 
         BlockStateMeta bsm = ((BlockStateMeta) item.getItemMeta());
         if (bsm == null) return;
@@ -116,7 +120,7 @@ public class InventoryClick implements Listener {
             containerInv = Bukkit.createInventory(null, container.getType(), ItemStackStuff.itemName(item));
         containerInv.setContents(container.getContents());
 
-        ChatItemDisplay.getInstance().getDisplayedManager().getChatItemDisplayInventories().put(containerInv, owner);
+        ChatItemDisplayAPI.getDisplayedManager().addInventory(containerInv);
         p.openInventory(containerInv);
 
     }

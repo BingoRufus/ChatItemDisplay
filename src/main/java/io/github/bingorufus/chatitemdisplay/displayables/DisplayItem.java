@@ -2,6 +2,7 @@ package io.github.bingorufus.chatitemdisplay.displayables;
 
 import com.google.gson.JsonObject;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
@@ -175,7 +176,7 @@ public class DisplayItem extends Displayable {
                     new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(item.getType().getKey().toString(),
                             item.getAmount(), ItemTag.ofNbt(ItemStackReflection.getNBT(item)))));
         }
-        UUID id = ChatItemDisplay.getInstance().getDisplayedManager().getDisplay(this).getId();
+        UUID id = ChatItemDisplayAPI.getDisplayedManager().getDisplay(this).getId();
         hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                 "/viewitem " + (id)));
 

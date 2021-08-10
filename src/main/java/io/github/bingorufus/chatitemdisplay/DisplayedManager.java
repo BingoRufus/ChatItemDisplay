@@ -5,10 +5,15 @@ import com.google.common.cache.CacheBuilder;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -20,13 +25,25 @@ public class DisplayedManager {
 
     private Cache<String, UUID> mostRecent = CacheBuilder.newBuilder().expireAfterWrite(expirationTime, TimeUnit.SECONDS).build(); // <Player,Id>
 
-    private Cache<Inventory, UUID> chatItemDisplayInventories = CacheBuilder.newBuilder().expireAfterWrite(expirationTime, TimeUnit.SECONDS).build(); //Inventories and the UUIDs of the owners
-
-    public Map<Inventory, UUID> getChatItemDisplayInventories() {
-        return chatItemDisplayInventories.asMap();
-    }
+    private final List<Inventory> chatItemDisplayInventories = new LinkedList<>();
 
     public DisplayedManager() {
+        Bukkit.getPluginManager().registerEvent(InventoryCloseEvent.class, new Listener() {
+        }, EventPriority.NORMAL, (listener, event) -> {
+            InventoryCloseEvent ice = (InventoryCloseEvent) event;
+            if (!chatItemDisplayInventories.contains(ice.getInventory())) return;
+            ice.getInventory().getViewers().stream().filter(he -> he.isValid() && !he.equals(ice.getPlayer())).forEach(HumanEntity::closeInventory);
+            chatItemDisplayInventories.remove(((InventoryCloseEvent) event).getView().getTopInventory());
+        }, ChatItemDisplay.getInstance());
+
+    }
+
+    public List<Inventory> getChatItemDisplayInventories() {
+        return new LinkedList<>(chatItemDisplayInventories);
+    }
+
+    public void addInventory(Inventory inventory) {
+        chatItemDisplayInventories.add(inventory);
     }
 
     public void addDisplayable(Displayable display) {
@@ -58,7 +75,6 @@ public class DisplayedManager {
 
     @Nullable
     public Display getDisplay(Displayable dis) {
-
         return displayId.asMap().values().stream().filter(display -> display.getDisplayable().equals(dis)).findFirst().orElse(null);
 
     }
@@ -76,7 +92,7 @@ public class DisplayedManager {
         Bukkit.getScheduler().runTaskAsynchronously(ChatItemDisplay.getInstance(), () -> {
             displayId = copyToCache(displayId);
             mostRecent = copyToCache(mostRecent);
-            chatItemDisplayInventories = copyToCache(chatItemDisplayInventories);
+
         });
     }
 

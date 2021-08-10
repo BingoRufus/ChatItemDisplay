@@ -1,7 +1,7 @@
 package io.github.bingorufus.chatitemdisplay.api.display;
 
 import com.google.gson.JsonObject;
-import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.displayables.DisplayingPlayer;
 import io.github.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -61,7 +61,7 @@ public abstract class Displayable {
     protected abstract Class<? extends DisplayType<?>> getTypeClass();
 
     public DisplayType<?> getType() {
-        DisplayType<?> displayType = ChatItemDisplay.getInstance().getRegisteredDisplayables().stream().filter(type -> type.getClass().equals(getTypeClass())).findFirst().orElse(null);
+        DisplayType<?> displayType = ChatItemDisplayAPI.getRegisteredDisplayables().stream().filter(type -> type.getClass().equals(getTypeClass())).findFirst().orElse(null);
         if (displayType == null) {
             Bukkit.getLogger().warning("Cannot find a displaytype that has the class path of: " + getTypeClass().getCanonicalName());
             return null;

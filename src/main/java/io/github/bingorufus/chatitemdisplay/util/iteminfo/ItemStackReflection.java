@@ -1,9 +1,9 @@
 package io.github.bingorufus.chatitemdisplay.util.iteminfo;
 
+import io.github.bingorufus.chatitemdisplay.util.ReflectionClassRetriever;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -16,38 +16,16 @@ import java.util.Optional;
 
 public class ItemStackReflection {
 
-    public static String VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-    private static Class<?> craftPotionUtil = null;
-    private static Class<?> craftItemStack = null;
-    private static Class<?> chatSerializer = null;
-    private static Class<?> iChatBase = null;
-    private static Class<?> nbtTagCompound = null;
-    private static Class<?> nbtTagList = null;
-    private static Class<?> nbtTagString = null;
-    private static Class<?> nbtBase = null;
-    private static Class<?> nmsItemStack;
+    private static final Class<?> craftPotionUtil = ReflectionClassRetriever.getCraftBukkitClassOrThrow("potion.CraftPotionUtil");
+    private static final Class<?> craftItemStack = ReflectionClassRetriever.getCraftBukkitClassOrThrow("inventory.CraftItemStack");
+    private static final Class<?> chatSerializer = ReflectionClassRetriever.getNMSClassOrThrow("IChatBaseComponent$ChatSerializer");
+    private static final Class<?> iChatBase = ReflectionClassRetriever.getNMSClassOrThrow("IChatBaseComponent");
+    private static final Class<?> nbtTagCompound = ReflectionClassRetriever.getNMSClassOrThrow("NBTTagCompound");
+    private static final Class<?> nbtTagList = ReflectionClassRetriever.getNMSClassOrThrow("NBTTagList");
+    private static final Class<?> nbtTagString = ReflectionClassRetriever.getNMSClassOrThrow("NBTTagString");
+    private static final Class<?> nbtBase = ReflectionClassRetriever.getNMSClassOrThrow("NBTBase");
+    private static final Class<?> nmsItemStack = ReflectionClassRetriever.getNMSClassOrThrow("ItemStack");
 
-    static {
-        try {
-            craftPotionUtil = Class
-                    .forName("org.bukkit.craftbukkit.{v}.potion.CraftPotionUtil".replace("{v}", VERSION));
-
-            craftItemStack = Class
-                    .forName("org.bukkit.craftbukkit.{v}.inventory.CraftItemStack".replace("{v}", VERSION));
-            chatSerializer = Class
-                    .forName("net.minecraft.server.{v}.IChatBaseComponent$ChatSerializer".replace("{v}", VERSION));
-            iChatBase = Class.forName("net.minecraft.server.{v}.IChatBaseComponent".replace("{v}", VERSION));
-
-            nbtTagCompound = Class.forName("net.minecraft.server.{v}.NBTTagCompound".replace("{v}", VERSION));
-            nbtTagList = Class.forName("net.minecraft.server.{v}.NBTTagList".replace("{v}", VERSION));
-            nbtTagString = Class.forName("net.minecraft.server.{v}.NBTTagString".replace("{v}", VERSION));
-            nbtBase = Class.forName("net.minecraft.server.{v}.NBTBase".replace("{v}", VERSION));
-            nmsItemStack = Class.forName("net.minecraft.server.{v}.ItemStack".replace("{v}", VERSION));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     private static Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {

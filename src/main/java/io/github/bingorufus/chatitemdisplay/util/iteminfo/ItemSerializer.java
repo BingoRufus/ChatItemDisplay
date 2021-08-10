@@ -2,7 +2,7 @@ package io.github.bingorufus.chatitemdisplay.util.iteminfo;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.bukkit.Bukkit;
+import io.github.bingorufus.chatitemdisplay.util.ReflectionClassRetriever;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -10,26 +10,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ItemSerializer {
-    private static Class<?> craftItemStack;
-    private static Class<?> mojangsonParser;
-    private static Class<?> nmsItemStack;
 
-    static {
-        try {
-            String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+    private static final Class<?> craftItemStack = ReflectionClassRetriever.getCraftBukkitClassOrThrow("inventory.CraftItemStack");
+    private static final Class<?> mojangsonParser = ReflectionClassRetriever.getNMSClassOrThrow("MojangsonParser");
+    private static final Class<?> nmsItemStack = ReflectionClassRetriever.getNMSClassOrThrow("ItemStack");
 
-            craftItemStack = Class
-                    .forName("org.bukkit.craftbukkit.{v}.inventory.CraftItemStack".replace("{v}", version));
-
-            mojangsonParser = Class.forName("net.minecraft.server.{v}.MojangsonParser".replace("{v}", version));
-
-            nmsItemStack = Class.forName("net.minecraft.server.{v}.ItemStack".replace("{v}", version));
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     private ItemSerializer() {
 

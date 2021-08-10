@@ -5,6 +5,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.event.ChatItemDisplayConfigReloadEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -30,10 +32,14 @@ public class ChatItemConfig {
     public static final ConfigOption<String> COMMAND_ITEM_FORMAT = new ConfigOption<>("display-messages.item-display-format", String.class);
     public static final ConfigOption<String> COMMAND_ITEM_FORMAT_MULTIPLE = new ConfigOption<>("display-messages.item-display-format-multiple", String.class);
     public static final ConfigOption<String> COMMAND_INVENTORY_FORMAT = new ConfigOption<>("display-messages.inventory-display-format", String.class);
+
     public static final ConfigOption<Boolean> BUNGEE = new ConfigOption<>("send-to-bungee", Boolean.class);
     public static final ConfigOption<Boolean> DEBUG_MODE = new ConfigOption<>("debug-mode", Boolean.class);
+    public static final ConfigOption<Boolean> GUI_DISABLED = new ConfigOption<>("disable-gui", Boolean.class);
+
     public static final ConfigOption<Integer> MAX_DISPLAYS = new ConfigOption<>("maximum-displays", Integer.class);
-    public static final ConfigOption<Long> EXPIRATION_TIME = new ConfigOption<>("display_expiration", Long.class);
+    public static final ConfigOption<Integer> EXPIRATION_TIME = new ConfigOption<>("display-expiration", Integer.class);
+    public static final ConfigOption<Integer> COOLDOWN_TIME = new ConfigOption<>("display-cooldown", Integer.class);
 
     private static FileConfiguration config;
     private static long cacheTime;
@@ -66,10 +72,12 @@ public class ChatItemConfig {
         }
     };
 
-    public static void reloadMessages() {
+    public static void reloadConfig() {
         configCache.asMap().values().forEach(System.out::println);
         configCache.invalidateAll();
         refreshConfig();
+        Bukkit.getPluginManager().callEvent(new ChatItemDisplayConfigReloadEvent());
+
     }
 
     public static FileConfiguration getConfig() {
@@ -77,13 +85,18 @@ public class ChatItemConfig {
         return config;
     }
 
-    public static void refreshConfig() {
+    /**
+     * Resets the cacheTime and reloads the plugin's config.
+     * Does not update the values of {@link ChatItemConfig}
+     *
+     * @see #reloadConfig() Updates the values
+     */
+    private static void refreshConfig() {
 
         ChatItemDisplay.getInstance().saveDefaultConfig();
         ChatItemDisplay.getInstance().reloadConfig();
-        config = ChatItemDisplay.getInstance().getConfig();
+        config = ChatItemDisplay.getInstance().getConfigSuper();
         cacheTime = System.currentTimeMillis();
-        ChatItemDisplay.getInstance().getDisplayedManager().updateExpirationTime();
     }
 
     public static class ConfigOption<T> {
