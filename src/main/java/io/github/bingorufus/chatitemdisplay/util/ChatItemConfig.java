@@ -1,6 +1,5 @@
 package io.github.bingorufus.chatitemdisplay.util;
 
-import com.comphenix.protocol.reflect.FieldAccessException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -54,7 +53,7 @@ public class ChatItemConfig {
                                 if (configOption.type.isAssignableFrom(List.class)) {
                                     return new ArrayList<>();
                                 }
-                                throw new FieldAccessException("Cannot find a value at " + configOption.path);
+                                throw new NullPointerException("Cannot find a value at " + configOption.path);
                             }
                             return configOption.getValue();
                         }
@@ -73,7 +72,6 @@ public class ChatItemConfig {
     };
 
     public static void reloadConfig() {
-        configCache.asMap().values().forEach(System.out::println);
         configCache.invalidateAll();
         refreshConfig();
         Bukkit.getPluginManager().callEvent(new ChatItemDisplayConfigReloadEvent());

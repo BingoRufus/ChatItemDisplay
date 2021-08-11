@@ -3,6 +3,7 @@ package io.github.bingorufus.chatitemdisplay.util.iteminfo;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
 import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.displayables.DisplayInventoryType;
+import io.github.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemStackReflection;
 import io.github.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;

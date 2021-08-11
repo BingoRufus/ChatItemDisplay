@@ -35,9 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ChatItemDisplay extends JavaPlugin {
     public static final String MINECRAFT_VERSION = Bukkit.getServer().getVersion().substring(Bukkit.getServer().getVersion().indexOf("(MC: ") + 5,
@@ -113,12 +111,11 @@ public class ChatItemDisplay extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        List<HumanEntity> cidInvViewer = new ArrayList<>();
         for (Inventory inventory : ChatItemDisplayAPI.getDisplayedManager().getChatItemDisplayInventories()) {
-            for (HumanEntity he : inventory.getViewers()) {
-                if (!he.isValid()) continue;
-                he.closeInventory();
-            }
+            cidInvViewer.addAll(inventory.getViewers());
         }
+        cidInvViewer.forEach(HumanEntity::closeInventory);
         dependencyLoader.unLoadDependencies();
         if (deleteOnDisable) {
             UpdateDownloader.deletePlugin(this);

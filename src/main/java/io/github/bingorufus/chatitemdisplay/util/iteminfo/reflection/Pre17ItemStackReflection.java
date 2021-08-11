@@ -1,4 +1,4 @@
-package io.github.bingorufus.chatitemdisplay.util.iteminfo;
+package io.github.bingorufus.chatitemdisplay.util.iteminfo.reflection;
 
 import io.github.bingorufus.chatitemdisplay.util.ReflectionClassRetriever;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -14,8 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class ItemStackReflection {
-
+public class Pre17ItemStackReflection implements ReflectionInterface {
     private static final Class<?> craftPotionUtil = ReflectionClassRetriever.getCraftBukkitClassOrThrow("potion.CraftPotionUtil");
     private static final Class<?> craftItemStack = ReflectionClassRetriever.getCraftBukkitClassOrThrow("inventory.CraftItemStack");
     private static final Class<?> chatSerializer = ReflectionClassRetriever.getNMSClassOrThrow("IChatBaseComponent$ChatSerializer");
@@ -27,7 +26,7 @@ public class ItemStackReflection {
     private static final Class<?> nmsItemStack = ReflectionClassRetriever.getNMSClassOrThrow("ItemStack");
 
 
-    private static Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
+    private Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {
 
         Method asNms = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
@@ -36,12 +35,12 @@ public class ItemStackReflection {
 
     }
 
-    private static Object toChatComponent(BaseComponent... component) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private Object toChatComponent(BaseComponent... component) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method toString = chatSerializer.getDeclaredMethod("a", String.class);
         return toString.invoke(chatSerializer, ComponentSerializer.toString(component));
     }
 
-    public static BaseComponent getOldHover(ItemStack item) {
+    public BaseComponent getOldHover(ItemStack item) {
         try {
             Object nmsItem = nmsItem(item);
             Method getChatComponent = Arrays.stream(nmsItem.getClass().getMethods()).filter(method -> method.getReturnType().equals(iChatBase)).filter(method -> method.getParameterCount() == 0).filter(method -> !method.getName().equals("getName")).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot find method to convert item to basecomponent"));
@@ -58,7 +57,8 @@ public class ItemStackReflection {
         return new TextComponent();
     }
 
-    public static boolean hasNbt(ItemStack item) {
+
+    public boolean hasNbt(ItemStack item) {
         try {
             Object nmsItem = nmsItem(item);
             if (nmsItem == null) {
@@ -75,7 +75,7 @@ public class ItemStackReflection {
 
     }
 
-    public static String getNBT(ItemStack item) {
+    public String getNBT(ItemStack item) {
         try {
             Object nmsItem = nmsItem(item);
             if (nmsItem == null) {
@@ -100,7 +100,7 @@ public class ItemStackReflection {
     }
 
 
-    public static String translateItemStack(ItemStack holding) {
+    public String translateItemStack(ItemStack holding) {
         try {
             Object item = nmsItem(holding);
             if (item == null) {
@@ -134,13 +134,13 @@ public class ItemStackReflection {
 
     }
 
-    private static ItemStack fromNMS(Object nmsItem) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private ItemStack fromNMS(Object nmsItem) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method fromNMS = craftItemStack.getMethod("asBukkitCopy", nmsItemStack);
         fromNMS.setAccessible(true);
         return (ItemStack) fromNMS.invoke(craftItemStack, nmsItem);
     }
 
-    public static ItemStack setItemName(final ItemStack item, final BaseComponent name) {
+    public ItemStack setItemName(final ItemStack item, final BaseComponent name) {
         try {
             Object nms = nmsItem(item);
             Optional<Method> setNameOptional = Arrays.stream(nms.getClass().getDeclaredMethods()).filter(method -> method.getReturnType().equals(nms.getClass())).filter(method -> method.getParameterCount() == 1).filter(method -> method.getParameterTypes()[0].equals(iChatBase)).findFirst();
@@ -155,7 +155,7 @@ public class ItemStackReflection {
     }
 
 
-    public static ItemStack setLore(final ItemStack item, final BaseComponent... lore) {
+    public ItemStack setLore(final ItemStack item, final BaseComponent... lore) {
         try {
             Object nms = nmsItem(item);
             if (!nms.getClass().equals(nmsItemStack)) return item;

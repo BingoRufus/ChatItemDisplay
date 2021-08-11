@@ -1,5 +1,7 @@
 package io.github.bingorufus.chatitemdisplay.util;
 
+import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.util.string.VersionComparator;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
@@ -8,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ReflectionClassRetriever {
     private static final String VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-
+    private static final boolean useVersions = VersionComparator.isRecent(ChatItemDisplay.MINECRAFT_VERSION, "1.17") == VersionComparator.Status.BEHIND;
     private ReflectionClassRetriever() {
     }
 
@@ -34,7 +36,7 @@ public class ReflectionClassRetriever {
 
     @Nullable
     public static Class<?> getNMSClass(String path) {
-        return getClass("net.minecraft.server", path);
+        return useVersions ? getClassWithVersion("net.minecraft.server", path) : getClassWithOutVersion("net.minecraft", path);
     }
 
     @Nullable
@@ -48,20 +50,19 @@ public class ReflectionClassRetriever {
     }
 
     private static Class<?> getClassWithVersion(String prefix, String suffix) {
-        try {
-            return Class.forName(prefix + "." + VERSION + "." + suffix);
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
+        return getClassOrNull(prefix + "." + VERSION + "." + suffix);
     }
 
     private static Class<?> getClassWithOutVersion(String prefix, String suffix) {
+        return getClassOrNull(prefix + "." + suffix);
+    }
+
+    private static Class<?> getClassOrNull(String classPath) {
         try {
-            return Class.forName(prefix + "." + suffix);
+            return Class.forName(classPath);
         } catch (ClassNotFoundException e) {
             return null;
         }
-
     }
 
     private static <T> T requireNonNullOrElse(T arg0, T arg1) {

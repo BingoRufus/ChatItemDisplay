@@ -2,6 +2,7 @@ package io.github.bingorufus.chatitemdisplay.displayables;
 
 import com.google.gson.JsonObject;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.Display;
 import io.github.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import io.github.bingorufus.chatitemdisplay.api.display.DisplayType;
 import io.github.bingorufus.chatitemdisplay.api.display.Displayable;
@@ -74,7 +75,11 @@ public class DisplayInventory extends Displayable {
 
             whole.addExtra(tc);
         }
-        UUID id = ChatItemDisplayAPI.getDisplayedManager().getDisplay(this).getId();
+        Display display = ChatItemDisplayAPI.getDisplayedManager().getDisplay(this);
+        if (display == null) {
+            throw new IllegalStateException("The inventory with a title of \"" + inventoryTitle + "\" was never registered");
+        }
+        UUID id = display.getId();
         whole.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewitem " + (id)));
 
         return whole;

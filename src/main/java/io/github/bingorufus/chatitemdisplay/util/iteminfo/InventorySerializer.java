@@ -3,6 +3,7 @@ package io.github.bingorufus.chatitemdisplay.util.iteminfo;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.github.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

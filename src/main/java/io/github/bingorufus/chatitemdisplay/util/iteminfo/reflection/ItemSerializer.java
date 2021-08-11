@@ -1,4 +1,4 @@
-package io.github.bingorufus.chatitemdisplay.util.iteminfo;
+package io.github.bingorufus.chatitemdisplay.util.iteminfo.reflection;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -12,13 +12,18 @@ import java.lang.reflect.Method;
 public class ItemSerializer {
 
     private static final Class<?> craftItemStack = ReflectionClassRetriever.getCraftBukkitClassOrThrow("inventory.CraftItemStack");
-    private static final Class<?> mojangsonParser = ReflectionClassRetriever.getNMSClassOrThrow("MojangsonParser");
-    private static final Class<?> nmsItemStack = ReflectionClassRetriever.getNMSClassOrThrow("ItemStack");
+    private static Class<?> mojangsonParser = ReflectionClassRetriever.getNMSClass("MojangsonParser");
+    private static Class<?> nmsItemStack = ReflectionClassRetriever.getNMSClass("ItemStack");
 
-
-    private ItemSerializer() {
-
+    static {
+        if (mojangsonParser == null) {
+            mojangsonParser = ReflectionClassRetriever.getNMSClassOrThrow("nbt.MojangsonParser");
+        }
+        if (nmsItemStack == null) {
+            nmsItemStack = ReflectionClassRetriever.getNMSClassOrThrow("world.item.ItemStack");
+        }
     }
+
 
     public static Object parseNbt(String nbt) {
         try {

@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
 
-public class DisplayInventoryType extends SerializedDisplayType<DisplayInventory> {
+public class DisplayInventoryType extends ConfigurationSerializedDisplayType<DisplayInventory> {
 
 
     @Override

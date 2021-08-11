@@ -2,6 +2,7 @@ package io.github.bingorufus.chatitemdisplay.util.iteminfo;
 
 import com.google.gson.JsonObject;
 import io.github.bingorufus.chatitemdisplay.ChatItemDisplay;
+import io.github.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemStackReflection;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;

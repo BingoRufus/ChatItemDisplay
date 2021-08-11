@@ -7,7 +7,7 @@ import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-public class DisplayItemType extends SerializedDisplayType<DisplayItem> {
+public class DisplayItemType extends ConfigurationSerializedDisplayType<DisplayItem> {
 
 
     @Override

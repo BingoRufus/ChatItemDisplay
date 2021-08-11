@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
 
-public class DisplayEnderChestType extends SerializedDisplayType<DisplayEnderChest> {
+public class DisplayEnderChestType extends ConfigurationSerializedDisplayType<DisplayEnderChest> {
 
     @Override
     public String getPermission() {

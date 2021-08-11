@@ -96,7 +96,7 @@ messages:
   #   When someone does /viewitem <player> and the <player> isn't displaying anything
   player-not-displaying-anything: "&cThat player isn't displaying anything"
   #   When someone does /viewitem <id> and the id does not exist
-  invalid-id: "&cThere is nothing displayed with that id"
+  invalid-id: "&cThis display id has expired"
   cooldown: "&cYou cannot do that right now, please wait %seconds% more seconds."
   feature-disabled: "&cThis feature has been disabled"
   map-notification: "&eDrop or click on the map to receive your item back"
