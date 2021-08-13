@@ -32,7 +32,10 @@ public class DisplayedManager {
         }, EventPriority.NORMAL, (listener, event) -> {
             InventoryCloseEvent ice = (InventoryCloseEvent) event;
             if (!chatItemDisplayInventories.contains(ice.getInventory())) return;
-            ice.getInventory().getViewers().stream().filter(he -> he.isValid() && !he.equals(ice.getPlayer())).forEach(HumanEntity::closeInventory);
+            List<HumanEntity> viewers = new LinkedList<>(ice.getViewers());
+            Bukkit.getScheduler().scheduleSyncDelayedTask(ChatItemDisplay.getInstance(), () -> {
+                viewers.forEach(HumanEntity::closeInventory);
+            }, 1);
             chatItemDisplayInventories.remove(((InventoryCloseEvent) event).getView().getTopInventory());
         }, ChatItemDisplay.getInstance());
 
