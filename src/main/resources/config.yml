@@ -2,24 +2,6 @@ disable-update-checking: false
 #   Automatically download updates
 auto-update: true
 
-#   These will determine when the objects are displayed, they are not case-sensitive
-triggers:
-  item:
-    - "[i]"
-    - "[item]"
-    - "[itemdisplay]"
-    - "[displayitem]"
-  inventory:
-    - "[inv]"
-    - "[inventory]"
-    - "[invdisplay]"
-    - "[displayinv]"
-  enderchest:
-    - "[ec]"
-    - "[enderchest]"
-    - "[displaychest]"
-    - "[displayec]"
-
 display-types:
 
   item:
@@ -126,6 +108,7 @@ strip-nick-colors-message: false #Removes the nick colors in the display message
 use-nicks-in-gui: true #Will also use any custom colors
 
 strip-nick-colors-gui: false #Removes the nick colors from the gui
+
 #   Send displayed items/inventories to bungee
 send-to-bungee: true
 
