@@ -22,9 +22,7 @@ public class LoggerListener implements Listener {
         if (e.isCancelled()) return;
         String msg = e.getFormattedMessage();
         if (!msg.contains(bell + "")) return;
-
-
-        Pattern pattern = Pattern.compile("\u0007cid(.*?)\u0007");
+        Pattern pattern = Pattern.compile("\u0007cid([{](.*?)[}])\u0007");
 
         Matcher matcher = pattern.matcher(msg);
 
@@ -36,11 +34,10 @@ public class LoggerListener implements Listener {
 
             Display dis = ChatItemDisplayAPI.getDisplayedManager().getDisplayed(UUID.fromString(jo.get("id").getAsString()));
 
-            msg = msg.replaceFirst(Pattern.quote(bell + "cid" + json + bell),
-                    dis.getDisplayable().getLoggerMessage());
+            msg = matcher.replaceFirst(dis.getDisplayable().getLoggerMessage());
             matcher = pattern.matcher(msg);
-
         }
+
         e.setMessage(new SimpleMessage(msg));
 
 
