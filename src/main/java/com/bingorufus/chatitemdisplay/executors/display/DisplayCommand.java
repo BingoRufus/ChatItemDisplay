@@ -82,7 +82,6 @@ public class DisplayCommand extends Command {
 
     public boolean isDisplayableTooLong(Displayable displayable) {
         byte[] bytes = displayable.serialize().toString().getBytes(StandardCharsets.UTF_8);
-        if (ChatItemConfig.BUNGEE.getCachedValue() && bytes.length >= 30000) return true; //
         return bytes.length >= 1097152;
     }
 
