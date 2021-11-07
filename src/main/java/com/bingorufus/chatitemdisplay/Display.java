@@ -6,8 +6,10 @@ import com.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.bingorufus.chatitemdisplay.displayables.DisplayingPlayer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import lombok.NonNull;
 
+import java.io.StringReader;
 import java.util.UUID;
 
 public class Display {
@@ -22,7 +24,9 @@ public class Display {
     }
 
     public static Display deserialize(String json) {
-        JsonObject jo = (JsonObject) new JsonParser().parse(json);
+        JsonReader reader = new JsonReader(new StringReader(json));
+        reader.setLenient(true);
+        JsonObject jo = (JsonObject) new JsonParser().parse(reader);
 
         UUID id = UUID.fromString(jo.get("id").getAsString());
         JsonObject displayableJSON = jo.getAsJsonObject("displayable");
