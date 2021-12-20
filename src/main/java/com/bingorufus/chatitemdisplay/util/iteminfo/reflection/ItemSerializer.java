@@ -9,6 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static com.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemStackReflection.getNBT;
+
 public class ItemSerializer {
 
     private static final Class<?> craftItemStack = ReflectionClassRetriever.getCraftBukkitClassOrThrow("inventory.CraftItemStack");
@@ -86,28 +88,6 @@ public class ItemSerializer {
 
     }
 
-    private static String getNBT(ItemStack item) {
 
-        try {
-            Object nmsItem = nmsItem(item);
-            if (nmsItem == null) {
-                throw new IllegalArgumentException(item.getType().name() + " could not be converted to NMS");
-            }
-            Method hasTag = nmsItem.getClass().getMethod("hasTag");
-
-            if ((boolean) hasTag.invoke(nmsItem)) {
-                Method getTag = nmsItem.getClass().getMethod("getTag");
-                Object nbtData = getTag.invoke(nmsItem);
-                Method asString = nbtData.getClass().getMethod("asString");
-                return (String) asString.invoke(nbtData);
-            }
-
-        } catch (IllegalArgumentException | NoSuchMethodException | SecurityException | IllegalAccessException
-                | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return "{}";
-
-    }
 
 }

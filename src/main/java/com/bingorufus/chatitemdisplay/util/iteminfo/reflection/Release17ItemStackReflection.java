@@ -3,22 +3,25 @@ package com.bingorufus.chatitemdisplay.util.iteminfo.reflection;
 import com.bingorufus.chatitemdisplay.util.ReflectionClassRetriever;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.chat.IChatMutableComponent;
-import net.minecraft.world.item.Item;
-import org.bukkit.Warning;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class Post17ItemStackReflection implements ReflectionInterface {
+@SuppressWarnings({})
+public class Release17ItemStackReflection implements ReflectionInterface {
     private static final Class<?> craftPotionUtil = ReflectionClassRetriever.getCraftBukkitClassOrThrow("potion.CraftPotionUtil");
     private static final Class<?> craftItemStack = ReflectionClassRetriever.getCraftBukkitClassOrThrow("inventory.CraftItemStack");
     private static final Class<?> nmsItemStack = ReflectionClassRetriever.getNMSClassOrThrow("world.item.ItemStack");
@@ -30,7 +33,6 @@ public class Post17ItemStackReflection implements ReflectionInterface {
     }
 
     @Override
-    @Warning(reason = "This has not been updated ")
     public boolean hasNbt(ItemStack item) {
         try {
             Object nmsItem = nmsItem(item);
@@ -50,15 +52,17 @@ public class Post17ItemStackReflection implements ReflectionInterface {
     @Override
     public String getNBT(ItemStack item) {
         try {
-            net.minecraft.world.item.ItemStack nmsItem = (net.minecraft.world.item.ItemStack) nmsItem(item);
-
-            Method getTag = Arrays.stream(nmsItem.getClass().getMethods()).filter(method -> method.getReturnType().equals(NBTTagCompound.class)).filter(method -> method.getParameterCount() == 0).findFirst().get();
-            NBTTagCompound tag = (NBTTagCompound) getTag.invoke(nmsItem);
-            if (tag == null) tag = new NBTTagCompound();
-
-            Method asString = Arrays.stream(tag.getClass().getMethods()).filter(method -> method.getReturnType().equals(String.class)).filter(method -> method.getParameterCount() == 0).filter(method -> !method.getName().equals("toString")).findFirst().orElse(tag.getClass().getMethod("toString"));
-
-            return (String) asString.invoke(tag);
+            Object nmsItem = nmsItem(item);
+            if (nmsItem == null) {
+                throw new IllegalArgumentException(item.getType().name() + " could not be turned into a net.minecraft item");
+            }
+            Method hasTag = nmsItem.getClass().getMethod("hasTag");
+            if ((boolean) hasTag.invoke(nmsItem)) {
+                Method getTag = nmsItem.getClass().getMethod("getTag");
+                Object nbtData = getTag.invoke(nmsItem);
+                Method asString = nbtData.getClass().getMethod("asString");
+                return (String) asString.invoke(nbtData);
+            }
 
         } catch (IllegalArgumentException | NoSuchMethodException | SecurityException | IllegalAccessException
                 | InvocationTargetException e) {
@@ -69,7 +73,36 @@ public class Post17ItemStackReflection implements ReflectionInterface {
 
     @Override
     public String translateItemStack(ItemStack holding) {
-        return translateItemStackComponent(holding).toString();
+        try {
+            Object item = nmsItem(holding);
+            if (item == null) {
+                throw new IllegalArgumentException(holding.getType().name() + " could not be queried!");
+            }
+            Method getItem = item.getClass().getMethod("getItem");
+            getItem.setAccessible(true);
+            Object newItem = getItem.invoke(item);
+            Method getName = newItem.getClass().getMethod("getName");
+            String key = (String) getName.invoke(newItem);
+            if (holding.getItemMeta() instanceof PotionMeta) {
+                PotionMeta pm = (PotionMeta) holding.getItemMeta();
+
+                key += ".effect.";
+                Method fromBukkit = craftPotionUtil.getMethod("fromBukkit", PotionData.class);
+                fromBukkit.setAccessible(true);
+                String potionkey = (String) fromBukkit.invoke(craftPotionUtil,
+                        new PotionData(pm.getBasePotionData().getType()));
+                potionkey = potionkey.replaceAll("minecraft:", "");
+                key += potionkey;
+
+            }
+
+            return key;
+
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return "";
 
     }
 
@@ -93,17 +126,29 @@ public class Post17ItemStackReflection implements ReflectionInterface {
         try {
 
             net.minecraft.world.item.ItemStack nmsItem = (net.minecraft.world.item.ItemStack) nmsItem(item);
+            Method getTag = nmsItem.getClass().getDeclaredMethod("getOrCreateTag");
+            NBTTagCompound tag = (NBTTagCompound) getTag.invoke(nmsItem);
+            Method hasKey = tag.getClass().getMethod("haskey", String.class);
+            Method setTag = tag.getClass().getMethod("set", String.class, NBTBase.class);
 
-            NBTTagCompound tag = nmsItem.t();
-            if (!tag.b("display")) tag.a("display", new NBTTagCompound());
-            NBTTagCompound displayTag = (NBTTagCompound) tag.c("display");
+            if (!((boolean) hasKey.invoke(tag, "display"))) { // Create display tag if it does not exist
+                setTag.invoke(tag, "display", new NBTTagCompound());
+            }
+
+            Method getCompound = tag.getClass().getMethod("getCompound", String.class);
+            NBTTagCompound displayTag = (NBTTagCompound) getCompound.invoke(tag, "display");
+
             NBTTagList loreList = new NBTTagList();
             for (BaseComponent loreLine : lore) {
                 loreList.add(NBTTagString.a(ComponentSerializer.toString(loreLine)));
             }
-            displayTag.a("Lore", loreList);
-            tag.a("display", displayTag);
-            nmsItem.c(tag);
+            setTag.invoke(displayTag, "Lore", loreList);
+            setTag.invoke(tag, "display", displayTag);
+
+
+            Method itemSetTag = nmsItem.getClass().getMethod("setTag", NBTTagCompound.class);
+            itemSetTag.invoke(nmsItem, tag);
+
             return fromNMS(nmsItem);
         } catch (Exception e) {
             e.printStackTrace();
@@ -114,21 +159,8 @@ public class Post17ItemStackReflection implements ReflectionInterface {
 
     @Override
     public TextComponent translateItemStackComponent(ItemStack holding) {
-        try {
-            net.minecraft.world.item.ItemStack nmsItem = (net.minecraft.world.item.ItemStack) nmsItem(holding);
-
-            Method getItem = Arrays.stream(nmsItem.getClass().getMethods()).filter(method -> method.getReturnType().equals(Item.class)).filter(method -> method.getParameterCount() == 0).findFirst().get();
-            Item newItem = (Item) getItem.invoke(nmsItem);
-            Method getName = Arrays.stream(newItem.getClass().getMethods()).filter(method -> method.getParameterCount() == 1).filter(method -> method.getReturnType().equals(IChatBaseComponent.class)).filter(method -> method.getParameterTypes()[0].equals(net.minecraft.world.item.ItemStack.class)).findFirst().get();
-            IChatBaseComponent chatComp = (IChatBaseComponent) getName.invoke(newItem, nmsItem);
-
-            BaseComponent[] bc = ComponentSerializer.parse(IChatBaseComponent.ChatSerializer.a(chatComp));
-            return new TextComponent(bc);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return new TextComponent();
+        return new TextComponent(new TranslatableComponent(translateItemStack(holding)));
+        //FIXME
     }
 
     private Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,

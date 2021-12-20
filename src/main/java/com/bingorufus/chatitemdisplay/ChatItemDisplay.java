@@ -26,7 +26,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.Range;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.InvalidDescriptionException;
@@ -125,19 +124,28 @@ public class ChatItemDisplay extends JavaPlugin {
 
     private void registerMetrics() {
         Metrics metrics = new Metrics(this, 7229);
-        HashMap<String, Range<Integer>> playerCountRanges = new HashMap<>();
-        playerCountRanges.put("≤ 5", Range.between(0, 5));
-        playerCountRanges.put("6-10", Range.between(6, 10));
-        playerCountRanges.put("11-25", Range.between(11, 25));
-        playerCountRanges.put("26-50", Range.between(26, 50));
-        playerCountRanges.put("51-100", Range.between(51, 100));
-
 
         metrics.addCustomChart(new Metrics.DrilldownPie("player_count", () -> {
             HashMap<String, Map<String, Integer>> mainMap = new HashMap<>();
-            HashMap<String, Integer> playerCount = new HashMap<>();
-            playerCount.put(Bukkit.getOnlinePlayers().size() + "", 1);
-            mainMap.put(playerCountRanges.keySet().stream().filter(title -> playerCountRanges.get(title).contains(Bukkit.getOnlinePlayers().size())).findFirst().orElse("> 100"), playerCount);
+            HashMap<String, Integer> sizeValue = new HashMap<>();
+            int playerCount = Bukkit.getOnlinePlayers().size();
+            sizeValue.put(playerCount + "", 1);
+
+            String range;
+            if (playerCount < 6) {
+                range = "≤ 5";
+            } else if (playerCount < 11) {
+                range = "6-10";
+            } else if (playerCount < 26) {
+                range = "11-25";
+            } else if (playerCount < 51) {
+                range = "26-50";
+            } else if (playerCount < 101) {
+                range = "51-100";
+            } else {
+                range = "> 100";
+            }
+            mainMap.put(range, sizeValue);
             return mainMap;
         }));
     }

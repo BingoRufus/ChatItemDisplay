@@ -3,6 +3,7 @@ package com.bingorufus.chatitemdisplay.util.iteminfo.reflection;
 import com.bingorufus.chatitemdisplay.util.ReflectionClassRetriever;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -190,5 +191,11 @@ public class Pre17ItemStackReflection implements ReflectionInterface {
             e.printStackTrace();
         }
         return item;
+    }
+
+    @Override
+    public TextComponent translateItemStackComponent(ItemStack holding) {
+        return new TextComponent(new TranslatableComponent(translateItemStack(holding)));
+        //FIXME
     }
 }

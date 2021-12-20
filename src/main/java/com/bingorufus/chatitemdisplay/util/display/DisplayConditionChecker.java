@@ -89,7 +89,7 @@ public class DisplayConditionChecker {
      */
     private static boolean isDisplayTooLong(Displayable display) {
         byte[] bytes = display.serialize().toString().getBytes(StandardCharsets.UTF_8);
-        return bytes.length >= 240000;// 11 bit max integer
+        return bytes.length >= 240000;
     }
 
     /**

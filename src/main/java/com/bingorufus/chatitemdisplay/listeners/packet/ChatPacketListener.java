@@ -73,7 +73,7 @@ public class ChatPacketListener extends PacketAdapter {
 
             for (int i = 0; i < originalComps[0].getExtra().size(); i++) {
                 List<BaseComponent> extra = originalComps[0].getExtra();
-                TextComponent bc = (TextComponent) extra.get(i);
+                BaseComponent bc = extra.get(i);
 
                 if (!bc.toLegacyText().contains("\u0007cid")) {
                     editedExtra.add(bc);

@@ -13,8 +13,6 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.Objects;
 
 public class ItemStackStuff {
@@ -61,7 +59,8 @@ public class ItemStackStuff {
             }
         }
 
-        TranslatableComponent tr = new TranslatableComponent(ItemStackReflection.translateItemStack(item));
+        TextComponent tr = ItemStackReflection.translateItemStackComponent(item);
+
         tr.copyFormatting(legacy, FormatRetention.FORMATTING, false);
 
         if (forceColor) {
@@ -105,19 +104,6 @@ public class ItemStackStuff {
 
     }
 
-    public static BufferedImage getImage(ItemStack item, int... size) {
-        return null;
-
-
-    }
-
-    private static BufferedImage resizeImage(BufferedImage bi, int[] size) {
-        BufferedImage resizeImage = new BufferedImage(size[0], size[1], BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2D = resizeImage.createGraphics();
-        g2D.drawImage(bi, 0, 0, size[0], size[1], null);
-        g2D.dispose();
-        return resizeImage;
-    }
 
     public static String getLangName(ItemStack item) {
         if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) return item.getItemMeta().getDisplayName();
