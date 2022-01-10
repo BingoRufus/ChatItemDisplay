@@ -6,6 +6,7 @@ import com.bingorufus.chatitemdisplay.api.display.DisplayType;
 import com.bingorufus.chatitemdisplay.api.display.Displayable;
 import com.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import com.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff;
+import com.bingorufus.chatitemdisplay.util.iteminfo.item.NMSItemStack;
 import com.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemSerializer;
 import com.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemStackReflection;
 import com.bingorufus.chatitemdisplay.util.string.StringFormatter;
@@ -174,7 +175,7 @@ public class DisplayItem extends Displayable {
 
             hover.setHoverEvent(
                     new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(item.getType().getKey().toString(),
-                            item.getAmount(), ItemTag.ofNbt(ItemStackReflection.getNBT(item)))));
+                            item.getAmount(), ItemTag.ofNbt(NMSItemStack.fromBukkitItem(item).getTag().toString()))));
         }
         UUID id = ChatItemDisplayAPI.getDisplayedManager().getDisplay(this).getId();
         hover.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
