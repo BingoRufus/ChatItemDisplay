@@ -16,7 +16,6 @@ public class ItemStackReflection {
             } else {
                 REFLECTION_INTERFACE = new Release17ItemStackReflection();
             }
-
         } else {
             REFLECTION_INTERFACE = new Post17ItemStackReflection();
         }

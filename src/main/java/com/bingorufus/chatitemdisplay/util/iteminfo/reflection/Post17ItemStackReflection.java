@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class Post17ItemStackReflection implements ReflectionInterface {
-    private static final Class<?> craftPotionUtil = ReflectionClassRetriever.getCraftBukkitClassOrThrow("potion.CraftPotionUtil");
     private static final Class<?> craftItemStack = ReflectionClassRetriever.getCraftBukkitClassOrThrow("inventory.CraftItemStack");
     private static final Class<?> nmsItemStack = ReflectionClassRetriever.getNMSClassOrThrow("world.item.ItemStack");
     private static final Class<?> iChatBase = ReflectionClassRetriever.getNMSClassOrThrow("network.chat.IChatBaseComponent");
@@ -33,13 +32,12 @@ public class Post17ItemStackReflection implements ReflectionInterface {
     @Warning(reason = "This has not been updated ")
     public boolean hasNbt(ItemStack item) {
         try {
-            Object nmsItem = nmsItem(item);
+            net.minecraft.world.item.ItemStack nmsItem = (net.minecraft.world.item.ItemStack) nmsItem(item);
             if (nmsItem == null) {
                 throw new IllegalArgumentException(item.getType().name() + " could not be turned into a net.minecraft item");
             }
-            Method hasTag = nmsItem.getClass().getMethod("hasTag");
 
-            return (boolean) hasTag.invoke(nmsItem);
+            return nmsItem.r();
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
                 | SecurityException e) {
             return false;
@@ -52,13 +50,10 @@ public class Post17ItemStackReflection implements ReflectionInterface {
         try {
             net.minecraft.world.item.ItemStack nmsItem = (net.minecraft.world.item.ItemStack) nmsItem(item);
 
-            Method getTag = Arrays.stream(nmsItem.getClass().getMethods()).filter(method -> method.getReturnType().equals(NBTTagCompound.class)).filter(method -> method.getParameterCount() == 0).findFirst().get();
-            NBTTagCompound tag = (NBTTagCompound) getTag.invoke(nmsItem);
-            if (tag == null) tag = new NBTTagCompound();
+            NBTTagCompound tag = nmsItem.t();
 
-            Method asString = Arrays.stream(tag.getClass().getMethods()).filter(method -> method.getReturnType().equals(String.class)).filter(method -> method.getParameterCount() == 0).filter(method -> !method.getName().equals("toString")).findFirst().orElse(tag.getClass().getMethod("toString"));
 
-            return (String) asString.invoke(tag);
+            return tag.toString();
 
         } catch (IllegalArgumentException | NoSuchMethodException | SecurityException | IllegalAccessException
                 | InvocationTargetException e) {
@@ -101,6 +96,9 @@ public class Post17ItemStackReflection implements ReflectionInterface {
             for (BaseComponent loreLine : lore) {
                 loreList.add(NBTTagString.a(ComponentSerializer.toString(loreLine)));
             }
+            if (displayTag == null) {
+                throw new NullPointerException("No available display tag");
+            }
             displayTag.a("Lore", loreList);
             tag.a("display", displayTag);
             nmsItem.c(tag);
@@ -117,9 +115,9 @@ public class Post17ItemStackReflection implements ReflectionInterface {
         try {
             net.minecraft.world.item.ItemStack nmsItem = (net.minecraft.world.item.ItemStack) nmsItem(holding);
 
-            Method getItem = Arrays.stream(nmsItem.getClass().getMethods()).filter(method -> method.getReturnType().equals(Item.class)).filter(method -> method.getParameterCount() == 0).findFirst().get();
+            Method getItem = Arrays.stream(nmsItem.getClass().getMethods()).filter(method -> method.getReturnType().equals(Item.class)).filter(method -> method.getParameterCount() == 0).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot obtain an nms item object"));
             Item newItem = (Item) getItem.invoke(nmsItem);
-            Method getName = Arrays.stream(newItem.getClass().getMethods()).filter(method -> method.getParameterCount() == 1).filter(method -> method.getReturnType().equals(IChatBaseComponent.class)).filter(method -> method.getParameterTypes()[0].equals(net.minecraft.world.item.ItemStack.class)).findFirst().get();
+            Method getName = Arrays.stream(newItem.getClass().getMethods()).filter(method -> method.getParameterCount() == 1).filter(method -> method.getReturnType().equals(IChatBaseComponent.class)).filter(method -> method.getParameterTypes()[0].equals(net.minecraft.world.item.ItemStack.class)).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot find a method to obtain the item name"));
             IChatBaseComponent chatComp = (IChatBaseComponent) getName.invoke(newItem, nmsItem);
 
             BaseComponent[] bc = ComponentSerializer.parse(IChatBaseComponent.ChatSerializer.a(chatComp));

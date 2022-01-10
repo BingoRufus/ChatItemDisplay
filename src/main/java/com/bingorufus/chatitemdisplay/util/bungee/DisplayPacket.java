@@ -4,6 +4,7 @@ import com.bingorufus.chatitemdisplay.Display;
 import com.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import com.bingorufus.chatitemdisplay.api.display.Displayable;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -15,18 +16,19 @@ import java.util.UUID;
 
 public class DisplayPacket {
     @Getter
-    private byte[] data;
+    private final byte[] data;
     @Getter
-    private UUID UUID;
+    private final UUID UUID;
 
     public DisplayPacket(UUID id, byte[] data) {
         this.UUID = id;
         this.data = data;
     }
 
-    public static DisplayPacket[] createPackets(Displayable displayable, boolean isCommand) {
+    public static DisplayPacket[] createPackets(@NonNull Displayable displayable, boolean isCommand) {
         List<ByteArrayOutputStream> packetedData = new ArrayList<>();
         Display dis = ChatItemDisplayAPI.getDisplayedManager().getDisplay(displayable);
+        if (dis == null) return null;
         UUID uuid = dis.getId();
         try {
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -57,8 +59,8 @@ public class DisplayPacket {
             packetDataStream.writeBoolean(isCommand);
             packetedData.add(outputStream);
 
-        } catch (IOException ignored) {
-            ignored.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         DisplayPacket[] packets = new DisplayPacket[packetedData.size()];
         for (int i = 0; i < packets.length; i++) {

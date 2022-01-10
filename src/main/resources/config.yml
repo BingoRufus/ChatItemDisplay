@@ -1,9 +1,11 @@
+# Do NOT change this value as it could lead to problems with your config.
+config-version: 1
+
 disable-update-checking: false
 #   Automatically download updates
 auto-update: true
 
 display-types:
-
   item:
     #   A server restart is required to change commands and aliases
     command: "displayitem"
