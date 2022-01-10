@@ -1,6 +1,5 @@
 package com.bingorufus.chatitemdisplay.util.iteminfo.reflection;
 
-import com.bingorufus.chatitemdisplay.util.ReflectionClassRetriever;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
@@ -15,16 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.bingorufus.chatitemdisplay.util.iteminfo.reflection.ReflectionClasses.*;
+
 public class Pre17ItemStackReflection implements ReflectionInterface {
-    private static final Class<?> craftPotionUtil = ReflectionClassRetriever.getCraftBukkitClassOrThrow("potion.CraftPotionUtil");
-    private static final Class<?> craftItemStack = ReflectionClassRetriever.getCraftBukkitClassOrThrow("inventory.CraftItemStack");
-    private static final Class<?> chatSerializer = ReflectionClassRetriever.getNMSClassOrThrow("IChatBaseComponent$ChatSerializer");
-    private static final Class<?> iChatBase = ReflectionClassRetriever.getNMSClassOrThrow("IChatBaseComponent");
-    private static final Class<?> nbtTagCompound = ReflectionClassRetriever.getNMSClassOrThrow("NBTTagCompound");
-    private static final Class<?> nbtTagList = ReflectionClassRetriever.getNMSClassOrThrow("NBTTagList");
-    private static final Class<?> nbtTagString = ReflectionClassRetriever.getNMSClassOrThrow("NBTTagString");
-    private static final Class<?> nbtBase = ReflectionClassRetriever.getNMSClassOrThrow("NBTBase");
-    private static final Class<?> nmsItemStack = ReflectionClassRetriever.getNMSClassOrThrow("ItemStack");
 
 
     private Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,
@@ -44,11 +36,11 @@ public class Pre17ItemStackReflection implements ReflectionInterface {
     public BaseComponent getOldHover(ItemStack item) {
         try {
             Object nmsItem = nmsItem(item);
-            Method getChatComponent = Arrays.stream(nmsItem.getClass().getMethods()).filter(method -> method.getReturnType().equals(iChatBase)).filter(method -> method.getParameterCount() == 0).filter(method -> !method.getName().equals("getName")).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot find method to convert item to basecomponent"));
+            Method getChatComponent = Arrays.stream(nmsItem.getClass().getMethods()).filter(method -> method.getReturnType().equals(iChatBaseComponent)).filter(method -> method.getParameterCount() == 0).filter(method -> !method.getName().equals("getName")).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot find method to convert item to basecomponent"));
             Object chatComponent = getChatComponent.invoke(nmsItem);
 
-            Method serialze = Arrays.stream(chatSerializer.getMethods()).filter(method -> method.getParameterCount() == 1).filter(method -> method.getReturnType().equals(String.class)).filter(method -> method.getParameterTypes()[0].equals(iChatBase)).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot find method to serialize basecomponent"));
-            String s = (String) serialze.invoke(chatSerializer, iChatBase.cast(chatComponent));
+            Method serialze = Arrays.stream(chatSerializer.getMethods()).filter(method -> method.getParameterCount() == 1).filter(method -> method.getReturnType().equals(String.class)).filter(method -> method.getParameterTypes()[0].equals(iChatBaseComponent)).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot find method to serialize basecomponent"));
+            String s = (String) serialze.invoke(chatSerializer, iChatBaseComponent.cast(chatComponent));
             return ComponentSerializer.parse(s)[0];
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
                 | SecurityException ignored) {
@@ -144,7 +136,7 @@ public class Pre17ItemStackReflection implements ReflectionInterface {
     public ItemStack setItemName(final ItemStack item, final BaseComponent name) {
         try {
             Object nms = nmsItem(item);
-            Optional<Method> setNameOptional = Arrays.stream(nms.getClass().getDeclaredMethods()).filter(method -> method.getReturnType().equals(nms.getClass())).filter(method -> method.getParameterCount() == 1).filter(method -> method.getParameterTypes()[0].equals(iChatBase)).findFirst();
+            Optional<Method> setNameOptional = Arrays.stream(nms.getClass().getDeclaredMethods()).filter(method -> method.getReturnType().equals(nms.getClass())).filter(method -> method.getParameterCount() == 1).filter(method -> method.getParameterTypes()[0].equals(iChatBaseComponent)).findFirst();
             if (!setNameOptional.isPresent()) return item;
             Method setName = setNameOptional.get();
             setName.invoke(nms, toChatComponent(name));
@@ -163,14 +155,14 @@ public class Pre17ItemStackReflection implements ReflectionInterface {
             Method setTag = nmsItemStack.getDeclaredMethod("setTag", nbtTagCompound);
 
             if (!hasNbt(item)) {
-                setTag.invoke(nms, nbtTagCompound.newInstance());
+                setTag.invoke(nms, nbtTagCompound.getConstructor().newInstance());
             }
             Method getTag = nmsItemStack.getMethod("getTag");
             Object mainTag = getTag.invoke(nms);
             Method nbtSet = nbtTagCompound.getDeclaredMethod("set", String.class, nbtBase);
             Method nbtGetSubTag = nbtTagCompound.getDeclaredMethod("getCompound", String.class);
             if (nbtGetSubTag.invoke(mainTag, "display") == null) {
-                nbtSet.invoke(mainTag, "display", nbtTagCompound.newInstance());
+                nbtSet.invoke(mainTag, "display", nbtTagCompound.getConstructor().newInstance());
             }
             Object displayTag = nbtGetSubTag.invoke(mainTag, "display");
             Object loreList = nbtTagList.getDeclaredConstructor().newInstance();
