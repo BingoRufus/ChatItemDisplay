@@ -128,7 +128,7 @@ public class Release17ItemStackReflection implements ReflectionInterface {
             net.minecraft.world.item.ItemStack nmsItem = (net.minecraft.world.item.ItemStack) nmsItem(item);
             Method getTag = nmsItem.getClass().getDeclaredMethod("getOrCreateTag");
             NBTTagCompound tag = (NBTTagCompound) getTag.invoke(nmsItem);
-            Method hasKey = tag.getClass().getMethod("haskey", String.class);
+            Method hasKey = tag.getClass().getMethod("hasKey", String.class);
             Method setTag = tag.getClass().getMethod("set", String.class, NBTBase.class);
 
             if (!((boolean) hasKey.invoke(tag, "display"))) { // Create display tag if it does not exist
@@ -160,7 +160,6 @@ public class Release17ItemStackReflection implements ReflectionInterface {
     @Override
     public TextComponent translateItemStackComponent(ItemStack holding) {
         return new TextComponent(new TranslatableComponent(translateItemStack(holding)));
-        //FIXME
     }
 
     private Object nmsItem(ItemStack item) throws IllegalAccessException, IllegalArgumentException,

@@ -173,7 +173,7 @@ public class Pre17ItemStackReflection implements ReflectionInterface {
                 nbtSet.invoke(mainTag, "display", nbtTagCompound.newInstance());
             }
             Object displayTag = nbtGetSubTag.invoke(mainTag, "display");
-            Object loreList = nbtTagList.newInstance();
+            Object loreList = nbtTagList.getDeclaredConstructor().newInstance();
             Optional<Method> createStringOptional = Arrays.stream(nbtTagString.getDeclaredMethods()).filter(method -> method.getReturnType().equals(nbtTagString)).filter(method -> method.getParameterCount() == 1).filter(method -> method.getParameterTypes()[0].equals(String.class)).findFirst();
             if (!createStringOptional.isPresent()) return item;
             Method createNBTString = createStringOptional.get();
@@ -196,6 +196,5 @@ public class Pre17ItemStackReflection implements ReflectionInterface {
     @Override
     public TextComponent translateItemStackComponent(ItemStack holding) {
         return new TextComponent(new TranslatableComponent(translateItemStack(holding)));
-        //FIXME
     }
 }
