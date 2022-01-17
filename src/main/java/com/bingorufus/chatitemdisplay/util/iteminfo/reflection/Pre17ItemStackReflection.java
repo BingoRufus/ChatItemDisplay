@@ -2,7 +2,8 @@ package com.bingorufus.chatitemdisplay.util.iteminfo.reflection;
 
 import com.bingorufus.chatitemdisplay.util.iteminfo.item.NMSChatTag;
 import com.bingorufus.chatitemdisplay.util.iteminfo.item.NMSItemStack;
-import com.bingorufus.chatitemdisplay.util.iteminfo.item.NMSNBTTag;
+import com.comphenix.protocol.wrappers.nbt.NbtType;
+import com.comphenix.protocol.wrappers.nbt.NbtWrapper;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
@@ -81,7 +82,9 @@ public class Pre17ItemStackReflection implements ReflectionInterface {
     public ItemStack setLore(final ItemStack item, final BaseComponent... lore) {
         try {
             NMSItemStack nmsItem = NMSItemStack.fromBukkitItem(item);
-            NMSNBTTag nbtTag = nmsItem.getTag();
+            NbtWrapper<?> nbtTag = nmsItem.getTag();
+            if (nbtTag.getType() != NbtType.TAG_COMPOUND)
+                nbtTag.getType().equals(NbtType.TAG_COMPOUND)
 
             Method nbtSet = nbtTagCompound.getDeclaredMethod("set", String.class, nbtBase);
             Method nbtGetSubTag = nbtTagCompound.getDeclaredMethod("getCompound", String.class);

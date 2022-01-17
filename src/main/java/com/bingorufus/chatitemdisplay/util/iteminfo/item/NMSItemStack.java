@@ -1,83 +1,70 @@
 package com.bingorufus.chatitemdisplay.util.iteminfo.item;
 
-import net.minecraft.world.item.Item;
+import com.comphenix.protocol.utility.MinecraftReflection;
+import com.comphenix.protocol.wrappers.ComponentConverter;
+import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import com.comphenix.protocol.wrappers.nbt.NbtCompound;
+import com.comphenix.protocol.wrappers.nbt.NbtFactory;
+import com.comphenix.protocol.wrappers.nbt.NbtList;
+import com.comphenix.protocol.wrappers.nbt.NbtWrapper;
+import lombok.SneakyThrows;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Comparator;
 
 import static com.bingorufus.chatitemdisplay.util.iteminfo.reflection.ReflectionClasses.*;
 
 public class NMSItemStack {
-    private static Method asNMSCopy;
     private static Method setName;
     private static Method getName;
     private static Method getItem;
-    private static Method fromNMS;
-    private static Method getTag;
-    private static Method setTag;
 
     static {
         try {
-            asNMSCopy = craftItemStack.getMethod("asNMSCopy", ItemStack.class);
             setName = Arrays.stream(nmsItemStack.getDeclaredMethods()).filter(method -> method.getReturnType().equals(nmsItemStack)).filter(method -> method.getParameterCount() == 1).filter(method -> method.getParameterTypes()[0].equals(iChatBaseComponent)).findFirst().orElseThrow(() -> new NoSuchMethodException("Could not obtain the setName method"));
             getName = Arrays.stream(nmsItemWorld.getMethods()).filter(method -> method.getParameterCount() == 1).filter(method -> method.getReturnType().equals(iChatBaseComponent)).filter(method -> method.getParameterTypes()[0].equals(nmsItemStack)).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot find a method to obtain the item name"));
-            getItem = Arrays.stream(nmsItemStack.getMethods()).filter(method -> method.getReturnType().equals(Item.class)).filter(method -> method.getParameterCount() == 0).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot obtain an nms item object"));
-            fromNMS = craftItemStack.getMethod("asBukkitCopy", nmsItemStack);
-            getTag = Arrays.stream(nmsItemStack.getMethods()).filter(method -> method.getParameterCount() == 0).filter(method -> method.getReturnType().equals(nbtTagCompound)).max(Comparator.comparing(Method::getName)).orElseThrow(() -> new NoSuchMethodException("Cannot find a method to get ItemStack nbt"));
-            setTag = Arrays.stream(nmsItemStack.getMethods()).filter(method -> method.getParameterCount() == 1).filter(method -> method.getParameterTypes()[0].equals(nbtTagCompound)).filter(method -> method.getReturnType().equals(Void.TYPE)).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot find a method to set ItemStack nbt"));
+            getItem = Arrays.stream(nmsItemStack.getMethods()).filter(method -> method.getReturnType().equals(MinecraftReflection.getItemClass())).filter(method -> method.getParameterCount() == 0).findFirst().orElseThrow(() -> new NoSuchMethodException("Cannot obtain an nms item object"));
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
 
+    protected ItemStack item;
 
-    protected Object item;
 
-
-    private NMSItemStack(Object nmsItem) {
-        this.item = nmsItem;
+    private NMSItemStack(ItemStack bukkitItem) {
+        this.item = bukkitItem;
     }
 
     public static NMSItemStack fromNMSItem(Object nmsItem) {
-        return new NMSItemStack(nmsItem);
+        return new NMSItemStack(MinecraftReflection.getBukkitItemStack(nmsItem));
     }
 
     public static NMSItemStack fromBukkitItem(ItemStack itemStack) {
-        return new NMSItemStack(toNmsItem(itemStack));
+        return new NMSItemStack(itemStack);
     }
 
-    private static @Nullable Object toNmsItem(ItemStack item) {
-        try {
-            return asNMSCopy.invoke(craftItemStack, item);
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-            return null;
+
+    @SneakyThrows(InvocationTargetException.class)
+    public NbtCompound getTag() {
+        NbtWrapper<?> nbt = NbtFactory.fromItemTag(item);
+        if (nbt instanceof NbtCompound) {
+            return (NbtCompound) nbt;
+        } else {
+            throw new InvocationTargetException(new Throwable(), String.format("Could not get the tag as an nbtCompound, received %s instead", nbt.getClass().getSimpleName()));
         }
+
     }
 
-    public NMSNBTTag getTag() {
-        try {
-            return new NMSNBTTag(getTag.invoke(item));
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public void setTag(NMSNBTTag tag) {
-        try {
-            setTag.invoke(item, tag.getNbtTag());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
+    public void setTag(NbtCompound tag) {
+        NbtFactory.setItemTag(item, tag);
     }
 
     public boolean hasNBT() {
-        return getTag().getNbtTag() == null;
+        return getTag().getHandle() == null;
     }
 
     public NMSChatTag getItemName() {
@@ -90,33 +77,50 @@ public class NMSItemStack {
     }
 
     public void setItemName(NMSChatTag name) {
+        Object nmsItem = MinecraftReflection.getMinecraftItemStack(item);
         try {
-            item = setName.invoke(item, name.getNmsTag());
+            nmsItem = setName.invoke(nmsItem, name.getNmsTag());
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
+        item = MinecraftReflection.getBukkitItemStack(nmsItem);
     }
 
     public Object getAsItem() {
         try {
-            return getItem.invoke(item);
+            return getItem.invoke(MinecraftReflection.getMinecraftItemStack(item));
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public ItemStack convertToBukkitItemStack() {
-        try {
-            return (ItemStack) fromNMS.invoke(craftItemStack, item);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public Object getNMSItem() {
+    public ItemStack getBukkitItem() {
         return item;
+    }
+
+    public void setLore(NbtList<?> lore) {
+        NbtCompound tag = getTag();
+        NbtCompound displayTag = tag.getCompound("display");
+        displayTag.put("Lore", lore);
+        //TODO: Remove
+        System.out.println(displayTag.getType());
+        tag.put("display", displayTag);
+        setTag(tag);
+    }
+
+    public void setLore(BaseComponent[] components) {
+        NbtList<?> list = NbtFactory.ofList("Lore");
+        //Name: "\"text\"
+        // Value: whatever the text says
+        WrappedChatComponent wc = ComponentConverter.fromBaseComponent(components);
+        NbtCompound c = NbtFactory.fromNMSCompound(wc.getHandle());
+        Object[] chatComponents = new Object[components.length];
+        for (int i = 0; i < components.length; i++) {
+            chatComponents[i] = ComponentConverter.fromBaseComponent(components[i]).getHandle();
+        }
+        setLore(NbtFactory.ofList("Lore", chatComponents));
+
     }
 
 

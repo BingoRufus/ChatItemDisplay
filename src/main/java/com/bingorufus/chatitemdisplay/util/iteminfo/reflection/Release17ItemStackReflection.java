@@ -1,6 +1,8 @@
 package com.bingorufus.chatitemdisplay.util.iteminfo.reflection;
 
 import com.bingorufus.chatitemdisplay.util.ReflectionClassRetriever;
+import com.bingorufus.chatitemdisplay.util.iteminfo.item.NMSItemStack;
+import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
@@ -124,10 +126,13 @@ public class Release17ItemStackReflection implements ReflectionInterface {
     @Override
     public ItemStack setLore(ItemStack item, BaseComponent... lore) {
         try {
+            NMSItemStack nmsItem = NMSItemStack.fromBukkitItem(item);
+            NbtCompound tag = nmsItem.getTag();
 
             net.minecraft.world.item.ItemStack nmsItem = (net.minecraft.world.item.ItemStack) nmsItem(item);
             Method getTag = nmsItem.getClass().getDeclaredMethod("getOrCreateTag");
             NBTTagCompound tag = (NBTTagCompound) getTag.invoke(nmsItem);
+
             Method hasKey = tag.getClass().getMethod("hasKey", String.class);
             Method setTag = tag.getClass().getMethod("set", String.class, NBTBase.class);
 
