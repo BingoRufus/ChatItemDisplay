@@ -3,8 +3,9 @@ package com.bingorufus.chatitemdisplay.util.iteminfo;
 import com.bingorufus.chatitemdisplay.ChatItemDisplay;
 import com.bingorufus.chatitemdisplay.api.ChatItemDisplayAPI;
 import com.bingorufus.chatitemdisplay.displayables.DisplayInventoryType;
-import com.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemStackReflection;
+import com.bingorufus.chatitemdisplay.util.iteminfo.item.NMSItemStack;
 import com.bingorufus.chatitemdisplay.util.string.StringFormatter;
+import com.comphenix.protocol.wrappers.ComponentConverter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -62,9 +63,10 @@ public class PlayerInventoryReplicator {
         xp.addWith(p.getLevel() + "");
         xp.setColor(ChatColor.GREEN);
         xp.setItalic(false);
-        playerStats = ItemStackReflection.setLore(playerStats, health, food, xp);
-        playerStats = ItemStackReflection.setItemName(playerStats, statName);
-        inv.setItem(5, playerStats);
+        NMSItemStack playerStatsNMSItem = new NMSItemStack(playerStats);
+        playerStatsNMSItem.setLore(health, food, xp);
+        playerStatsNMSItem.setItemName(ComponentConverter.fromBaseComponent(statName));
+        inv.setItem(5, playerStatsNMSItem.getBukkitItem());
 
 
         ItemStack potionEffects = new ItemStack(Material.POTION);
@@ -78,16 +80,18 @@ public class PlayerInventoryReplicator {
         potionName.setBold(true);
         potionName.setItalic(false);
         potionName.setColor(ChatColor.BLUE);
+        NMSItemStack potionEffectsNMSItem = new NMSItemStack(potionEffects);
 
         if (p.getFireTicks() > 0) {
             BaseComponent burning = new TranslatableComponent("subtitles.entity.generic.burn");
             burning.setBold(false);
             burning.setItalic(false);
             burning.setColor(ChatColor.GOLD);
-            potionEffects = ItemStackReflection.setLore(potionEffects, burning);
+            potionEffectsNMSItem.setLore(burning);
+
         }
-        potionEffects = ItemStackReflection.setItemName(potionEffects, potionName);
-        inv.setItem(6, potionEffects);
+        potionEffectsNMSItem.setItemName(ComponentConverter.fromBaseComponent(potionName));
+        inv.setItem(6, potionEffectsNMSItem.getBukkitItem());
 
 
         return new InventoryData(inv, invTitle);

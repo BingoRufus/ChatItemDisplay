@@ -35,7 +35,7 @@ public class NMSItemStack {
     protected ItemStack item;
 
 
-    private NMSItemStack(ItemStack bukkitItem) {
+    public NMSItemStack(ItemStack bukkitItem) {
         this.item = bukkitItem;
     }
 
@@ -76,10 +76,10 @@ public class NMSItemStack {
         }
     }
 
-    public void setItemName(NMSChatTag name) {
+    public void setItemName(WrappedChatComponent name) {
         Object nmsItem = MinecraftReflection.getMinecraftItemStack(item);
         try {
-            nmsItem = setName.invoke(nmsItem, name.getNmsTag());
+            nmsItem = setName.invoke(nmsItem, name.getHandle());
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -109,7 +109,7 @@ public class NMSItemStack {
         setTag(tag);
     }
 
-    public void setLore(BaseComponent[] components) {
+    public void setLore(BaseComponent... components) {
         NbtList<?> list = NbtFactory.ofList("Lore");
         //Name: "\"text\"
         // Value: whatever the text says

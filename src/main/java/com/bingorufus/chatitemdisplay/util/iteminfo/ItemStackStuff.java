@@ -1,7 +1,7 @@
 package com.bingorufus.chatitemdisplay.util.iteminfo;
 
 import com.bingorufus.chatitemdisplay.ChatItemDisplay;
-import com.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemStackReflection;
+import com.bingorufus.chatitemdisplay.util.iteminfo.item.NMSItemStack;
 import com.google.gson.JsonObject;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -58,8 +58,8 @@ public class ItemStackStuff {
                 return book;
             }
         }
-
-        TextComponent tr = ItemStackReflection.translateItemStackComponent(item);
+        NMSItemStack itemStack = new NMSItemStack(item);
+        TextComponent tr = new TextComponent(itemStack.getItemName().toBaseComponent());
 
         tr.copyFormatting(legacy, FormatRetention.FORMATTING, false);
 
@@ -108,7 +108,8 @@ public class ItemStackStuff {
     public static String getLangName(ItemStack item) {
         if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) return item.getItemMeta().getDisplayName();
         JsonObject jo = ChatItemDisplay.getInstance().getLang();
-        String translationKey = ItemStackReflection.translateItemStack(item);
+        NMSItemStack itemStack = new NMSItemStack(item);
+        String translationKey = itemStack.getItemName().toString();
         return jo.has(translationKey) ? jo.get(translationKey).getAsString() : itemName(item);
     }
 

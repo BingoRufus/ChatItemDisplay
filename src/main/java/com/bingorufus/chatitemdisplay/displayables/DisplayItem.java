@@ -8,7 +8,6 @@ import com.bingorufus.chatitemdisplay.util.ChatItemConfig;
 import com.bingorufus.chatitemdisplay.util.iteminfo.ItemStackStuff;
 import com.bingorufus.chatitemdisplay.util.iteminfo.item.NMSItemStack;
 import com.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemSerializer;
-import com.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemStackReflection;
 import com.bingorufus.chatitemdisplay.util.string.StringFormatter;
 import com.bingorufus.chatitemdisplay.util.string.VersionComparator;
 import com.google.gson.JsonObject;
@@ -169,7 +168,8 @@ public class DisplayItem extends Displayable {
                 "1.16");
 
         if (s.equals(VersionComparator.Status.BEHIND)) {
-            hover.setHoverEvent(ItemStackReflection.getOldHover(item).getHoverEvent());
+            //TODO: Fix
+            hover.setHoverEvent(new TextComponent(new NMSItemStack(item).getItemName().toBaseComponent()).getHoverEvent());
 
         } else {
 

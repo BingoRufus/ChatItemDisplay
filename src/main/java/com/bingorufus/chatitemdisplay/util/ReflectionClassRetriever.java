@@ -9,8 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 
 public class ReflectionClassRetriever {
-    private static final String VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
     private static final boolean useVersions = VersionComparator.isRecent(ChatItemDisplay.MINECRAFT_VERSION, "1.17") == VersionComparator.Status.BEHIND;
+
+    private static final String VERSION = useVersions ? Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] : "";
+
     private ReflectionClassRetriever() {
     }
 

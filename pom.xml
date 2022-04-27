@@ -117,7 +117,7 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
             <version>1.18-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
 
@@ -125,7 +125,7 @@
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
             <version>4.7.0</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>

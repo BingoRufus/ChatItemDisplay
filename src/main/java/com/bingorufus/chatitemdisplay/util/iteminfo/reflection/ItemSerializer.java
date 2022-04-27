@@ -1,6 +1,10 @@
 package com.bingorufus.chatitemdisplay.util.iteminfo.reflection;
 
 import com.bingorufus.chatitemdisplay.util.ReflectionClassRetriever;
+import com.bingorufus.chatitemdisplay.util.iteminfo.item.NMSItemStack;
+import com.comphenix.protocol.wrappers.nbt.NbtFactory;
+import com.comphenix.protocol.wrappers.nbt.NbtWrapper;
+import com.comphenix.protocol.wrappers.nbt.io.NbtTextSerializer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Material;
@@ -9,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static com.bingorufus.chatitemdisplay.util.iteminfo.reflection.ItemStackReflection.getNBT;
 
 public class ItemSerializer {
 
@@ -52,8 +55,16 @@ public class ItemSerializer {
         JsonObject itemJson = new JsonObject();
         itemJson.addProperty("id", item.getType().getKey().toString());
         itemJson.addProperty("Count", item.getAmount());
-        itemJson.addProperty("tag", getNBT(item));
+        NMSItemStack itemStack = new NMSItemStack(item);
+        itemJson.addProperty("tag", NbtTextSerializer.DEFAULT.serialize(itemStack.getTag()));
         return itemJson.toString();
+    }
+
+    public static void main(String[] args) {
+        ItemStack i = new ItemStack(Material.DIRT);
+
+        NbtWrapper c = NbtFactory.fromItemTag(new ItemStack(Material.DIRT));
+        System.out.println(NbtTextSerializer.DEFAULT.serialize(c));
     }
 
     public static ItemStack deserialize(String json) {
